@@ -1,0 +1,17 @@
+{
+  "unauthorized": "Please sign in again.",
+  "forbidden": "You don't have permission to do that.",
+  "not_found": "We couldn't find that.",
+  "validation": "Check the highlighted fields.",
+  "conflict": "That conflicts with something that already exists.",
+  "rate_limited": "Too many attempts. Try again later.",
+  "locked": "This week is closed and can't be changed.",
+  "billing_required": "Your company's billing needs attention. Open Billing to sort it out.",
+  "unknown": "Something went wrong. Try again.",
+  "notFoundPage": {
+    "title": "Page not found",
+    "body": "The page you're looking for doesn't exist.",
+    "home": "Go home"
+  },
+  "errorPage": { "title": "Something broke", "body": "We've logged it. Try again in a moment." }
+}

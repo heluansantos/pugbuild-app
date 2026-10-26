@@ -1,0 +1,60 @@
+{
+  "appName": "PugBuild",
+  "tagline": "Toca para iniciar. Toca para terminar.",
+  "actions": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "back": "Volver",
+    "next": "Siguiente",
+    "done": "Listo",
+    "confirm": "Confirmar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "add": "Agregar",
+    "search": "Buscar",
+    "retry": "Intentar de nuevo",
+    "continue": "Continuar",
+    "signOut": "Salir",
+    "export": "Exportar CSV",
+    "viewAll": "Ver todo",
+    "approve": "Aprobar",
+    "ignore": "Ignorar"
+  },
+  "states": {
+    "loading": "Cargando…",
+    "saving": "Guardando…",
+    "saved": "Guardado",
+    "empty": "Nada por aquí todavía",
+    "offline": "Estás sin señal. Sincronizamos cuando vuelvas.",
+    "error": "Algo salió mal"
+  },
+  "roles": {
+    "admin": "Admin",
+    "office": "Oficina",
+    "worker": "Trabajador",
+    "super_admin": "Súper admin",
+    "system": "Sistema"
+  },
+  "status": {
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "invited": "Invitado",
+    "suspended": "Suspendida",
+    "closed": "Cerrada",
+    "open": "Abierto"
+  },
+  "paymentMethod": { "cash": "Efectivo", "check": "Cheque", "deposit": "Depósito" },
+  "weekdaysShort": ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"],
+  "weekdays": ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"],
+  "units": {
+    "hours": "horas",
+    "people": "{count, plural, =1 {# persona} other {# personas}}",
+    "min": "min"
+  },
+  "language": "Idioma",
+  "today": "Hoy",
+  "yesterday": "Ayer",
+  "week": "Semana",
+  "hoursShort": "{hours}h{minutes}"
+}

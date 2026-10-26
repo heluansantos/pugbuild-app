@@ -1,0 +1,97 @@
+{
+  "home": {
+    "greeting": "Hola, {name}",
+    "nearYou": "Estás cerca de",
+    "nearestSite": "Obra más cercana",
+    "locating": "Buscando tu ubicación…",
+    "locationDenied": "La ubicación está apagada. Actívala para que la marcación caiga en la obra correcta.",
+    "noSites": "Todavía no hay obras activas.",
+    "start": "Iniciar",
+    "tapToClock": "Toca para marcar",
+    "clockIn": "Entrada",
+    "clockOut": "Salida",
+    "today": "Hoy",
+    "week": "Semana",
+    "working": "Trabajando",
+    "startedAt": "Entrada a las {time}",
+    "timeToday": "Tiempo hoy",
+    "lunchDeducted": "almuerzo de {minutes} min ya descontado",
+    "registeredNear": "Marcación registrada cerca de",
+    "farFromSite": "Marcación lejos de una obra. La oficina lo revisará.",
+    "noLocationPunch": "Marcación registrada sin ubicación.",
+    "photo": "Foto",
+    "comment": "Comentario",
+    "finish": "Terminar",
+    "finishing": "Terminando…",
+    "starting": "Iniciando…"
+  },
+  "sheets": {
+    "commentTitle": "Comentario",
+    "commentDescription": "Algo que la oficina deba saber sobre hoy.",
+    "commentPlaceholder": "ej.: El material llegó tarde",
+    "notifyOffice": "Avisar a la oficina",
+    "photoTitle": "Foto",
+    "photoDescription": "Una foto rápida de dónde estás.",
+    "takePhoto": "Tomar foto",
+    "photosDisabled": "Las fotos todavía no están activadas.",
+    "photoSaved": "Foto guardada",
+    "commentSaved": "Comentario guardado"
+  },
+  "week": {
+    "title": "Mi semana",
+    "totalHours": "Total de horas",
+    "gross": "Pago bruto",
+    "paymentReady": "Pago listo",
+    "paymentPending": "Semana cerrada, pago en camino",
+    "paymentDisputed": "Problema enviado",
+    "paymentConfirmed": "Recibido",
+    "hours": "{hours} horas",
+    "confirmReceived": "Confirmo mis horas y lo recibí",
+    "problem": "Problema con el monto",
+    "problemTitle": "¿Qué está mal?",
+    "problemDescription": "Cuéntale a la oficina qué no cuadra. Te responderán.",
+    "problemPlaceholder": "ej.: Faltan 2 horas del jueves",
+    "send": "Enviar",
+    "previous": "Anteriores",
+    "receivedOn": "Recibido en {method} · {date}",
+    "noPayments": "Todavía no hay pagos.",
+    "openShift": "Turno todavía abierto"
+  },
+  "payments": {
+    "title": "Pagos",
+    "empty": "Nada pagado todavía. Tu primera semana aparece aquí cuando la oficina la cierre.",
+    "status": {
+      "pending": "Pendiente",
+      "ready": "Listo",
+      "confirmed": "Recibido",
+      "disputed": "Problema enviado"
+    }
+  },
+  "sites": {
+    "title": "Obras",
+    "empty": "No hay obras activas.",
+    "away": "a {distance}",
+    "here": "Estás aquí"
+  },
+  "profile": {
+    "title": "Perfil",
+    "company": "Empresa",
+    "role": "Rol",
+    "hourlyRate": "Tarifa por hora",
+    "switchCompany": "Cambiar de empresa",
+    "dashboard": "Abrir panel"
+  },
+  "toasts": {
+    "clockedIn": "Marcación hecha. ¡Buen trabajo!",
+    "clockedOut": "Turno terminado. {hours} hoy.",
+    "queued": "Sin señal. Guardamos tu marcación y la enviamos cuando vuelva la conexión.",
+    "synced": "Marcación sincronizada.",
+    "confirmed": "¡Gracias! Pago confirmado.",
+    "disputed": "Enviado a la oficina."
+  },
+  "impersonating": "Viendo como {company}",
+  "backToAdmin": "Volver al admin",
+  "realtime": {
+    "paymentReady": "Tu pago está listo. Abre Semana para confirmar."
+  }
+}

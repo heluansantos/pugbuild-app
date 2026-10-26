@@ -1,0 +1,122 @@
+import type {
+  ApiErrorCode,
+  MeDto,
+  MembershipSummary,
+  PaymentDto,
+  PunchDto,
+  PunchInput,
+  SiteDto,
+  VerifyResult,
+  WeekDto,
+} from "./api-types";
+
+/**
+ * Where the web app lives. Expo inlines EXPO_PUBLIC_* at build time.
+ * On a phone, localhost is the phone itself: point it at the Mac's LAN IP or the preview deployment.
+ */
+export const API_URL = (process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3002").replace(/\/$/, "");
+
+/** Optional Vercel "Protection Bypass for Automation" secret for protected previews. */
+const BYPASS_SECRET = process.env.EXPO_PUBLIC_VERCEL_BYPASS;
+
+export class ApiError extends Error {
+  constructor(
+    public readonly code: ApiErrorCode,
+    message: string,
+    public readonly status: number,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+  /** The session exists but the person has not accepted the current Terms yet. */
+  get consentRequired() {
+    return this.code === "forbidden" && this.message === "consent_required";
+  }
+}
+
+export function isApiError(e: unknown, code?: ApiErrorCode): e is ApiError {
+  return e instanceof ApiError && (code === undefined || e.code === code);
+}
+
+type Envelope<T> = { ok: true; data: T } | { ok: false; error: { code: ApiErrorCode; message: string } };
+
+const TIMEOUT_MS = 15_000;
+
+async function request<T>(path: string, init: RequestInit & { json?: unknown } = {}): Promise<T> {
+  const { json, headers, ...rest } = init;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}${path}`, {
+      ...rest,
+      credentials: "include",
+      signal: controller.signal,
+      headers: {
+        Accept: "application/json",
+        ...(json !== undefined ? { "Content-Type": "application/json" } : {}),
+        ...(BYPASS_SECRET ? { "x-vercel-protection-bypass": BYPASS_SECRET } : {}),
+        ...headers,
+      },
+      body: json !== undefined ? JSON.stringify(json) : rest.body,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+  let body: Envelope<T> | null = null;
+  try {
+    body = (await res.json()) as Envelope<T>;
+  } catch {
+    body = null;
+  }
+  if (!body) {
+    // Vercel Authentication answers HTML; anything without the JSON envelope is a server problem.
+    throw new ApiError(res.status === 401 ? "unauthorized" : "unknown", `Bad response (${res.status})`, res.status);
+  }
+  if (!body.ok) throw new ApiError(body.error.code ?? "unknown", body.error.message ?? "", res.status);
+  return body.data;
+}
+
+const get = <T>(path: string) => request<T>(path);
+const post = <T>(path: string, json: unknown = {}) => request<T>(path, { method: "POST", json });
+
+export const api = {
+  /** The only endpoint without the envelope. */
+  health: async () => {
+    const res = await fetch(`${API_URL}/api/v1`, { headers: BYPASS_SECRET ? { "x-vercel-protection-bypass": BYPASS_SECRET } : {} });
+    return (await res.json()) as { name: string; version: string };
+  },
+  auth: {
+    requestCode: (phone: string, locale: string) => post<{ ok: true }>("/api/v1/auth/otp/request", { phone, locale }),
+    verify: (phone: string, code: string) => post<VerifyResult>("/api/v1/auth/otp/verify", { phone, code }),
+    logout: () => post<{ ok: true }>("/api/v1/auth/logout"),
+    memberships: () => get<{ memberships: MembershipSummary[] }>("/api/v1/memberships"),
+    selectCompany: (membershipId: string) => post<{ ok: true; role: string }>("/api/v1/select-company", { membershipId }),
+    consent: (locale: string) => post<{ ok: true }>("/api/v1/consent", { sms: true, location: true, locale }),
+  },
+  me: () => get<MeDto>("/api/v1/me"),
+  punches: {
+    open: () => get<PunchDto | null>("/api/v1/punches/open"),
+    clockIn: (input: PunchInput) => post<PunchDto>("/api/v1/punches/clock-in", input),
+    clockOut: (input: PunchInput) => post<PunchDto>("/api/v1/punches/clock-out", input),
+    annotate: (input: { comment?: string; notifyOffice?: boolean }) => post<{ ok: true }>("/api/v1/punches/annotate", input),
+    today: () => get<{ dayKey: string; punches: PunchDto[] }>("/api/v1/punches/today"),
+  },
+  week: (weekKey?: string) => get<WeekDto>(`/api/v1/week${weekKey ? `?week=${weekKey}` : ""}`),
+  payments: {
+    list: () => get<{ payments: PaymentDto[] }>("/api/v1/payments"),
+    confirm: (id: string) => post<{ ok: true }>(`/api/v1/payments/${id}/confirm`),
+    dispute: (id: string, note: string) => post<{ ok: true }>(`/api/v1/payments/${id}/dispute`, { note }),
+  },
+  sites: () => get<{ sites: SiteDto[] }>("/api/v1/sites"),
+};
+
+/** React Query keys, in one place so invalidation stays consistent. */
+export const keys = {
+  me: ["me"] as const,
+  openPunch: ["punches", "open"] as const,
+  week: (weekKey?: string) => ["week", weekKey ?? "current"] as const,
+  payments: ["payments"] as const,
+  sites: ["sites"] as const,
+  memberships: ["memberships"] as const,
+};

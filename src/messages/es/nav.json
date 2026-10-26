@@ -1,0 +1,26 @@
+{
+  "worker": {
+    "clock": "Marcar",
+    "week": "Semana",
+    "payments": "Pagos",
+    "sites": "Obras",
+    "profile": "Perfil"
+  },
+  "dashboard": {
+    "billing": "Facturación",
+    "today": "Hoy",
+    "team": "Equipo",
+    "sites": "Obras",
+    "map": "Mapa",
+    "closing": "Cierre",
+    "settings": "Configuración",
+    "myClock": "Mi marcación"
+  },
+  "admin": {
+    "companies": "Empresas",
+    "demoRequests": "Solicitudes de demo",
+    "backToAdmin": "Volver al súper admin",
+    "impersonating": "Viendo como {company}"
+  },
+  "menu": "Menú"
+}

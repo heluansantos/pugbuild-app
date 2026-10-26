@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "PugBuild",
+    "slug": "pugbuild",
+    "version": "0.1.0",
+    "scheme": "pugbuild",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#F4F3EF",
+    "ios": {
+      "bundleIdentifier": "com.pugbuild.app",
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "PugBuild uses your location only when you tap Start or Stop, to match your clock-in to the job site.",
+        "CFBundleAllowMixedLocalizations": true,
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.pugbuild.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#F4F3EF",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
+      "predictiveBackGestureEnabled": false
+    },
+    "web": { "favicon": "./assets/favicon.png" },
+    "locales": {
+      "en": "./assets/locales/en.json",
+      "pt": "./assets/locales/pt.json",
+      "es": "./assets/locales/es.json"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-secure-store",
+      "expo-localization",
+      [
+        "expo-splash-screen",
+        { "image": "./assets/splash-icon.png", "imageWidth": 180, "resizeMode": "contain", "backgroundColor": "#F4F3EF" }
+      ],
+      [
+        "expo-location",
+        { "locationWhenInUsePermission": "PugBuild uses your location only when you tap Start or Stop, to match your clock-in to the job site." }
+      ]
+    ],
+    "experiments": { "typedRoutes": true }
+  }
+}

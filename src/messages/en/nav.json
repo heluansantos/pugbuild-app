@@ -1,0 +1,26 @@
+{
+  "worker": {
+    "clock": "Clock",
+    "week": "Week",
+    "payments": "Pay",
+    "sites": "Sites",
+    "profile": "Profile"
+  },
+  "dashboard": {
+    "billing": "Billing",
+    "today": "Today",
+    "team": "Team",
+    "sites": "Sites",
+    "map": "Map",
+    "closing": "Closing",
+    "settings": "Settings",
+    "myClock": "My clock"
+  },
+  "admin": {
+    "companies": "Companies",
+    "demoRequests": "Demo requests",
+    "backToAdmin": "Back to super admin",
+    "impersonating": "Viewing as {company}"
+  },
+  "menu": "Menu"
+}

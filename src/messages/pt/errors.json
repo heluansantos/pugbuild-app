@@ -1,0 +1,17 @@
+{
+  "unauthorized": "Entre de novo, por favor.",
+  "forbidden": "Você não tem permissão para isso.",
+  "not_found": "Não encontramos isso.",
+  "validation": "Confira os campos destacados.",
+  "conflict": "Isso conflita com algo que já existe.",
+  "rate_limited": "Muitas tentativas. Tente mais tarde.",
+  "locked": "Esta semana já foi fechada e não pode mudar.",
+  "billing_required": "O faturamento da empresa precisa de atenção. Abra Faturamento para regularizar.",
+  "unknown": "Algo deu errado. Tente de novo.",
+  "notFoundPage": {
+    "title": "Página não encontrada",
+    "body": "A página que você procura não existe.",
+    "home": "Ir para o início"
+  },
+  "errorPage": { "title": "Algo quebrou", "body": "Já registramos. Tente de novo em instantes." }
+}

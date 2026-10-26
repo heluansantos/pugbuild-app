@@ -1,0 +1,60 @@
+{
+  "appName": "PugBuild",
+  "tagline": "Tap to start. Tap to stop.",
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "done": "Done",
+    "confirm": "Confirm",
+    "edit": "Edit",
+    "delete": "Delete",
+    "add": "Add",
+    "search": "Search",
+    "retry": "Try again",
+    "continue": "Continue",
+    "signOut": "Sign out",
+    "export": "Export CSV",
+    "viewAll": "View all",
+    "approve": "Approve",
+    "ignore": "Ignore"
+  },
+  "states": {
+    "loading": "Loading…",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "empty": "Nothing here yet",
+    "offline": "You're offline. We'll sync when you're back.",
+    "error": "Something went wrong"
+  },
+  "roles": {
+    "admin": "Admin",
+    "office": "Office",
+    "worker": "Worker",
+    "super_admin": "Super admin",
+    "system": "System"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "invited": "Invited",
+    "suspended": "Suspended",
+    "closed": "Closed",
+    "open": "Open"
+  },
+  "paymentMethod": { "cash": "Cash", "check": "Check", "deposit": "Deposit" },
+  "weekdaysShort": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  "weekdays": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+  "units": {
+    "hours": "hours",
+    "people": "{count, plural, =1 {# person} other {# people}}",
+    "min": "min"
+  },
+  "language": "Language",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "week": "Week",
+  "hoursShort": "{hours}h{minutes}"
+}

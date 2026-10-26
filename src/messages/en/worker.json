@@ -1,0 +1,97 @@
+{
+  "home": {
+    "greeting": "Hi, {name}",
+    "nearYou": "You're near",
+    "nearestSite": "Nearest site",
+    "locating": "Finding your location…",
+    "locationDenied": "Location is off. Enable it to be matched to a job site.",
+    "noSites": "No active job sites yet.",
+    "start": "Start",
+    "tapToClock": "Tap to clock in",
+    "clockIn": "Clock in",
+    "clockOut": "Clock out",
+    "today": "Today",
+    "week": "Week",
+    "working": "Working",
+    "startedAt": "Started at {time}",
+    "timeToday": "Time today",
+    "lunchDeducted": "{minutes} min lunch already deducted",
+    "registeredNear": "Clocked in near",
+    "farFromSite": "Clocked in away from a job site. The office will review it.",
+    "noLocationPunch": "Clocked in without location.",
+    "photo": "Photo",
+    "comment": "Comment",
+    "finish": "Stop",
+    "finishing": "Stopping…",
+    "starting": "Starting…"
+  },
+  "sheets": {
+    "commentTitle": "Comment",
+    "commentDescription": "Anything the office should know about today.",
+    "commentPlaceholder": "e.g. Material arrived late",
+    "notifyOffice": "Notify the office",
+    "photoTitle": "Photo",
+    "photoDescription": "A quick photo of where you are.",
+    "takePhoto": "Take photo",
+    "photosDisabled": "Photos are not enabled yet.",
+    "photoSaved": "Photo saved",
+    "commentSaved": "Comment saved"
+  },
+  "week": {
+    "title": "My week",
+    "totalHours": "Total hours",
+    "gross": "Gross pay",
+    "paymentReady": "Payment ready",
+    "paymentPending": "Week closed, payment coming",
+    "paymentDisputed": "Problem reported",
+    "paymentConfirmed": "Received",
+    "hours": "{hours} hours",
+    "confirmReceived": "I confirm my hours and received it",
+    "problem": "Problem with the amount",
+    "problemTitle": "What's wrong?",
+    "problemDescription": "Tell the office what doesn't match. They'll get back to you.",
+    "problemPlaceholder": "e.g. Thursday is missing 2 hours",
+    "send": "Send",
+    "previous": "Previous",
+    "receivedOn": "Received by {method} · {date}",
+    "noPayments": "No payments yet.",
+    "openShift": "Shift still open"
+  },
+  "payments": {
+    "title": "Payments",
+    "empty": "Nothing paid yet. Your first week shows up here after the office closes it.",
+    "status": {
+      "pending": "Pending",
+      "ready": "Ready",
+      "confirmed": "Received",
+      "disputed": "Problem reported"
+    }
+  },
+  "sites": {
+    "title": "Job sites",
+    "empty": "No active job sites.",
+    "away": "{distance} away",
+    "here": "You're here"
+  },
+  "profile": {
+    "title": "Profile",
+    "company": "Company",
+    "role": "Role",
+    "hourlyRate": "Hourly rate",
+    "switchCompany": "Switch company",
+    "dashboard": "Open dashboard"
+  },
+  "toasts": {
+    "clockedIn": "Clocked in. Have a good day!",
+    "clockedOut": "Clocked out. {hours} today.",
+    "queued": "No signal. We saved your punch and will send it when you're back online.",
+    "synced": "Punch synced.",
+    "confirmed": "Thanks! Payment confirmed.",
+    "disputed": "Sent to the office."
+  },
+  "impersonating": "Viewing as {company}",
+  "backToAdmin": "Back to admin",
+  "realtime": {
+    "paymentReady": "Your pay is ready. Open Week to confirm."
+  }
+}

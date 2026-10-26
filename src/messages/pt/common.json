@@ -1,0 +1,60 @@
+{
+  "appName": "PugBuild",
+  "tagline": "Toque para iniciar. Toque para encerrar.",
+  "actions": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "close": "Fechar",
+    "back": "Voltar",
+    "next": "Avançar",
+    "done": "Pronto",
+    "confirm": "Confirmar",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "add": "Adicionar",
+    "search": "Buscar",
+    "retry": "Tentar de novo",
+    "continue": "Continuar",
+    "signOut": "Sair",
+    "export": "Exportar CSV",
+    "viewAll": "Ver tudo",
+    "approve": "Aprovar",
+    "ignore": "Ignorar"
+  },
+  "states": {
+    "loading": "Carregando…",
+    "saving": "Salvando…",
+    "saved": "Salvo",
+    "empty": "Nada por aqui ainda",
+    "offline": "Você está sem sinal. Vamos sincronizar quando voltar.",
+    "error": "Algo deu errado"
+  },
+  "roles": {
+    "admin": "Admin",
+    "office": "Escritório",
+    "worker": "Trabalhador",
+    "super_admin": "Super-admin",
+    "system": "Sistema"
+  },
+  "status": {
+    "active": "Ativo",
+    "inactive": "Desligado",
+    "invited": "Convidado",
+    "suspended": "Suspensa",
+    "closed": "Encerrada",
+    "open": "Aberto"
+  },
+  "paymentMethod": { "cash": "Dinheiro", "check": "Cheque", "deposit": "Depósito" },
+  "weekdaysShort": ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
+  "weekdays": ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"],
+  "units": {
+    "hours": "horas",
+    "people": "{count, plural, =1 {# pessoa} other {# pessoas}}",
+    "min": "min"
+  },
+  "language": "Idioma",
+  "today": "Hoje",
+  "yesterday": "Ontem",
+  "week": "Semana",
+  "hoursShort": "{hours}h{minutes}"
+}
