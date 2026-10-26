@@ -11,6 +11,8 @@ export interface GeoPoint {
   lat: number;
   lng: number;
   accuracy?: number;
+  /** The OS reported a simulated position (Android mock providers; iOS exposes no such flag). */
+  mocked?: boolean;
 }
 
 export interface LunchRule {

@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { CreditCard } from "lucide-react-native";
-import { ActivityIndicator, RefreshControl, StyleSheet, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import { Card } from "../../components/ui/card";
 import { Chip, type ChipTone } from "../../components/ui/chip";
 import { EmptyState } from "../../components/ui/empty-state";
 import { Screen, Title } from "../../components/ui/screen";
 import { Txt } from "../../components/ui/text";
-import { useMe } from "../../features/session/session";
+import { useLocale } from "../../features/session/session";
 import { api, keys } from "../../lib/api";
 import { formatMinutes, formatMoney, formatWeekRange } from "../../lib/format";
 import { t } from "../../lib/i18n";
@@ -16,12 +16,11 @@ import { colors } from "../../theme/tokens";
 const tones: Record<string, ChipTone> = { pending: "neutral", ready: "accent", confirmed: "ok", disputed: "warn" };
 
 export default function PaymentsScreen() {
-  const me = useMe();
-  const locale = me.person.locale;
+  const locale = useLocale();
   const payments = useQuery({ queryKey: keys.payments, queryFn: api.payments.list });
   const list = payments.data?.payments ?? [];
   return (
-    <Screen tabs refreshControl={<RefreshControl refreshing={payments.isFetching && !payments.isPending} onRefresh={() => void payments.refetch()} tintColor={colors.ink} />}>
+    <Screen tabs>
       <Title>{t("worker.payments.title")}</Title>
       {payments.isPending && <ActivityIndicator color={colors.ink} />}
       {payments.isSuccess && list.length === 0 && (

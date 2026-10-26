@@ -71,7 +71,12 @@
     "title": "Obras",
     "empty": "No hay obras activas.",
     "away": "a {distance}",
-    "here": "Estás aquí"
+    "here": "Estás aquí",
+    "openInMaps": "Ruta",
+    "chooseMaps": "Abrir ruta en",
+    "appleMaps": "Apple Maps",
+    "googleMaps": "Google Maps",
+    "waze": "Waze"
   },
   "profile": {
     "title": "Perfil",

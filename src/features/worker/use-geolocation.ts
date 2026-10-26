@@ -34,6 +34,7 @@ export function useGeolocation(enabled = true): GeoState {
                 lat: pos.coords.latitude,
                 lng: pos.coords.longitude,
                 accuracy: Math.round(pos.coords.accuracy ?? 0),
+                ...(pos.mocked ? { mocked: true } : {}),
               },
             });
           },

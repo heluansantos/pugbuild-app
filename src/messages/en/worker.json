@@ -71,7 +71,12 @@
     "title": "Job sites",
     "empty": "No active job sites.",
     "away": "{distance} away",
-    "here": "You're here"
+    "here": "You're here",
+    "openInMaps": "Directions",
+    "chooseMaps": "Open directions in",
+    "appleMaps": "Apple Maps",
+    "googleMaps": "Google Maps",
+    "waze": "Waze"
   },
   "profile": {
     "title": "Profile",

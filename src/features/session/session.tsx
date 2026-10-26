@@ -117,3 +117,8 @@ export function useMe(): MeDto {
   if (!me) throw new Error("useMe before the session is ready");
   return me;
 }
+
+/** The app language the person picked (falls back to the device language), for dates and money. */
+export function useLocale(): Locale {
+  return useSession().locale;
+}

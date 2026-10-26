@@ -11,7 +11,7 @@ import { nearestSite } from "../../lib/geo";
 import { t } from "../../lib/i18n";
 import { isNetworkError, newClientId } from "../../lib/offline-queue";
 import { colors, shadow } from "../../theme/tokens";
-import { useMe } from "../session/session";
+import { useLocale, useMe } from "../session/session";
 import { NearbyCard } from "./nearby-card";
 import { errorText } from "./payment-card";
 import { useGeolocation } from "./use-geolocation";
@@ -23,6 +23,7 @@ export function HomeView({ sites, queued }: { sites: SiteDto[]; queued: boolean 
   const me = useMe();
   const qc = useQueryClient();
   const toast = useToast();
+  const locale = useLocale();
   const geo = useGeolocation();
   const nearest = geo.position ? nearestSite(geo.position, sites, me.company.settings.siteRadiusMeters) : null;
   const scale = useSharedValue(1);
@@ -55,7 +56,7 @@ export function HomeView({ sites, queued }: { sites: SiteDto[]; queued: boolean 
 
   return (
     <Animated.View entering={FadeIn.duration(260)} style={styles.root}>
-      <NearbyCard status={geo.status} nearest={nearest} hasSites={sites.length > 0} locale={me.person.locale} />
+      <NearbyCard status={geo.status} nearest={nearest} hasSites={sites.length > 0} locale={locale} />
       <View style={styles.center}>
         <View style={styles.ring}>
           <AnimatedPressable

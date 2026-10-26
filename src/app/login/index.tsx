@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, View } from "react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
-import { Logo } from "../../components/brand/logo";
+import { PugMark } from "../../components/brand/logo";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/field";
 import { Screen } from "../../components/ui/screen";
@@ -48,17 +48,15 @@ export default function LoginScreen() {
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
       <Screen style={{ justifyContent: "center" }}>
         <Animated.View entering={FadeInUp.duration(360)} style={styles.stack}>
-          <Pressable onLongPress={() => setServerOpen(true)} delayLongPress={900} accessibilityLabel="PugBuild">
-            <Logo size={64} />
+          <Pressable onLongPress={() => setServerOpen(true)} delayLongPress={900} accessibilityLabel="PugBuild" style={styles.brand}>
+            <PugMark size={192} />
+            <Txt size={34} weight="semibold" tracking={-0.8}>
+              PugBuild
+            </Txt>
           </Pressable>
-          <View style={{ gap: 6 }}>
-            <Txt size={30} weight="semibold" tracking={-0.6}>
-              {t("auth.login.title")}
-            </Txt>
-            <Txt size={15} tone="muted">
-              {t("auth.login.subtitle")}
-            </Txt>
-          </View>
+          <Txt size={15} tone="muted" center>
+            {t("auth.login.subtitle")}
+          </Txt>
           <View style={{ gap: 8 }}>
             <Txt size={13} tone="muted">
               {t("auth.login.phone")}
@@ -98,4 +96,4 @@ export default function LoginScreen() {
   );
 }
 
-const styles = StyleSheet.create({ stack: { gap: 22 } });
+const styles = StyleSheet.create({ stack: { gap: 22 }, brand: { alignItems: "center", gap: 4, marginBottom: 4 } });

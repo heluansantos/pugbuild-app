@@ -13,7 +13,7 @@ import { Screen, Title } from "../../components/ui/screen";
 import { Txt } from "../../components/ui/text";
 import { useToast } from "../../components/ui/toast";
 import { LanguagePills } from "../../features/session/language-pills";
-import { useMe, useSession } from "../../features/session/session";
+import { useMe, useSession, useLocale } from "../../features/session/session";
 import { errorText } from "../../features/worker/payment-card";
 import { api, getApiUrl, keys } from "../../lib/api";
 import { formatMoney, formatPhone } from "../../lib/format";
@@ -28,7 +28,7 @@ export default function ProfileScreen() {
   const router = useRouter();
   const toast = useToast();
   const memberships = useQuery({ queryKey: keys.memberships, queryFn: api.auth.memberships });
-  const locale = me.person.locale;
+  const locale = useLocale();
   const version = Constants.expoConfig?.version ?? "0.0.0";
   const rows: [string, string][] = [
     [t("worker.profile.company"), me.company.name],

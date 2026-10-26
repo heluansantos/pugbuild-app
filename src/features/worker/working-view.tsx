@@ -19,7 +19,7 @@ import { t } from "../../lib/i18n";
 import { isNetworkError, newClientId } from "../../lib/offline-queue";
 import { computeElapsed } from "../../lib/time";
 import { colors, radii } from "../../theme/tokens";
-import { useMe } from "../session/session";
+import { useMe, useLocale } from "../session/session";
 import { errorText } from "./payment-card";
 import { useGeolocation } from "./use-geolocation";
 import { offlineQueue } from "./use-offline-sync";
@@ -32,7 +32,7 @@ export function WorkingView({ punch, sites, weekMinutesBefore }: { punch: PunchD
   const toast = useToast();
   const geo = useGeolocation();
   const { settings } = me.company;
-  const locale = me.person.locale;
+  const locale = useLocale();
   const clockInAt = new Date(punch.clockIn.at);
   const [now, setNow] = useState(() => new Date());
   const [sheet, setSheet] = useState(false);

@@ -2,12 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { Redirect, type Href } from "expo-router";
 import { Bell } from "lucide-react-native";
 import { useMemo } from "react";
-import { ActivityIndicator, RefreshControl, StyleSheet, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { Logo } from "../../components/brand/logo";
 import { Screen } from "../../components/ui/screen";
 import { Txt } from "../../components/ui/text";
 import { WeekStrip } from "../../components/ui/week-strip";
-import { useMe } from "../../features/session/session";
+import { useMe, useLocale } from "../../features/session/session";
 import { HomeView } from "../../features/worker/home-view";
 import { useOfflineSync } from "../../features/worker/use-offline-sync";
 import { Stat, WorkingView } from "../../features/worker/working-view";
@@ -26,10 +26,10 @@ export default function ClockScreen() {
 function WorkerClock() {
   const me = useMe();
   const { pending } = useOfflineSync();
-  const open = useQuery({ queryKey: keys.openPunch, queryFn: api.punches.open, refetchInterval: 60_000 });
+  const open = useQuery({ queryKey: keys.openPunch, queryFn: api.punches.open, refetchInterval: 5 * 60_000 });
   const week = useQuery({ queryKey: keys.week(), queryFn: () => api.week() });
   const sites = useQuery({ queryKey: keys.sites, queryFn: api.sites, staleTime: 5 * 60_000 });
-  const locale = me.person.locale;
+  const locale = useLocale();
   const { settings } = me.company;
 
   const strip = useMemo(() => {
@@ -37,13 +37,6 @@ function WorkerClock() {
     const worked = new Set(week.data.punches.map((p) => p.dayKey));
     return buildWeekStrip(week.data.week.dayKeys, worked, week.data.todayKey, settings.workDays, locale);
   }, [week.data, settings.workDays, locale]);
-
-  const refreshing = open.isFetching && !open.isPending;
-  const refetchAll = () => {
-    open.refetch();
-    week.refetch();
-    sites.refetch();
-  };
 
   const punch = open.data ?? null;
   const todayClosed = week.data?.punches.filter((p) => p.dayKey === week.data?.todayKey && p.status === "closed") ?? [];
@@ -53,7 +46,7 @@ function WorkerClock() {
   const weekMinutesBefore = (week.data?.totalMinutes ?? 0) - (punch ? (week.data?.minutesByDay[punch.dayKey] ?? 0) : 0) + (punch ? todayMinutes : 0);
 
   return (
-    <Screen tabs refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refetchAll} tintColor={colors.ink} />}>
+    <Screen tabs>
       <View style={styles.header}>
         <Logo size={44} />
         <View style={styles.bell} accessibilityLabel="Notifications">

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
 import { Logo } from "../../components/brand/logo";
 import { Card } from "../../components/ui/card";
 import { Chip } from "../../components/ui/chip";
@@ -8,7 +8,7 @@ import { Screen } from "../../components/ui/screen";
 import { Txt } from "../../components/ui/text";
 import { ReviewCard } from "../../features/office/review-card";
 import { TeamRow } from "../../features/office/team-row";
-import { useMe } from "../../features/session/session";
+import { useMe, useLocale } from "../../features/session/session";
 import { api, keys } from "../../lib/api";
 import { firstName, formatMinutes, formatMoney, formatShortDate, keyToDate } from "../../lib/format";
 import { t } from "../../lib/i18n";
@@ -19,9 +19,9 @@ const COLLAPSED = 3;
 /** Office and admin home: the web dashboard's "Today", sized for a phone. */
 export default function OfficeTodayScreen() {
   const me = useMe();
-  const locale = me.person.locale;
+  const locale = useLocale();
   const { timezone } = me.company.settings;
-  const today = useQuery({ queryKey: keys.officeToday, queryFn: api.office.today, refetchInterval: 30_000 });
+  const today = useQuery({ queryKey: keys.officeToday, queryFn: api.office.today, refetchInterval: 5 * 60_000 });
   const [expanded, setExpanded] = useState(false);
   const data = today.data;
   const review = data?.review ?? [];
@@ -29,7 +29,7 @@ export default function OfficeTodayScreen() {
   const team = [...(data?.team ?? [])].sort((a, b) => Number(b.status === "working") - Number(a.status === "working") || b.minutes - a.minutes);
 
   return (
-    <Screen tabs refreshControl={<RefreshControl refreshing={today.isFetching && !today.isPending} onRefresh={() => void today.refetch()} tintColor={colors.ink} />}>
+    <Screen tabs>
       <View style={styles.header}>
         <Logo size={44} />
         <Chip tone="dark" size="sm">

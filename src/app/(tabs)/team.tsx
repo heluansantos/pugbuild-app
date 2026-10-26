@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { ActivityIndicator, RefreshControl, StyleSheet, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { Avatar } from "../../components/ui/avatar";
 import { Card } from "../../components/ui/card";
 import { Chip } from "../../components/ui/chip";
 import { Screen, Title } from "../../components/ui/screen";
 import { Txt } from "../../components/ui/text";
-import { useMe } from "../../features/session/session";
+import { useLocale } from "../../features/session/session";
 import { api, keys } from "../../lib/api";
 import { formatMoney, formatPhone } from "../../lib/format";
 import { t } from "../../lib/i18n";
@@ -13,13 +13,12 @@ import { colors } from "../../theme/tokens";
 
 /** Office and admin: the active team with role, phone and rate. */
 export default function TeamScreen() {
-  const me = useMe();
-  const locale = me.person.locale;
+  const locale = useLocale();
   const team = useQuery({ queryKey: keys.officeTeam, queryFn: api.office.team });
   const members = [...(team.data?.members ?? [])].sort((a, b) => a.name.localeCompare(b.name));
 
   return (
-    <Screen tabs refreshControl={<RefreshControl refreshing={team.isFetching && !team.isPending} onRefresh={() => void team.refetch()} tintColor={colors.ink} />}>
+    <Screen tabs>
       <View style={{ gap: 4 }}>
         <Title>{t("office.team.title")}</Title>
         {team.data && (

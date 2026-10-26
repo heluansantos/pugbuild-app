@@ -1,13 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
-import { MapPin } from "lucide-react-native";
-import { ActivityIndicator, Image, RefreshControl, StyleSheet, View } from "react-native";
+import { MapPin, Navigation } from "lucide-react-native";
+import { ActivityIndicator, Image, Pressable, StyleSheet, View } from "react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import { Card } from "../../components/ui/card";
 import { Chip } from "../../components/ui/chip";
 import { EmptyState } from "../../components/ui/empty-state";
 import { Screen, Title } from "../../components/ui/screen";
 import { Txt } from "../../components/ui/text";
-import { useMe } from "../../features/session/session";
+import { useMe, useLocale } from "../../features/session/session";
+import { openSiteInMaps } from "../../features/worker/open-in-maps";
 import { useGeolocation } from "../../features/worker/use-geolocation";
 import { api, keys } from "../../lib/api";
 import { formatDistance } from "../../lib/format";
@@ -17,7 +18,7 @@ import { colors, radii } from "../../theme/tokens";
 
 export default function SitesScreen() {
   const me = useMe();
-  const locale = me.person.locale;
+  const locale = useLocale();
   const sites = useQuery({ queryKey: keys.sites, queryFn: api.sites });
   const list = sites.data?.sites ?? [];
   const geo = useGeolocation(list.length > 0);
@@ -26,7 +27,7 @@ export default function SitesScreen() {
     .sort((a, b) => (a.d ?? Infinity) - (b.d ?? Infinity));
 
   return (
-    <Screen tabs refreshControl={<RefreshControl refreshing={sites.isFetching && !sites.isPending} onRefresh={() => void sites.refetch()} tintColor={colors.ink} />}>
+    <Screen tabs>
       <Title>{t("worker.sites.title")}</Title>
       {sites.isPending && <ActivityIndicator color={colors.ink} />}
       {sites.isSuccess && list.length === 0 && <EmptyState icon={<MapPin size={20} color={colors.ink} />} title={t("common.states.empty")} body={t("worker.sites.empty")} />}
@@ -50,7 +51,13 @@ export default function SitesScreen() {
                   {site.description || site.address}
                 </Txt>
               </View>
-              {d !== null && <Chip tone={here ? "ok" : "neutral"} size="sm">{here ? t("worker.sites.here") : t("worker.sites.away", { distance: formatDistance(d, locale) })}</Chip>}
+              <View style={styles.trail}>
+                {d !== null && <Chip tone={here ? "ok" : "neutral"} size="sm">{here ? t("worker.sites.here") : t("worker.sites.away", { distance: formatDistance(d, locale) })}</Chip>}
+                {/* Only sites the office confirmed are listed here, so directions always point at a real address. */}
+                <Pressable onPress={() => void openSiteInMaps(site)} style={styles.navBtn} accessibilityRole="button" accessibilityLabel={t("worker.sites.openInMaps")} hitSlop={6}>
+                  <Navigation size={18} color={colors.ink} />
+                </Pressable>
+              </View>
             </Card>
           </Animated.View>
         );
@@ -64,4 +71,6 @@ const styles = StyleSheet.create({
   photo: { width: 48, height: 48, borderRadius: radii.icon, backgroundColor: colors.bg },
   hereRing: { borderWidth: 2, borderColor: colors.ok },
   icon: { width: 48, height: 48, borderRadius: radii.icon, backgroundColor: colors.bg, alignItems: "center", justifyContent: "center" },
+  trail: { alignItems: "flex-end", gap: 8 },
+  navBtn: { width: 40, height: 40, borderRadius: radii.pill, backgroundColor: colors.accent, alignItems: "center", justifyContent: "center" },
 });

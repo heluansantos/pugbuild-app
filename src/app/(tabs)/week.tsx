@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight } from "lucide-react-native";
 import { useMemo, useState } from "react";
-import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
 import { Card } from "../../components/ui/card";
 import { Screen, Title } from "../../components/ui/screen";
 import { Txt } from "../../components/ui/text";
-import { useMe } from "../../features/session/session";
+import { useLocale } from "../../features/session/session";
 import { DayBars } from "../../features/worker/day-bars";
 import { PaymentCard } from "../../features/worker/payment-card";
 import { api, keys } from "../../lib/api";
@@ -22,8 +22,7 @@ function shiftKey(key: string, days: number): string {
 }
 
 export default function WeekScreen() {
-  const me = useMe();
-  const locale = me.person.locale;
+  const locale = useLocale();
   const [weekKey, setWeekKey] = useState<string | undefined>(undefined);
   const week = useQuery({ queryKey: keys.week(weekKey), queryFn: () => api.week(weekKey) });
   const payments = useQuery({ queryKey: keys.payments, queryFn: api.payments.list });
@@ -40,7 +39,7 @@ export default function WeekScreen() {
   const hasOpen = data?.punches.some((p) => p.status === "open");
 
   return (
-    <Screen tabs refreshControl={<RefreshControl refreshing={week.isFetching && !week.isPending} onRefresh={() => void week.refetch()} tintColor={colors.ink} />}>
+    <Screen tabs>
       <View style={styles.header}>
         <Title>{t("worker.week.title")}</Title>
         {data && (

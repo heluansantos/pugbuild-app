@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight } from "lucide-react-native";
 import { useState } from "react";
-import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
 import { Avatar } from "../../components/ui/avatar";
 import { Card } from "../../components/ui/card";
 import { Chip } from "../../components/ui/chip";
 import { Screen, Title } from "../../components/ui/screen";
 import { Txt } from "../../components/ui/text";
-import { useMe } from "../../features/session/session";
+import { useLocale } from "../../features/session/session";
 import { api, keys } from "../../lib/api";
 import { formatMinutes, formatMoney, formatWeekRange, keyToDate } from "../../lib/format";
 import { t } from "../../lib/i18n";
@@ -21,8 +21,7 @@ function shiftKey(key: string, days: number): string {
 
 /** Office and admin: the pay week per person, as on the web closing page (read-only on the phone). */
 export default function OfficeWeekScreen() {
-  const me = useMe();
-  const locale = me.person.locale;
+  const locale = useLocale();
   const [weekKey, setWeekKey] = useState<string | undefined>(undefined);
   const week = useQuery({ queryKey: keys.officeWeek(weekKey), queryFn: () => api.office.week(weekKey) });
   const data = week.data;
@@ -31,7 +30,7 @@ export default function OfficeWeekScreen() {
   const lines = [...(data?.lines ?? [])].sort((a, b) => b.minutes - a.minutes);
 
   return (
-    <Screen tabs refreshControl={<RefreshControl refreshing={week.isFetching && !week.isPending} onRefresh={() => void week.refetch()} tintColor={colors.ink} />}>
+    <Screen tabs>
       <View style={styles.header}>
         <Title>{t("office.week.title")}</Title>
         {data && (

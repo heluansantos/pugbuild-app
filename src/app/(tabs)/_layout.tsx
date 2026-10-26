@@ -1,6 +1,7 @@
 import { Tabs } from "expo-router";
 import { CalendarDays, Clock, CreditCard, HardHat, MapPin, User, Users } from "lucide-react-native";
 import { PillTabBar, type TabSpec } from "../../components/ui/pill-tab-bar";
+import { RealtimeSync } from "../../features/session/realtime";
 import { useSession } from "../../features/session/session";
 import { t } from "../../lib/i18n";
 import { colors } from "../../theme/tokens";
@@ -34,6 +35,8 @@ export default function TabsLayout() {
   const staff = me.member.role !== "worker";
   const tabs = staff ? STAFF_TABS() : WORKER_TABS();
   return (
+    <>
+    <RealtimeSync />
     <Tabs
       backBehavior="initialRoute"
       tabBar={(props) => <PillTabBar {...props} tabs={tabs} />}
@@ -47,5 +50,6 @@ export default function TabsLayout() {
         <Tabs.Screen key={name} name={name} options={{ href: null }} />
       ))}
     </Tabs>
+    </>
   );
 }
