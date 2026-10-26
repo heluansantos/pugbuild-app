@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
+import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, View } from "react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import { Logo } from "../../components/brand/logo";
 import { Button } from "../../components/ui/button";
@@ -15,6 +15,7 @@ import { api, isApiError } from "../../lib/api";
 import { normalizePhone } from "../../lib/format";
 import { t } from "../../lib/i18n";
 import { LanguagePills } from "../../features/session/language-pills";
+import { ServerSheet } from "../../features/session/server-sheet";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -22,6 +23,7 @@ export default function LoginScreen() {
   const { locale, setPendingPhone } = useSession();
   const [raw, setRaw] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [serverOpen, setServerOpen] = useState(false);
 
   const send = useMutation({
     mutationFn: async () => {
@@ -46,7 +48,9 @@ export default function LoginScreen() {
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
       <Screen style={{ justifyContent: "center" }}>
         <Animated.View entering={FadeInUp.duration(360)} style={styles.stack}>
-          <Logo size={64} />
+          <Pressable onLongPress={() => setServerOpen(true)} delayLongPress={900} accessibilityLabel="PugBuild">
+            <Logo size={64} />
+          </Pressable>
           <View style={{ gap: 6 }}>
             <Txt size={30} weight="semibold" tracking={-0.6}>
               {t("auth.login.title")}
@@ -88,6 +92,7 @@ export default function LoginScreen() {
           </Txt>
           <LanguagePills />
         </Animated.View>
+        <ServerSheet open={serverOpen} onClose={() => setServerOpen(false)} />
       </Screen>
     </KeyboardAvoidingView>
   );

@@ -15,7 +15,8 @@
         "NSLocationWhenInUseUsageDescription": "PugBuild uses your location only when you tap Start or Stop, to match your clock-in to the job site.",
         "CFBundleAllowMixedLocalizations": true,
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "appleTeamId": "468APPMPXG"
     },
     "android": {
       "package": "com.pugbuild.app",
@@ -24,10 +25,15 @@
         "foregroundImage": "./assets/android-icon-foreground.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ],
       "predictiveBackGestureEnabled": false
     },
-    "web": { "favicon": "./assets/favicon.png" },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
     "locales": {
       "en": "./assets/locales/en.json",
       "pt": "./assets/locales/pt.json",
@@ -40,13 +46,22 @@
       "expo-localization",
       [
         "expo-splash-screen",
-        { "image": "./assets/splash-icon.png", "imageWidth": 180, "resizeMode": "contain", "backgroundColor": "#F4F3EF" }
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 180,
+          "resizeMode": "contain",
+          "backgroundColor": "#F4F3EF"
+        }
       ],
       [
         "expo-location",
-        { "locationWhenInUsePermission": "PugBuild uses your location only when you tap Start or Stop, to match your clock-in to the job site." }
+        {
+          "locationWhenInUsePermission": "PugBuild uses your location only when you tap Start or Stop, to match your clock-in to the job site."
+        }
       ]
     ],
-    "experiments": { "typedRoutes": true }
+    "experiments": {
+      "typedRoutes": true
+    }
   }
 }

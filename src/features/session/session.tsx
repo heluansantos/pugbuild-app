@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { api, isApiError } from "../../lib/api";
+import { api, isApiError, loadApiUrl } from "../../lib/api";
 import type { Locale, MeDto } from "../../lib/api-types";
 import { i18n, loadLocale, saveLocale } from "../../lib/i18n";
 
@@ -59,6 +59,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     (async () => {
       const locale = await loadLocale();
+      await loadApiUrl();
       i18n.locale = locale;
       if (!cancelled) setState((s) => ({ ...s, locale }));
       await refresh();

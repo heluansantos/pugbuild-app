@@ -9,7 +9,7 @@ import { Screen, Title } from "../../components/ui/screen";
 import { Txt } from "../../components/ui/text";
 import { LanguagePills } from "../../features/session/language-pills";
 import { useMe, useSession } from "../../features/session/session";
-import { api, API_URL, keys } from "../../lib/api";
+import { api, getApiUrl, keys } from "../../lib/api";
 import { formatMoney, formatPhone } from "../../lib/format";
 import { t } from "../../lib/i18n";
 import { colors } from "../../theme/tokens";
@@ -73,7 +73,7 @@ export default function ProfileScreen() {
         {t("common.actions.signOut")}
       </Button>
       <Txt size={11} tone="muted2" center>
-        {API_URL.replace(/^https?:\/\//, "")}
+        {getApiUrl().replace(/^https?:\/\//, "")}
       </Txt>
     </Screen>
   );

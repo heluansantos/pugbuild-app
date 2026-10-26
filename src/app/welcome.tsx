@@ -11,7 +11,7 @@ import { Txt } from "../components/ui/text";
 import { useToast } from "../components/ui/toast";
 import { useSession } from "../features/session/session";
 import { errorText } from "../features/worker/payment-card";
-import { api, API_URL, keys } from "../lib/api";
+import { api, getApiUrl, keys } from "../lib/api";
 import { t } from "../lib/i18n";
 import { colors, radii } from "../theme/tokens";
 
@@ -71,12 +71,12 @@ export default function WelcomeScreen() {
                 </Txt>
                 {key === "terms" && (
                   <View style={styles.links}>
-                    <Pressable onPress={() => Linking.openURL(`${API_URL}/terms`)} hitSlop={6}>
+                    <Pressable onPress={() => Linking.openURL(`${getApiUrl()}/terms`)} hitSlop={6}>
                       <Txt size={13} weight="medium" style={{ textDecorationLine: "underline" }}>
                         Terms
                       </Txt>
                     </Pressable>
-                    <Pressable onPress={() => Linking.openURL(`${API_URL}/privacy`)} hitSlop={6}>
+                    <Pressable onPress={() => Linking.openURL(`${getApiUrl()}/privacy`)} hitSlop={6}>
                       <Txt size={13} weight="medium" style={{ textDecorationLine: "underline" }}>
                         Privacy
                       </Txt>
