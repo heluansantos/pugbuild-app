@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { api, isApiError, loadApiUrl } from "../../lib/api";
+import { api, isApiError, loadApiUrl, setUnauthorizedHandler } from "../../lib/api";
 import type { Locale, MeDto } from "../../lib/api-types";
 import { i18n, loadLocale, saveLocale } from "../../lib/i18n";
 
@@ -47,12 +47,18 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       setState((s) => ({ ...s, status: "ready", me }));
     } catch (e) {
       if (isApiError(e) && e.consentRequired) setState((s) => ({ ...s, status: "consent", me: null }));
-      else if (isApiError(e, "unauthorized")) setState((s) => ({ ...s, status: "anonymous", me: null }));
-      else if (isApiError(e, "forbidden") || isApiError(e, "not_found")) {
+      else if (isApiError(e, "unauthorized") || isApiError(e, "not_found")) setState((s) => ({ ...s, status: "anonymous", me: null }));
+      else if (isApiError(e, "forbidden")) {
         // Session without an active company: pick one or sign in again.
         setState((s) => ({ ...s, status: "consent", me: null }));
       } else setState((s) => ({ ...s, status: s.me ? "ready" : "offline" }));
     }
+  }, []);
+
+  // A 401 anywhere (expired cookie, demo data reseeded) drops the session so the Gate shows the login.
+  useEffect(() => {
+    setUnauthorizedHandler(() => setState((s) => (s.status === "anonymous" ? s : { ...s, status: "anonymous", me: null })));
+    return () => setUnauthorizedHandler(null);
   }, []);
 
   useEffect(() => {

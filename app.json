@@ -58,6 +58,14 @@
         {
           "locationWhenInUsePermission": "PugBuild uses your location only when you tap Start or Stop, to match your clock-in to the job site."
         }
+      ],
+      "expo-web-browser",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "PugBuild uses your photo library only to set your profile picture.",
+          "cameraPermission": "PugBuild uses the camera only to take your profile picture."
+        }
       ]
     ],
     "experiments": {

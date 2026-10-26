@@ -79,7 +79,17 @@
     "role": "Perfil de acesso",
     "hourlyRate": "Valor da hora",
     "switchCompany": "Trocar de empresa",
-    "dashboard": "Abrir painel"
+    "dashboard": "Abrir painel",
+    "changePhoto": "Trocar foto",
+    "photoUpdated": "Foto atualizada",
+    "photoDenied": "Permita o acesso às fotos em Ajustes para trocar sua imagem",
+    "legal": "Legal",
+    "terms": "Termos de Uso",
+    "privacy": "Política de Privacidade",
+    "support": "Suporte",
+    "supportBody": "Dúvida ou algo não funcionou? Escreva para a gente, respondemos em até um dia útil.",
+    "supportEmail": "Enviar e-mail ao suporte",
+    "version": "Versão {version}"
   },
   "toasts": {
     "clockedIn": "Ponto batido. Bom trabalho!",

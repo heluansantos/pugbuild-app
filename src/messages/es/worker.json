@@ -79,7 +79,17 @@
     "role": "Rol",
     "hourlyRate": "Tarifa por hora",
     "switchCompany": "Cambiar de empresa",
-    "dashboard": "Abrir panel"
+    "dashboard": "Abrir panel",
+    "changePhoto": "Cambiar foto",
+    "photoUpdated": "Foto actualizada",
+    "photoDenied": "Permite el acceso a las fotos en Ajustes para cambiar tu imagen",
+    "legal": "Legal",
+    "terms": "Términos de Uso",
+    "privacy": "Política de Privacidad",
+    "support": "Soporte",
+    "supportBody": "¿Dudas o algo no funciona? Escríbenos y respondemos en un día hábil.",
+    "supportEmail": "Escribir al soporte",
+    "version": "Versión {version}"
   },
   "toasts": {
     "clockedIn": "Marcación hecha. ¡Buen trabajo!",

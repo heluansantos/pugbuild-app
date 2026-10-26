@@ -78,6 +78,12 @@ const CODES: ReadonlySet<string> = new Set(["unauthorized", "forbidden", "not_fo
 /** Anything the API (or a proxy in front of it) sends that we do not know reads as "unknown". */
 const knownCode = (code: unknown): ApiErrorCode => (typeof code === "string" && CODES.has(code) ? (code as ApiErrorCode) : "unknown");
 
+/** The session provider registers this so any 401 outside the login flow sends the person back to sign in. */
+let onUnauthorized: (() => void) | null = null;
+export function setUnauthorizedHandler(fn: (() => void) | null) {
+  onUnauthorized = fn;
+}
+
 type Envelope<T> = { ok: true; data: T } | { ok: false; error: { code: ApiErrorCode; message: string } };
 
 const TIMEOUT_MS = 15_000;
@@ -113,7 +119,11 @@ async function request<T>(path: string, init: RequestInit & { json?: unknown } =
     // Vercel Authentication answers HTML; anything without the JSON envelope is a server problem.
     throw new ApiError(res.status === 401 ? "unauthorized" : "unknown", `Bad response (${res.status})`, res.status);
   }
-  if (!body.ok) throw new ApiError(knownCode(body.error?.code), body.error?.message ?? "", res.status);
+  if (!body.ok) {
+    const err = new ApiError(knownCode(body.error?.code), body.error?.message ?? "", res.status);
+    if (err.code === "unauthorized" && !path.startsWith("/api/v1/auth/")) onUnauthorized?.();
+    throw err;
+  }
   return body.data;
 }
 
@@ -135,6 +145,15 @@ export const api = {
     consent: (locale: string) => post<{ ok: true }>("/api/v1/consent", { sms: true, location: true, locale }),
   },
   me: () => get<MeDto>("/api/v1/me"),
+  /** Multipart upload of a profile photo picked on the phone (read as a Blob: RN 0.88 dropped the {uri,name,type} form part). */
+  setPhoto: async (uri: string, mimeType = "image/jpeg") => {
+    const raw = await (await fetch(uri)).blob();
+    // The native blob carries no content type; re-wrap it so the server sees the real mime type.
+    const blob = new Blob([raw], { type: mimeType });
+    const form = new FormData();
+    form.append("file", blob, `avatar.${mimeType.split("/")[1] ?? "jpg"}`);
+    return request<{ photoUrl: string }>("/api/v1/me/photo", { method: "POST", body: form });
+  },
   punches: {
     open: () => get<PunchDto | null>("/api/v1/punches/open"),
     clockIn: (input: PunchInput) => post<PunchDto>("/api/v1/punches/clock-in", input),

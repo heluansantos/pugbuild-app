@@ -79,7 +79,17 @@
     "role": "Role",
     "hourlyRate": "Hourly rate",
     "switchCompany": "Switch company",
-    "dashboard": "Open dashboard"
+    "dashboard": "Open dashboard",
+    "changePhoto": "Change photo",
+    "photoUpdated": "Photo updated",
+    "photoDenied": "Allow photo access in Settings to change your picture",
+    "legal": "Legal",
+    "terms": "Terms of Use",
+    "privacy": "Privacy Policy",
+    "support": "Support",
+    "supportBody": "Questions or something not working? Write to us and we answer within one business day.",
+    "supportEmail": "Email support",
+    "version": "Version {version}"
   },
   "toasts": {
     "clockedIn": "Clocked in. Have a good day!",

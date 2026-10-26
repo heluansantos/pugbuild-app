@@ -37,7 +37,7 @@ export default function TabsLayout() {
     <Tabs
       backBehavior="initialRoute"
       tabBar={(props) => <PillTabBar {...props} tabs={tabs} />}
-      screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: colors.bg }, lazy: true }}
+      screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: colors.bg }, lazy: true, animation: "shift" }}
     >
       {/* Declaration order is tab order: the role's tabs first, the rest hidden. */}
       {tabs.map((tab) => (

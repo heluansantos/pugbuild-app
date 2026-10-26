@@ -56,6 +56,7 @@ export interface PersonDto {
   email?: string;
   locale: Locale;
   isSuperAdmin: boolean;
+  photoUrl?: string;
   consentAcceptedAt?: string;
   consentVersion?: string;
 }
