@@ -1,8 +1,8 @@
 import type { Tabs } from "expo-router";
 import * as Haptics from "expo-haptics";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
-import Animated, { interpolate, interpolateColor, useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
+import Animated, { FadeIn, FadeOut, LinearTransition, interpolateColor, useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, radii, shadow } from "../../theme/tokens";
 import { Txt } from "./text";
@@ -21,9 +21,13 @@ export interface TabSpec {
   Icon: ComponentType<TabIconProps>;
 }
 
-const SPRING = { damping: 22, stiffness: 240, mass: 0.9 };
+const SPRING = { damping: 24, stiffness: 260, mass: 0.9 };
+const LAYOUT = LinearTransition.springify().damping(24).stiffness(260).mass(0.9);
 
-/** Floating pill navigation from the mockups: the active item grows sideways to reveal its label. */
+/**
+ * Floating pill navigation from the mockups. The active item takes the free width of the bar
+ * (so long labels never push the bar off screen) and the change of width is a spring layout animation.
+ */
 export function PillTabBar({ state, emitter, navigateToTab, tabs }: BottomTabBarProps & { tabs: TabSpec[] }) {
   const insets = useSafeAreaInsets();
   return (
@@ -50,41 +54,28 @@ export function PillTabBar({ state, emitter, navigateToTab, tabs }: BottomTabBar
 
 function PillItem({ spec, active, onPress }: { spec: TabSpec; active: boolean; onPress: () => void }) {
   const progress = useSharedValue(active ? 1 : 0);
-  const [labelWidth, setLabelWidth] = useState(0);
   useEffect(() => {
     progress.set(withSpring(active ? 1 : 0, SPRING));
   }, [active, progress]);
-
-  const pill = useAnimatedStyle(() => ({
+  const fill = useAnimatedStyle(() => ({
     backgroundColor: interpolateColor(progress.get(), [0, 1], ["rgba(20,20,20,0)", colors.ink]),
-    paddingHorizontal: interpolate(progress.get(), [0, 1], [13, 18]),
-  }));
-  const label = useAnimatedStyle(() => ({
-    width: progress.get() * labelWidth,
-    marginLeft: progress.get() * 8,
-    opacity: withTiming(active ? 1 : 0, { duration: active ? 220 : 90 }),
-  }));
-  const icon = useAnimatedStyle(() => ({
-    transform: [{ scale: interpolate(progress.get(), [0, 1], [1, 1.06]) }],
   }));
 
   return (
-    <Pressable onPress={onPress} accessibilityRole="tab" accessibilityState={{ selected: active }} accessibilityLabel={spec.label} hitSlop={4}>
-      <Animated.View style={[styles.item, pill]}>
-        <Animated.View style={icon}>
+    <Animated.View layout={LAYOUT} style={active ? styles.grow : styles.fixed}>
+      <Pressable onPress={onPress} accessibilityRole="tab" accessibilityState={{ selected: active }} accessibilityLabel={spec.label} hitSlop={4} style={styles.press}>
+        <Animated.View style={[styles.item, fill]}>
           <spec.Icon color={active ? colors.white : colors.muted} size={22} />
+          {active && (
+            <Animated.View entering={FadeIn.delay(90).duration(200)} exiting={FadeOut.duration(80)} style={styles.label}>
+              <Txt size={14} weight="semibold" tone="white" numberOfLines={1}>
+                {spec.label}
+              </Txt>
+            </Animated.View>
+          )}
         </Animated.View>
-        <Animated.View style={[styles.label, label]}>
-          <Txt size={14} weight="semibold" tone="white" numberOfLines={1} style={styles.labelText}>
-            {spec.label}
-          </Txt>
-        </Animated.View>
-      </Animated.View>
-      {/* Invisible twin: measures the label's natural width before the pill reveals it. */}
-      <Txt size={14} weight="semibold" numberOfLines={1} onLayout={(e) => setLabelWidth(Math.ceil(e.nativeEvent.layout.width))} style={styles.measure} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-        {spec.label}
-      </Txt>
-    </Pressable>
+      </Pressable>
+    </Animated.View>
   );
 }
 
@@ -92,14 +83,17 @@ const styles = StyleSheet.create({
   host: { position: "absolute", left: 0, right: 0, bottom: 0, alignItems: "center", paddingHorizontal: 20 },
   bar: {
     flexDirection: "row",
+    alignItems: "center",
     gap: 4,
     padding: 6,
     borderRadius: radii.pill,
     backgroundColor: colors.nav,
+    alignSelf: "stretch",
     ...shadow.soft,
   },
-  item: { height: 48, minWidth: 48, borderRadius: radii.pill, flexDirection: "row", alignItems: "center", justifyContent: "center" },
-  label: { overflow: "hidden", flexDirection: "row" },
-  labelText: { flexShrink: 0 },
-  measure: { position: "absolute", opacity: 0, left: 0, top: -1000 },
+  fixed: { width: 48 },
+  grow: { flexGrow: 1, flexBasis: 0, minWidth: 48 },
+  press: { alignSelf: "stretch" },
+  item: { height: 48, borderRadius: radii.pill, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingHorizontal: 12 },
+  label: { flexShrink: 1 },
 });
