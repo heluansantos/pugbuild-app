@@ -2,13 +2,16 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import type {
   ApiErrorCode,
   MeDto,
+  MemberDto,
   MembershipSummary,
   PaymentDto,
   PunchDto,
   PunchInput,
   SiteDto,
+  TodayOverview,
   VerifyResult,
   WeekDto,
+  WeekSummaryDto,
 } from "./api-types";
 
 /**
@@ -71,6 +74,10 @@ export function isApiError(e: unknown, code?: ApiErrorCode): e is ApiError {
   return e instanceof ApiError && (code === undefined || e.code === code);
 }
 
+const CODES: ReadonlySet<string> = new Set(["unauthorized", "forbidden", "not_found", "validation", "conflict", "rate_limited", "locked", "billing_required"]);
+/** Anything the API (or a proxy in front of it) sends that we do not know reads as "unknown". */
+const knownCode = (code: unknown): ApiErrorCode => (typeof code === "string" && CODES.has(code) ? (code as ApiErrorCode) : "unknown");
+
 type Envelope<T> = { ok: true; data: T } | { ok: false; error: { code: ApiErrorCode; message: string } };
 
 const TIMEOUT_MS = 15_000;
@@ -106,7 +113,7 @@ async function request<T>(path: string, init: RequestInit & { json?: unknown } =
     // Vercel Authentication answers HTML; anything without the JSON envelope is a server problem.
     throw new ApiError(res.status === 401 ? "unauthorized" : "unknown", `Bad response (${res.status})`, res.status);
   }
-  if (!body.ok) throw new ApiError(body.error.code ?? "unknown", body.error.message ?? "", res.status);
+  if (!body.ok) throw new ApiError(knownCode(body.error?.code), body.error?.message ?? "", res.status);
   return body.data;
 }
 
@@ -142,6 +149,12 @@ export const api = {
     dispute: (id: string, note: string) => post<{ ok: true }>(`/api/v1/payments/${id}/dispute`, { note }),
   },
   sites: () => get<{ sites: SiteDto[] }>("/api/v1/sites"),
+  office: {
+    today: () => get<TodayOverview>("/api/v1/office/today"),
+    week: (weekKey?: string) => get<WeekSummaryDto>(`/api/v1/office/week${weekKey ? `?week=${weekKey}` : ""}`),
+    team: () => get<{ members: MemberDto[] }>("/api/v1/office/team"),
+    approve: (punchId: string) => post<{ ok: true }>(`/api/v1/office/punches/${punchId}/approve`),
+  },
 };
 
 /** React Query keys, in one place so invalidation stays consistent. */
@@ -152,4 +165,7 @@ export const keys = {
   payments: ["payments"] as const,
   sites: ["sites"] as const,
   memberships: ["memberships"] as const,
+  officeToday: ["office", "today"] as const,
+  officeWeek: (weekKey?: string) => ["office", "week", weekKey ?? "current"] as const,
+  officeTeam: ["office", "team"] as const,
 };

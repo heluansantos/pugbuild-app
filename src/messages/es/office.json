@@ -1,0 +1,56 @@
+{
+  "nav": {
+    "today": "Hoy",
+    "week": "Semana",
+    "team": "Equipo"
+  },
+  "today": {
+    "greeting": "Hola, {name}",
+    "kpiWorking": "Trabajando ahora",
+    "kpiOf": "de {total}",
+    "kpiCost": "Costo hoy",
+    "kpiWeek": "Horas de la semana",
+    "kpiReview": "Por revisar",
+    "nextClosing": "Cierra {date} · pago {pay}"
+  },
+  "review": {
+    "title": "Por revisar",
+    "empty": "Nada por revisar. Bien.",
+    "far": "{name} · lejos de la obra",
+    "farDetail": "Entrada {time} · {distance} de la obra más cercana",
+    "farNoGps": "Entrada {time} · sin GPS",
+    "missing": "{name} · sin salida",
+    "missingDetail": "{day}, entrada {time}",
+    "suggested": "Obra sugerida",
+    "suggestedDetail": "{count} marcaron en el mismo lugar",
+    "approve": "Aprobar",
+    "approved": "Aprobado",
+    "showMore": "Ver {count} más",
+    "showLess": "Ver menos"
+  },
+  "team": {
+    "today": "Equipo hoy",
+    "working": "Trabajando",
+    "done": "Terminó",
+    "off": "Libre hoy",
+    "far": "Lejos de la obra",
+    "missing": "Sin salida",
+    "title": "Equipo",
+    "count": "{count} personas",
+    "perHour": "/h",
+    "invited": "Esperando el primer acceso",
+    "inactive": "Inactivo"
+  },
+  "week": {
+    "title": "Semana",
+    "hours": "Horas totales",
+    "gross": "Nómina bruta",
+    "people": "Personas",
+    "closed": "Cerrada",
+    "open": "Abierta",
+    "flags": "{count} por revisar",
+    "openPunches": "{count} todavía abiertos",
+    "noHours": "Sin horas aún",
+    "payDay": "pago {date}"
+  }
+}

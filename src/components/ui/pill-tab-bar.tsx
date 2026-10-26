@@ -26,9 +26,10 @@ export function PillTabBar({ state, emitter, navigateToTab, tabs }: BottomTabBar
   return (
     <View pointerEvents="box-none" style={[styles.host, { paddingBottom: Math.max(insets.bottom, 12) }]}>
       <View style={styles.bar} accessibilityRole="tablist">
-        {state.routes.map((route, index) => {
-          const spec = tabs.find((t) => t.name === route.name);
-          if (!spec) return null;
+        {tabs.map((spec) => {
+          const index = state.routes.findIndex((r) => r.name === spec.name);
+          const route = state.routes[index];
+          if (!route) return null;
           const active = state.index === index;
           const onPress = () => {
             const event = emitter.emit({ type: "tabPress", target: route.key, canPreventDefault: true });

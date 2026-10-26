@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Redirect, type Href } from "expo-router";
 import { Bell } from "lucide-react-native";
 import { useMemo } from "react";
 import { ActivityIndicator, RefreshControl, StyleSheet, View } from "react-native";
@@ -17,6 +18,12 @@ import { buildWeekStrip } from "../../lib/week-helpers";
 import { colors, radii } from "../../theme/tokens";
 
 export default function ClockScreen() {
+  const me = useMe();
+  if (me.member.role !== "worker") return <Redirect href={"/(tabs)/office" as Href} />;
+  return <WorkerClock />;
+}
+
+function WorkerClock() {
   const me = useMe();
   const { pending } = useOfflineSync();
   const open = useQuery({ queryKey: keys.openPunch, queryFn: api.punches.open, refetchInterval: 60_000 });

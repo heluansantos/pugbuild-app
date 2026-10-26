@@ -189,3 +189,85 @@ export type ApiErrorCode =
   | "locked"
   | "billing_required"
   | "unknown";
+
+/* ---- Office / admin ---- */
+
+export interface TeamRow {
+  membershipId: string;
+  personId: string;
+  name: string;
+  role: Role;
+  hourlyRateCents: number;
+  status: "working" | "done" | "off";
+  clockInAt?: string;
+  clockOutAt?: string;
+  siteId?: string;
+  siteName?: string;
+  farFromSite: boolean;
+  missingClockOut: boolean;
+  minutes: number;
+  costCents: number;
+  punches: PunchDto[];
+}
+
+export interface SiteToday extends SiteDto {
+  peopleNow: number;
+  peopleToday: number;
+  costCents: number;
+}
+
+export interface SiteSuggestionDto {
+  id: string;
+  address?: string;
+  location: GeoPoint;
+  punchCount: number;
+  status: string;
+}
+
+export type ReviewItem =
+  | { kind: "far_from_site"; punch: PunchDto; name: string; distanceMeters?: number }
+  | { kind: "missing_clock_out"; punch: PunchDto; name: string }
+  | { kind: "suggested_site"; suggestion: SiteSuggestionDto };
+
+export interface TodayOverview {
+  dayKey: string;
+  weekKey: string;
+  weekEndKey: string;
+  payDateKey: string;
+  workingNow: number;
+  activeMembers: number;
+  costTodayCents: number;
+  weekMinutes: number;
+  review: ReviewItem[];
+  sites: SiteToday[];
+  team: TeamRow[];
+  punches: PunchDto[];
+}
+
+export interface WeekLine {
+  membershipId: string;
+  personId: string;
+  name: string;
+  role: Role;
+  hourlyRateCents: number;
+  minutes: number;
+  regularMinutes: number;
+  overtimeMinutes: number;
+  grossCents: number;
+  punchCount: number;
+  openPunches: number;
+  flagged: number;
+  byDay: Record<string, number>;
+}
+
+export interface WeekSummaryDto {
+  week: { startKey: string; endKey: string; dayKeys: string[] };
+  closed: { id: string; weekKey: string; endKey: string; closedAt: string; totalMinutes: number; totalGrossCents: number } | null;
+  lines: WeekLine[];
+  totalMinutes: number;
+  totalGrossCents: number;
+  openPunches: number;
+  unresolvedFlags: number;
+  canClose: boolean;
+  blockers: string[];
+}
