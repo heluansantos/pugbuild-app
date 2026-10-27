@@ -56,7 +56,7 @@ export function HomeView({ sites, queued }: { sites: SiteDto[]; queued: boolean 
 
   return (
     <Animated.View entering={FadeIn.duration(260)} style={styles.root}>
-      <NearbyCard status={geo.status} nearest={nearest} hasSites={sites.length > 0} locale={locale} />
+      <NearbyCard status={geo.status} nearest={nearest} hasSites={sites.length > 0} locale={locale} accuracy={geo.position?.accuracy} />
       <View style={styles.center}>
         <View style={styles.ring}>
           <AnimatedPressable

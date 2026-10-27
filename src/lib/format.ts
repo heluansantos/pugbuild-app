@@ -22,6 +22,15 @@ export function formatClock(totalMinutes: number): string {
   return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
 }
 
+/** Seconds on the shift → "0:42:07" so the person sees the clock move the instant they start. */
+export function formatClockSeconds(totalSeconds: number): string {
+  const safe = Math.max(0, Math.floor(totalSeconds));
+  const h = Math.floor(safe / 3600);
+  const m = Math.floor((safe % 3600) / 60);
+  const sec = safe % 60;
+  return `${h}:${m.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
+}
+
 /** Cents → "$1,162.50" (locale aware, USD). */
 export function formatMoney(cents: number, locale = "en"): string {
   return new Intl.NumberFormat(toIntlLocale(locale), {

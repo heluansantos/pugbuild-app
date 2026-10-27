@@ -23,7 +23,10 @@
     "comment": "Comentario",
     "finish": "Terminar",
     "finishing": "Terminando…",
-    "starting": "Iniciando…"
+    "starting": "Iniciando…",
+    "gpsAccuracy": "GPS ±{meters} m",
+    "approxLocation": "Ubicación aproximada. Activa la Ubicación Precisa para PugBuild para que tu marcación caiga en la obra correcta.",
+    "openSettings": "Ajustes"
   },
   "sheets": {
     "commentTitle": "Comentario",

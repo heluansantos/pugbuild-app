@@ -14,7 +14,7 @@ import { Txt } from "../../components/ui/text";
 import { useToast } from "../../components/ui/toast";
 import { api, keys } from "../../lib/api";
 import type { PunchDto, SiteDto } from "../../lib/api-types";
-import { formatClock, formatLongDate, formatMinutes, formatTime } from "../../lib/format";
+import { formatClockSeconds, formatLongDate, formatMinutes, formatTime } from "../../lib/format";
 import { t } from "../../lib/i18n";
 import { isNetworkError, newClientId } from "../../lib/offline-queue";
 import { computeElapsed } from "../../lib/time";
@@ -45,6 +45,8 @@ export function WorkingView({ punch, sites, weekMinutesBefore }: { punch: PunchD
   }, []);
 
   const elapsed = computeElapsed(clockInAt, now, settings.lunch);
+  // Live display in seconds; the lunch deduction is applied as soon as the rule kicks in.
+  const liveSeconds = Math.floor((now.getTime() - clockInAt.getTime()) / 1000) - elapsed.lunchDeductedMinutes * 60;
   const fraction = Math.min(1, elapsed.spanMinutes / FULL_SHIFT_MINUTES);
   const siteName = punch.clockIn.siteId ? (sites.find((s) => s.id === punch.clockIn.siteId)?.name ?? null) : null;
   const hasLocation = !!punch.clockIn.location;
@@ -107,8 +109,8 @@ export function WorkingView({ punch, sites, weekMinutesBefore }: { punch: PunchD
         <Txt size={13} tone="muted">
           {t("worker.home.timeToday")}
         </Txt>
-        <Txt size={44} weight="semibold" tabular tracking={-1} accessibilityLiveRegion="polite">
-          {formatClock(elapsed.workedMinutes)}
+        <Txt size={40} weight="semibold" tabular tracking={-1} accessibilityLiveRegion="polite">
+          {formatClockSeconds(liveSeconds)}
         </Txt>
         {elapsed.lunchDeductedMinutes > 0 && (
           <View style={styles.lunch}>

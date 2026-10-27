@@ -23,7 +23,10 @@
     "comment": "Comment",
     "finish": "Stop",
     "finishing": "Stopping…",
-    "starting": "Starting…"
+    "starting": "Starting…",
+    "gpsAccuracy": "GPS ±{meters} m",
+    "approxLocation": "Approximate location. Turn on Precise Location for PugBuild so your clock-in lands on the right site.",
+    "openSettings": "Settings"
   },
   "sheets": {
     "commentTitle": "Comment",
