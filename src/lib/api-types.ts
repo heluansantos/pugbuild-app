@@ -274,3 +274,48 @@ export interface WeekSummaryDto {
   canClose: boolean;
   blockers: string[];
 }
+
+/* ---- Billing (admin / office) ---- */
+
+export type BillingStatus = "trialing" | "active" | "past_due" | "read_only" | "suspended" | "canceled" | "comped";
+
+export interface BillingAccessDto {
+  mode: "full" | "read_only" | "suspended";
+  status: BillingStatus;
+  trialEndsAt?: string;
+  daysLeft: number | null;
+  needsPayment: boolean;
+}
+
+export interface CompanyBillingDto {
+  status: BillingStatus;
+  plan: "monthly" | "annual" | "comped";
+  trialEndsAt: string;
+  hasCustomer: boolean;
+  hasSubscription: boolean;
+  hasPaymentMethod: boolean;
+  currentPeriodEnd?: string;
+  cancelAtPeriodEnd: boolean;
+  activeEmployeesThisPeriod: number;
+}
+
+export interface InvoiceSummaryDto {
+  id: string;
+  number: string;
+  status: "draft" | "open" | "paid" | "uncollectible" | "void";
+  totalCents: number;
+  currency: string;
+  created: string;
+  hostedInvoiceUrl?: string;
+  pdfUrl?: string;
+}
+
+export interface BillingOverviewDto {
+  enabled: boolean;
+  canManage: boolean;
+  access: BillingAccessDto;
+  billing?: CompanyBillingDto;
+  estimate?: { activeEmployees: number; quote: { totalCents: number }; periodEnd: string };
+  invoices: InvoiceSummaryDto[];
+  invoicesUnavailable: boolean;
+}

@@ -14,6 +14,7 @@ import { Txt } from "../../components/ui/text";
 import { useToast } from "../../components/ui/toast";
 import { LanguagePills } from "../../features/session/language-pills";
 import { useMe, useSession, useLocale } from "../../features/session/session";
+import { BillingCard } from "../../features/office/billing-card";
 import { errorText } from "../../features/worker/payment-card";
 import { api, getApiUrl, keys } from "../../lib/api";
 import { formatMoney, formatPhone } from "../../lib/format";
@@ -104,6 +105,8 @@ export default function ProfileScreen() {
           <LanguagePills compact />
         </View>
       </Card>
+
+      {me.member.role !== "worker" && <BillingCard locale={locale} timezone={me.company.settings.timezone} isAdmin={me.member.role === "admin"} />}
 
       {(memberships.data?.memberships.length ?? 0) > 1 && (
         <LinkRow icon={<Building2 size={20} color={colors.muted} />} label={t("worker.profile.switchCompany")} onPress={() => router.push("/select-company")} />

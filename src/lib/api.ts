@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type {
   ApiErrorCode,
+  BillingOverviewDto,
   MeDto,
   MemberDto,
   MembershipSummary,
@@ -168,6 +169,11 @@ export const api = {
     dispute: (id: string, note: string) => post<{ ok: true }>(`/api/v1/payments/${id}/dispute`, { note }),
   },
   sites: () => get<{ sites: SiteDto[] }>("/api/v1/sites"),
+  billing: {
+    overview: () => get<BillingOverviewDto>("/api/v1/billing"),
+    portal: () => post<{ url: string }>("/api/v1/billing/portal"),
+    checkout: () => post<{ url: string }>("/api/v1/billing/checkout"),
+  },
   office: {
     today: () => get<TodayOverview>("/api/v1/office/today"),
     week: (weekKey?: string) => get<WeekSummaryDto>(`/api/v1/office/week${weekKey ? `?week=${weekKey}` : ""}`),
@@ -187,4 +193,5 @@ export const keys = {
   officeToday: ["office", "today"] as const,
   officeWeek: (weekKey?: string) => ["office", "week", weekKey ?? "current"] as const,
   officeTeam: ["office", "team"] as const,
+  billing: ["billing"] as const,
 };

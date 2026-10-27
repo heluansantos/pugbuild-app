@@ -52,5 +52,32 @@
     "openPunches": "{count} ainda abertos",
     "noHours": "Sem horas ainda",
     "payDay": "pagamento {date}"
+  },
+  "billing": {
+    "title": "Faturamento",
+    "status": {
+      "trialing": "Teste grátis",
+      "active": "Ativo",
+      "past_due": "Pagamento pendente",
+      "read_only": "Somente leitura",
+      "suspended": "Pausado",
+      "comped": "Cortesia",
+      "canceled": "Cancelado"
+    },
+    "trialNoCard": "Teste termina em {date}. Cadastre um cartão para manter o acesso.",
+    "trialCard": "Grátis até {date}. Primeira cobrança após o primeiro mês, por funcionário ativo.",
+    "active": "Próxima fatura em {date} · cerca de {amount}",
+    "activeNoEstimate": "Próxima fatura em {date}",
+    "pastDue": "Não conseguimos cobrar seu cartão. Atualize para manter o acesso.",
+    "cancelAtEnd": "Cancela em {date}",
+    "comped": "Sem cobrança para esta empresa.",
+    "employees": "{count} funcionários ativos neste período",
+    "manage": "Gerenciar assinatura",
+    "manageHint": "Cartão, faturas, cancelar a qualquer momento.",
+    "addCard": "Cadastrar cartão",
+    "invoices": "Faturas recentes",
+    "paid": "Paga",
+    "open": "Em aberto",
+    "void": "Anulada"
   }
 }
