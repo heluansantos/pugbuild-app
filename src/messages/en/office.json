@@ -1,0 +1,83 @@
+{
+  "nav": {
+    "today": "Today",
+    "week": "Week",
+    "team": "Team"
+  },
+  "today": {
+    "greeting": "Hi, {name}",
+    "kpiWorking": "Working now",
+    "kpiOf": "of {total}",
+    "kpiCost": "Cost today",
+    "kpiWeek": "Week hours",
+    "kpiReview": "To review",
+    "nextClosing": "Closes {date} · pay {pay}"
+  },
+  "review": {
+    "title": "To review",
+    "empty": "Nothing to review. Nice.",
+    "far": "{name} · far from site",
+    "farDetail": "In {time} · {distance} from the nearest site",
+    "farNoGps": "In {time} · no GPS",
+    "missing": "{name} · no clock-out",
+    "missingDetail": "{day}, in {time}",
+    "suggested": "Suggested site",
+    "suggestedDetail": "{count} punched in at the same spot",
+    "approve": "Approve",
+    "approved": "Approved",
+    "showMore": "Show {count} more",
+    "showLess": "Show less"
+  },
+  "team": {
+    "today": "Team today",
+    "working": "Working",
+    "done": "Done",
+    "off": "Off today",
+    "far": "Far from site",
+    "missing": "No clock-out",
+    "title": "Team",
+    "count": "{count} people",
+    "perHour": "/h",
+    "invited": "Waiting for first sign-in",
+    "inactive": "Inactive"
+  },
+  "week": {
+    "title": "Week",
+    "hours": "Total hours",
+    "gross": "Gross pay",
+    "people": "People",
+    "closed": "Closed",
+    "open": "Open",
+    "flags": "{count} to review",
+    "openPunches": "{count} still open",
+    "noHours": "No hours yet",
+    "payDay": "pay day {date}"
+  },
+  "billing": {
+    "title": "Billing",
+    "status": {
+      "trialing": "Free trial",
+      "active": "Active",
+      "past_due": "Payment due",
+      "read_only": "Read only",
+      "suspended": "Paused",
+      "comped": "Complimentary",
+      "canceled": "Canceled"
+    },
+    "trialNoCard": "Trial ends {date}. Add a card to keep access.",
+    "trialCard": "Free until {date}. First charge after the first month, per active employee.",
+    "active": "Next invoice {date} · about {amount}",
+    "activeNoEstimate": "Next invoice {date}",
+    "pastDue": "We could not charge your card. Update it to keep access.",
+    "cancelAtEnd": "Cancels on {date}",
+    "comped": "No charge for this company.",
+    "employees": "{count} active employees this period",
+    "manage": "Manage subscription",
+    "manageHint": "Card, invoices, cancel at any time.",
+    "addCard": "Add a card",
+    "invoices": "Recent invoices",
+    "paid": "Paid",
+    "open": "Open",
+    "void": "Void"
+  }
+}

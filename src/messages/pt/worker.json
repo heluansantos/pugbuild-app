@@ -23,7 +23,10 @@
     "comment": "Comentário",
     "finish": "Encerrar",
     "finishing": "Encerrando…",
-    "starting": "Iniciando…"
+    "starting": "Iniciando…",
+    "gpsAccuracy": "GPS ±{meters} m",
+    "approxLocation": "Localização aproximada. Ative a Localização Exata para o PugBuild para o ponto cair na obra certa.",
+    "openSettings": "Ajustes"
   },
   "sheets": {
     "commentTitle": "Comentário",
@@ -55,7 +58,17 @@
     "previous": "Anteriores",
     "receivedOn": "Recebido em {method} · {date}",
     "noPayments": "Nenhum pagamento ainda.",
-    "openShift": "Ponto ainda aberto"
+    "openShift": "Ponto ainda aberto",
+    "periods": {
+      "week": "Semana",
+      "month": "Mês",
+      "year": "Ano",
+      "all": "Tudo"
+    },
+    "received": "Recebido",
+    "daysWorked": "{count} dias trabalhados",
+    "allTime": "Todo o período",
+    "noHoursPeriod": "Sem horas neste período."
   },
   "payments": {
     "title": "Pagamentos",
@@ -71,7 +84,12 @@
     "title": "Obras",
     "empty": "Nenhuma obra ativa.",
     "away": "a {distance}",
-    "here": "Você está aqui"
+    "here": "Você está aqui",
+    "openInMaps": "Rota",
+    "chooseMaps": "Abrir rota em",
+    "appleMaps": "Apple Maps",
+    "googleMaps": "Google Maps",
+    "waze": "Waze"
   },
   "profile": {
     "title": "Perfil",
@@ -79,7 +97,17 @@
     "role": "Perfil de acesso",
     "hourlyRate": "Valor da hora",
     "switchCompany": "Trocar de empresa",
-    "dashboard": "Abrir painel"
+    "dashboard": "Abrir painel",
+    "changePhoto": "Trocar foto",
+    "photoUpdated": "Foto atualizada",
+    "photoDenied": "Permita o acesso às fotos em Ajustes para trocar sua imagem",
+    "legal": "Legal",
+    "terms": "Termos de Uso",
+    "privacy": "Política de Privacidade",
+    "support": "Suporte",
+    "supportBody": "Dúvida ou algo não funcionou? Escreva para a gente, respondemos em até um dia útil.",
+    "supportEmail": "Enviar e-mail ao suporte",
+    "version": "Versão {version}"
   },
   "toasts": {
     "clockedIn": "Ponto batido. Bom trabalho!",
@@ -87,11 +115,69 @@
     "queued": "Sem sinal. Guardamos seu ponto e enviamos quando voltar a conexão.",
     "synced": "Ponto sincronizado.",
     "confirmed": "Valeu! Pagamento confirmado.",
-    "disputed": "Enviado ao escritório."
+    "disputed": "Enviado ao escritório.",
+    "syncRejected": "Um ponto salvo offline foi recusado pelo servidor. Confira sua semana."
   },
   "impersonating": "Vendo como {company}",
   "backToAdmin": "Voltar ao admin",
   "realtime": {
     "paymentReady": "Seu pagamento está pronto. Abra Semana para confirmar."
+  },
+  "tasks": {
+    "nav": "Tarefas",
+    "title": "Tarefas",
+    "segSites": "Obras",
+    "segTasks": "Tarefas",
+    "open": "A fazer",
+    "done": "Concluídas",
+    "empty": "Nenhuma tarefa para você agora.",
+    "emptyDone": "Nada concluído ainda.",
+    "dueOn": "Prazo {date}",
+    "overdue": "Atrasada",
+    "unassigned": "Sem responsável",
+    "assignedTo": "Responsável: {name}",
+    "details": "Detalhes",
+    "reference": "Fotos de referência",
+    "yourPhotos": "Suas fotos",
+    "addPhoto": "Adicionar foto",
+    "takePhoto": "Tirar foto",
+    "pickPhoto": "Escolher da galeria",
+    "photoAdded": "Foto adicionada",
+    "removePhoto": "Remover",
+    "note": "Observação para o escritório",
+    "notePlaceholder": "O que foi feito, algo que eles precisam saber",
+    "markDone": "Concluir tarefa",
+    "completing": "Concluindo…",
+    "completed": "Tarefa concluída. Bom trabalho.",
+    "completedBy": "Concluída por {name} · {date}",
+    "reopen": "Reabrir",
+    "reopened": "Tarefa reaberta",
+    "directions": "Rota",
+    "noPhotosYet": "Adicione uma foto do serviço pronto antes de concluir, para o escritório ver.",
+    "openCount": "{count} a fazer"
+  },
+  "siteFeed": {
+    "timeline": "Linha do tempo",
+    "composerPlaceholder": "O que há de novo na obra?",
+    "post": "Publicar",
+    "posting": "Publicando…",
+    "posted": "Publicado",
+    "addPhotos": "Fotos",
+    "photosLimit": "Até 4 fotos",
+    "deleted": "Publicação removida",
+    "confirmDelete": "Remover esta publicação?",
+    "delete": "Remover",
+    "empty": "Nada publicado ainda. Mostre como a obra está hoje.",
+    "taskCreated": "criou uma tarefa",
+    "taskDone": "concluiu uma tarefa",
+    "assigned": "para {name}",
+    "openTasks": "{count} abertas",
+    "doneTasks": "{count} concluídas",
+    "posts": "{count} atualizações",
+    "now": "agora",
+    "minutes": "{count} min",
+    "hours": "{count} h",
+    "loadingMore": "Carregando…",
+    "photo": "Foto"
   }
 }

@@ -25,8 +25,10 @@ export function useGeolocation(enabled = true): GeoState {
         return;
       }
       try {
-        sub = await Location.watchPositionAsync(
-          { accuracy: Location.Accuracy.High, timeInterval: 10_000, distanceInterval: 10 },
+        // Enough to show the nearest site without draining the battery; the punch itself is
+        // matched on the server against this position.
+        const watch = await Location.watchPositionAsync(
+          { accuracy: Location.Accuracy.Balanced, timeInterval: 20_000, distanceInterval: 20 },
           (pos) => {
             setState({
               status: "ready",
@@ -34,10 +36,14 @@ export function useGeolocation(enabled = true): GeoState {
                 lat: pos.coords.latitude,
                 lng: pos.coords.longitude,
                 accuracy: Math.round(pos.coords.accuracy ?? 0),
+                ...(pos.mocked ? { mocked: true } : {}),
               },
             });
           },
         );
+        // Unmounted while the watch was starting: stop it now or it runs forever.
+        if (cancelled) watch.remove();
+        else sub = watch;
       } catch {
         if (!cancelled) setState({ status: "unavailable", position: null });
       }

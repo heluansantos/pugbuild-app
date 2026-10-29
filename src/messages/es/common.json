@@ -27,7 +27,8 @@
     "saved": "Guardado",
     "empty": "Nada por aquí todavía",
     "offline": "Estás sin señal. Sincronizamos cuando vuelvas.",
-    "error": "Algo salió mal"
+    "error": "Algo salió mal",
+    "errorBody": "Inténtalo de nuevo. Si sigue pasando, avisa a la oficina."
   },
   "roles": {
     "admin": "Admin",
@@ -44,9 +45,29 @@
     "closed": "Cerrada",
     "open": "Abierto"
   },
-  "paymentMethod": { "cash": "Efectivo", "check": "Cheque", "deposit": "Depósito" },
-  "weekdaysShort": ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"],
-  "weekdays": ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"],
+  "paymentMethod": {
+    "cash": "Efectivo",
+    "check": "Cheque",
+    "deposit": "Depósito"
+  },
+  "weekdaysShort": [
+    "Dom",
+    "Lun",
+    "Mar",
+    "Mié",
+    "Jue",
+    "Vie",
+    "Sáb"
+  ],
+  "weekdays": [
+    "Domingo",
+    "Lunes",
+    "Martes",
+    "Miércoles",
+    "Jueves",
+    "Viernes",
+    "Sábado"
+  ],
   "units": {
     "hours": "horas",
     "people": "{count, plural, =1 {# persona} other {# personas}}",
@@ -56,5 +77,13 @@
   "today": "Hoy",
   "yesterday": "Ayer",
   "week": "Semana",
-  "hoursShort": "{hours}h{minutes}"
+  "hoursShort": "{hours}h{minutes}",
+  "server": {
+    "title": "Servidor",
+    "description": "Qué instalación de PugBuild usa este teléfono.",
+    "custom": "Dirección personalizada",
+    "apply": "Usar este servidor",
+    "reset": "Volver al predeterminado",
+    "current": "Actual"
+  }
 }

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as Haptics from "expo-haptics";
 import { Play } from "lucide-react-native";
+import { useRef } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import Animated, { FadeIn, useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { Txt } from "../../components/ui/text";
@@ -11,7 +12,7 @@ import { nearestSite } from "../../lib/geo";
 import { t } from "../../lib/i18n";
 import { isNetworkError, newClientId } from "../../lib/offline-queue";
 import { colors, shadow } from "../../theme/tokens";
-import { useMe } from "../session/session";
+import { useLocale, useMe } from "../session/session";
 import { NearbyCard } from "./nearby-card";
 import { errorText } from "./payment-card";
 import { useGeolocation } from "./use-geolocation";
@@ -23,14 +24,16 @@ export function HomeView({ sites, queued }: { sites: SiteDto[]; queued: boolean 
   const me = useMe();
   const qc = useQueryClient();
   const toast = useToast();
+  const locale = useLocale();
   const geo = useGeolocation();
   const nearest = geo.position ? nearestSite(geo.position, sites, me.company.settings.siteRadiusMeters) : null;
+  const tapping = useRef(false);
   const scale = useSharedValue(1);
   const anim = useAnimatedStyle(() => ({ transform: [{ scale: scale.get() }] }));
 
   const clockIn = useMutation({
     mutationFn: async () => {
-      const payload = { location: geo.position ?? undefined, deviceAt: new Date().toISOString(), clientId: newClientId() };
+      const payload = { location: geo.position ?? undefined, deviceAt: new Date().toISOString(), clientId: newClientId(), ownerId: me.member.id };
       try {
         return await api.punches.clockIn(payload);
       } catch (e) {
@@ -55,13 +58,16 @@ export function HomeView({ sites, queued }: { sites: SiteDto[]; queued: boolean 
 
   return (
     <Animated.View entering={FadeIn.duration(260)} style={styles.root}>
-      <NearbyCard status={geo.status} nearest={nearest} hasSites={sites.length > 0} locale={me.person.locale} />
+      <NearbyCard status={geo.status} nearest={nearest} hasSites={sites.length > 0} locale={locale} accuracy={geo.position?.accuracy} />
       <View style={styles.center}>
         <View style={styles.ring}>
           <AnimatedPressable
             onPress={() => {
+              // Two taps inside one render must not send two clock-ins.
+              if (tapping.current || clockIn.isPending) return;
+              tapping.current = true;
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              clockIn.mutate();
+              clockIn.mutate(undefined, { onSettled: () => (tapping.current = false) });
             }}
             onPressIn={() => {
               scale.set(withSpring(0.95, { stiffness: 400, damping: 26 }));

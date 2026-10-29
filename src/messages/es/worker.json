@@ -23,7 +23,10 @@
     "comment": "Comentario",
     "finish": "Terminar",
     "finishing": "Terminando…",
-    "starting": "Iniciando…"
+    "starting": "Iniciando…",
+    "gpsAccuracy": "GPS ±{meters} m",
+    "approxLocation": "Ubicación aproximada. Activa la Ubicación Precisa para PugBuild para que tu marcación caiga en la obra correcta.",
+    "openSettings": "Ajustes"
   },
   "sheets": {
     "commentTitle": "Comentario",
@@ -55,7 +58,17 @@
     "previous": "Anteriores",
     "receivedOn": "Recibido en {method} · {date}",
     "noPayments": "Todavía no hay pagos.",
-    "openShift": "Turno todavía abierto"
+    "openShift": "Turno todavía abierto",
+    "periods": {
+      "week": "Semana",
+      "month": "Mes",
+      "year": "Año",
+      "all": "Todo"
+    },
+    "received": "Recibido",
+    "daysWorked": "{count} días trabajados",
+    "allTime": "Todo el período",
+    "noHoursPeriod": "Sin horas en este período."
   },
   "payments": {
     "title": "Pagos",
@@ -71,7 +84,12 @@
     "title": "Obras",
     "empty": "No hay obras activas.",
     "away": "a {distance}",
-    "here": "Estás aquí"
+    "here": "Estás aquí",
+    "openInMaps": "Ruta",
+    "chooseMaps": "Abrir ruta en",
+    "appleMaps": "Apple Maps",
+    "googleMaps": "Google Maps",
+    "waze": "Waze"
   },
   "profile": {
     "title": "Perfil",
@@ -79,7 +97,17 @@
     "role": "Rol",
     "hourlyRate": "Tarifa por hora",
     "switchCompany": "Cambiar de empresa",
-    "dashboard": "Abrir panel"
+    "dashboard": "Abrir panel",
+    "changePhoto": "Cambiar foto",
+    "photoUpdated": "Foto actualizada",
+    "photoDenied": "Permite el acceso a las fotos en Ajustes para cambiar tu imagen",
+    "legal": "Legal",
+    "terms": "Términos de Uso",
+    "privacy": "Política de Privacidad",
+    "support": "Soporte",
+    "supportBody": "¿Dudas o algo no funciona? Escríbenos y respondemos en un día hábil.",
+    "supportEmail": "Escribir al soporte",
+    "version": "Versión {version}"
   },
   "toasts": {
     "clockedIn": "Marcación hecha. ¡Buen trabajo!",
@@ -87,11 +115,69 @@
     "queued": "Sin señal. Guardamos tu marcación y la enviamos cuando vuelva la conexión.",
     "synced": "Marcación sincronizada.",
     "confirmed": "¡Gracias! Pago confirmado.",
-    "disputed": "Enviado a la oficina."
+    "disputed": "Enviado a la oficina.",
+    "syncRejected": "Una marcación guardada sin señal fue rechazada. Revisa tu semana."
   },
   "impersonating": "Viendo como {company}",
   "backToAdmin": "Volver al admin",
   "realtime": {
     "paymentReady": "Tu pago está listo. Abre Semana para confirmar."
+  },
+  "tasks": {
+    "nav": "Tareas",
+    "title": "Tareas",
+    "segSites": "Obras",
+    "segTasks": "Tareas",
+    "open": "Por hacer",
+    "done": "Terminadas",
+    "empty": "No tienes tareas por ahora.",
+    "emptyDone": "Nada terminado todavía.",
+    "dueOn": "Vence {date}",
+    "overdue": "Atrasada",
+    "unassigned": "Sin responsable",
+    "assignedTo": "Responsable: {name}",
+    "details": "Detalles",
+    "reference": "Fotos de referencia",
+    "yourPhotos": "Tus fotos",
+    "addPhoto": "Agregar foto",
+    "takePhoto": "Tomar foto",
+    "pickPhoto": "Elegir de la galería",
+    "photoAdded": "Foto agregada",
+    "removePhoto": "Quitar",
+    "note": "Nota para la oficina",
+    "notePlaceholder": "Qué se hizo, algo que deban saber",
+    "markDone": "Terminar tarea",
+    "completing": "Terminando…",
+    "completed": "Tarea terminada. Buen trabajo.",
+    "completedBy": "Terminada por {name} · {date}",
+    "reopen": "Reabrir",
+    "reopened": "Tarea reabierta",
+    "directions": "Ruta",
+    "noPhotosYet": "Agrega una foto del trabajo terminado antes de cerrar, para que la oficina la vea.",
+    "openCount": "{count} por hacer"
+  },
+  "siteFeed": {
+    "timeline": "Línea de tiempo",
+    "composerPlaceholder": "¿Qué hay de nuevo en la obra?",
+    "post": "Publicar",
+    "posting": "Publicando…",
+    "posted": "Publicado",
+    "addPhotos": "Fotos",
+    "photosLimit": "Hasta 4 fotos",
+    "deleted": "Publicación eliminada",
+    "confirmDelete": "¿Eliminar esta publicación?",
+    "delete": "Eliminar",
+    "empty": "Nada publicado todavía. Muestra cómo está la obra hoy.",
+    "taskCreated": "creó una tarea",
+    "taskDone": "terminó una tarea",
+    "assigned": "para {name}",
+    "openTasks": "{count} abiertas",
+    "doneTasks": "{count} terminadas",
+    "posts": "{count} novedades",
+    "now": "ahora",
+    "minutes": "{count} min",
+    "hours": "{count} h",
+    "loadingMore": "Cargando…",
+    "photo": "Foto"
   }
 }

@@ -5,6 +5,7 @@ import { X } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { colors, radii, touch } from "../../theme/tokens";
 import { Txt } from "./text";
+import { t } from "../../lib/i18n";
 
 /** Bottom sheet with a spring slide, matching the web <Sheet>. */
 export function Sheet({ open, onClose, title, description, children }: { open: boolean; onClose: () => void; title: string; description?: string; children: ReactNode }) {
@@ -13,7 +14,7 @@ export function Sheet({ open, onClose, title, description, children }: { open: b
     <Modal visible={open} transparent animationType="none" onRequestClose={onClose} statusBarTranslucent>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.fill}>
         <Animated.View entering={FadeIn.duration(180)} exiting={FadeOut.duration(150)} style={[StyleSheet.absoluteFill, styles.backdrop]}>
-          <Pressable style={styles.fill} onPress={onClose} accessibilityLabel="Close" />
+          <Pressable style={styles.fill} onPress={onClose} accessibilityLabel={t("common.actions.close")} />
         </Animated.View>
         <Animated.View
           entering={SlideInDown.springify().stiffness(260).damping(28)}
@@ -32,7 +33,7 @@ export function Sheet({ open, onClose, title, description, children }: { open: b
                 </Txt>
               )}
             </View>
-            <Pressable onPress={onClose} style={styles.close} accessibilityRole="button" accessibilityLabel="Close" hitSlop={8}>
+            <Pressable onPress={onClose} style={styles.close} accessibilityRole="button" accessibilityLabel={t("common.actions.close")} hitSlop={8}>
               <X size={20} color={colors.ink} />
             </Pressable>
           </View>

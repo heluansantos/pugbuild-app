@@ -11,6 +11,8 @@ export interface GeoPoint {
   lat: number;
   lng: number;
   accuracy?: number;
+  /** The OS reported a simulated position (Android mock providers; iOS exposes no such flag). */
+  mocked?: boolean;
 }
 
 export interface LunchRule {
@@ -56,6 +58,7 @@ export interface PersonDto {
   email?: string;
   locale: Locale;
   isSuperAdmin: boolean;
+  photoUrl?: string;
   consentAcceptedAt?: string;
   consentVersion?: string;
 }
@@ -189,3 +192,200 @@ export type ApiErrorCode =
   | "locked"
   | "billing_required"
   | "unknown";
+
+/* ---- Office / admin ---- */
+
+export interface TeamRow {
+  membershipId: string;
+  personId: string;
+  name: string;
+  role: Role;
+  hourlyRateCents: number;
+  status: "working" | "done" | "off";
+  clockInAt?: string;
+  clockOutAt?: string;
+  siteId?: string;
+  siteName?: string;
+  farFromSite: boolean;
+  missingClockOut: boolean;
+  minutes: number;
+  costCents: number;
+  punches: PunchDto[];
+}
+
+export interface SiteToday extends SiteDto {
+  peopleNow: number;
+  peopleToday: number;
+  costCents: number;
+}
+
+export interface SiteSuggestionDto {
+  id: string;
+  address?: string;
+  location: GeoPoint;
+  punchCount: number;
+  status: string;
+}
+
+export type ReviewItem =
+  | { kind: "far_from_site"; punch: PunchDto; name: string; distanceMeters?: number }
+  | { kind: "missing_clock_out"; punch: PunchDto; name: string }
+  | { kind: "suggested_site"; suggestion: SiteSuggestionDto };
+
+export interface TodayOverview {
+  dayKey: string;
+  weekKey: string;
+  weekEndKey: string;
+  payDateKey: string;
+  workingNow: number;
+  activeMembers: number;
+  costTodayCents: number;
+  weekMinutes: number;
+  review: ReviewItem[];
+  sites: SiteToday[];
+  team: TeamRow[];
+  punches: PunchDto[];
+}
+
+export interface WeekLine {
+  membershipId: string;
+  personId: string;
+  name: string;
+  role: Role;
+  hourlyRateCents: number;
+  minutes: number;
+  regularMinutes: number;
+  overtimeMinutes: number;
+  grossCents: number;
+  punchCount: number;
+  openPunches: number;
+  flagged: number;
+  byDay: Record<string, number>;
+}
+
+export interface WeekSummaryDto {
+  week: { startKey: string; endKey: string; dayKeys: string[] };
+  closed: { id: string; weekKey: string; endKey: string; closedAt: string; totalMinutes: number; totalGrossCents: number } | null;
+  lines: WeekLine[];
+  totalMinutes: number;
+  totalGrossCents: number;
+  openPunches: number;
+  unresolvedFlags: number;
+  canClose: boolean;
+  blockers: string[];
+}
+
+/* ---- Billing (admin / office) ---- */
+
+export type BillingStatus = "trialing" | "active" | "past_due" | "read_only" | "suspended" | "canceled" | "comped";
+
+export interface BillingAccessDto {
+  mode: "full" | "read_only" | "suspended";
+  status: BillingStatus;
+  trialEndsAt?: string;
+  daysLeft: number | null;
+  needsPayment: boolean;
+}
+
+export interface CompanyBillingDto {
+  status: BillingStatus;
+  plan: "monthly" | "annual" | "comped";
+  trialEndsAt: string;
+  hasCustomer: boolean;
+  hasSubscription: boolean;
+  hasPaymentMethod: boolean;
+  currentPeriodEnd?: string;
+  cancelAtPeriodEnd: boolean;
+  activeEmployeesThisPeriod: number;
+}
+
+export interface InvoiceSummaryDto {
+  id: string;
+  number: string;
+  status: "draft" | "open" | "paid" | "uncollectible" | "void";
+  totalCents: number;
+  currency: string;
+  created: string;
+  hostedInvoiceUrl?: string;
+  pdfUrl?: string;
+}
+
+export interface BillingOverviewDto {
+  enabled: boolean;
+  canManage: boolean;
+  access: BillingAccessDto;
+  billing?: CompanyBillingDto;
+  estimate?: { activeEmployees: number; quote: { totalCents: number }; periodEnd: string };
+  invoices: InvoiceSummaryDto[];
+  invoicesUnavailable: boolean;
+}
+
+/* ---- Tasks ---- */
+
+export type TaskStatus = "open" | "done";
+
+export interface TaskPhotoDto {
+  url: string;
+  pathname: string;
+  addedAt: string;
+}
+
+export interface TaskDto {
+  id: string;
+  companyId: string;
+  title: string;
+  description?: string;
+  siteId?: string;
+  siteName?: string;
+  assigneeMembershipId?: string;
+  assigneeName?: string;
+  dueKey?: string;
+  status: TaskStatus;
+  photos: TaskPhotoDto[];
+  completion?: { at: string; byName?: string; note?: string; photos: TaskPhotoDto[] };
+  createdAt: string;
+  updatedAt: string;
+}
+
+/* ---- Hours over a period (month / year / all) ---- */
+
+export type Period = "month" | "year" | "all";
+
+export interface PeriodSummaryDto {
+  period: Period;
+  at: string;
+  startKey: string;
+  endKey: string;
+  prevAt: string | null;
+  nextAt: string | null;
+  buckets: { key: string; kind: "block" | "month" | "year"; minutes: number }[];
+  totalMinutes: number;
+  grossCents: number;
+  paidCents: number;
+  daysWorked: number;
+}
+
+/* ---- Site detail and timeline ---- */
+
+export interface SiteDetailDto extends SiteDto {
+  openTasks: number;
+  doneTasks: number;
+  posts: number;
+  latestPhotoUrl?: string;
+}
+
+export interface FeedAuthorDto {
+  name: string;
+  photoUrl?: string;
+  role?: string;
+}
+
+export type FeedItemDto =
+  | { kind: "post"; id: string; at: string; author: FeedAuthorDto; text?: string; photos: TaskPhotoDto[]; canDelete: boolean }
+  | { kind: "task_created"; id: string; at: string; author: FeedAuthorDto; taskId: string; title: string; assigneeName?: string }
+  | { kind: "task_done"; id: string; at: string; author: FeedAuthorDto; taskId: string; title: string; note?: string; photos: TaskPhotoDto[] };
+
+export interface FeedPageDto {
+  items: FeedItemDto[];
+  nextBefore: string | null;
+}

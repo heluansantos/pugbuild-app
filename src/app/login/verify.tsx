@@ -10,13 +10,21 @@ import { Txt } from "../../components/ui/text";
 import { useToast } from "../../components/ui/toast";
 import { useSession } from "../../features/session/session";
 import { errorText } from "../../features/worker/payment-card";
-import { api, API_URL, isApiError } from "../../lib/api";
+import { api, getApiUrl, isApiError } from "../../lib/api";
 import { formatPhone } from "../../lib/format";
 import { t } from "../../lib/i18n";
 import { colors, fonts, radii } from "../../theme/tokens";
 
 const LENGTH = 6;
-const DEV_CODE_HINT = /localhost|127\.0\.0\.1|192\.168\.|10\.|vercel\.app/.test(API_URL);
+// Only builds talking to a dev server or a Vercel preview, where the fixed code is accepted.
+const devCodeHint = () => {
+  try {
+    const host = new URL(getApiUrl()).hostname;
+    return (__DEV__ && /^(localhost|127\.0\.0\.1|10\.|172\.|192\.168\.)/.test(host)) || host.endsWith(".vercel.app");
+  } catch {
+    return false;
+  }
+};
 
 export default function VerifyScreen() {
   const router = useRouter();
@@ -101,7 +109,7 @@ export default function VerifyScreen() {
               {error}
             </Txt>
           )}
-          {DEV_CODE_HINT && (
+          {devCodeHint() && (
             <Txt size={12} tone="muted2" center>
               {t("auth.verify.devHint", { code: "123456" })}
             </Txt>

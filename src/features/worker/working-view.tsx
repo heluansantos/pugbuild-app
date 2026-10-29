@@ -8,23 +8,22 @@ import { Button } from "../../components/ui/button";
 import { Card } from "../../components/ui/card";
 import { Chip } from "../../components/ui/chip";
 import { SwitchRow, Textarea } from "../../components/ui/field";
-import { RingTimer } from "../../components/ui/ring-timer";
 import { Sheet } from "../../components/ui/sheet";
 import { Txt } from "../../components/ui/text";
 import { useToast } from "../../components/ui/toast";
 import { api, keys } from "../../lib/api";
 import type { PunchDto, SiteDto } from "../../lib/api-types";
-import { formatClock, formatLongDate, formatMinutes, formatTime } from "../../lib/format";
+import { formatLongDate, formatMinutes, formatTime } from "../../lib/format";
 import { t } from "../../lib/i18n";
 import { isNetworkError, newClientId } from "../../lib/offline-queue";
 import { computeElapsed } from "../../lib/time";
 import { colors, radii } from "../../theme/tokens";
-import { useMe } from "../session/session";
+import { useMe, useLocale } from "../session/session";
 import { errorText } from "./payment-card";
+import { ShiftClock } from "./shift-clock";
 import { useGeolocation } from "./use-geolocation";
 import { offlineQueue } from "./use-offline-sync";
 
-const FULL_SHIFT_MINUTES = 8 * 60;
 
 export function WorkingView({ punch, sites, weekMinutesBefore }: { punch: PunchDto; sites: SiteDto[]; weekMinutesBefore: number }) {
   const me = useMe();
@@ -32,7 +31,7 @@ export function WorkingView({ punch, sites, weekMinutesBefore }: { punch: PunchD
   const toast = useToast();
   const geo = useGeolocation();
   const { settings } = me.company;
-  const locale = me.person.locale;
+  const locale = useLocale();
   const clockInAt = new Date(punch.clockIn.at);
   const [now, setNow] = useState(() => new Date());
   const [sheet, setSheet] = useState(false);
@@ -40,12 +39,12 @@ export function WorkingView({ punch, sites, weekMinutesBefore }: { punch: PunchD
   const [notify, setNotify] = useState(punch.clockIn.notifyOffice ?? false);
 
   useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 1000);
+    // Totals below change by the minute; the second-by-second clock lives in ShiftClock.
+    const id = setInterval(() => setNow(new Date()), 30_000);
     return () => clearInterval(id);
   }, []);
 
   const elapsed = computeElapsed(clockInAt, now, settings.lunch);
-  const fraction = Math.min(1, elapsed.spanMinutes / FULL_SHIFT_MINUTES);
   const siteName = punch.clockIn.siteId ? (sites.find((s) => s.id === punch.clockIn.siteId)?.name ?? null) : null;
   const hasLocation = !!punch.clockIn.location;
 
@@ -56,7 +55,12 @@ export function WorkingView({ punch, sites, weekMinutesBefore }: { punch: PunchD
 
   const clockOut = useMutation({
     mutationFn: async () => {
-      const payload = { location: geo.position ?? undefined, deviceAt: new Date().toISOString(), clientId: newClientId() };
+      const payload = { location: geo.position ?? undefined, deviceAt: new Date().toISOString(), clientId: newClientId(), ownerId: me.member.id };
+      // A shift started offline is still in the queue: its end must follow it there, in order.
+      if (punch.id.startsWith("queued-")) {
+        await offlineQueue.enqueue({ kind: "clock-out", ...payload });
+        return null;
+      }
       try {
         return await api.punches.clockOut(payload);
       } catch (e) {
@@ -103,21 +107,7 @@ export function WorkingView({ punch, sites, weekMinutesBefore }: { punch: PunchD
         </Txt>
       </View>
 
-      <RingTimer fraction={fraction}>
-        <Txt size={13} tone="muted">
-          {t("worker.home.timeToday")}
-        </Txt>
-        <Txt size={44} weight="semibold" tabular tracking={-1} accessibilityLiveRegion="polite">
-          {formatClock(elapsed.workedMinutes)}
-        </Txt>
-        {elapsed.lunchDeductedMinutes > 0 && (
-          <View style={styles.lunch}>
-            <Txt size={12} tone="muted">
-              {t("worker.home.lunchDeducted", { minutes: elapsed.lunchDeductedMinutes })}
-            </Txt>
-          </View>
-        )}
-      </RingTimer>
+      <ShiftClock clockInAt={punch.clockIn.at} lunch={settings.lunch} />
 
       <Card style={styles.siteRow}>
         <View style={[styles.icon, { backgroundColor: siteName ? colors.okBg : colors.warnBg }]}>
