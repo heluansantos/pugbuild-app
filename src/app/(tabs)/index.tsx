@@ -81,7 +81,7 @@ function WorkerClock() {
           <ActivityIndicator color={colors.ink} />
         </View>
       ) : punch ? (
-        <WorkingView punch={punch} sites={sites.data?.sites ?? []} weekMinutesBefore={weekMinutesBefore} />
+        <WorkingView punch={punch} sites={sites.data?.sites ?? []} weekMinutesBefore={weekMinutesBefore} todayMinutesBefore={todayMinutes} />
       ) : (
         <>
           <HomeView sites={sites.data?.sites ?? []} queued={pending > 0} />

@@ -26,7 +26,8 @@
     "starting": "Iniciando…",
     "gpsAccuracy": "GPS ±{meters} m",
     "approxLocation": "Localização aproximada. Ative a Localização Exata para o PugBuild para o ponto cair na obra certa.",
-    "openSettings": "Ajustes"
+    "openSettings": "Ajustes",
+    "earlierToday": "Inclui {time} de mais cedo hoje"
   },
   "sheets": {
     "commentTitle": "Comentário",
@@ -68,7 +69,8 @@
     "received": "Recebido",
     "daysWorked": "{count} dias trabalhados",
     "allTime": "Todo o período",
-    "noHoursPeriod": "Sem horas neste período."
+    "noHoursPeriod": "Sem horas neste período.",
+    "awaitingClose": "Aguardando fechamento"
   },
   "payments": {
     "title": "Pagamentos",

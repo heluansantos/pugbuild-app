@@ -47,6 +47,13 @@ export default function WeekScreen() {
   const current =
     list.find((p) => p.status === "ready" || p.status === "disputed") ?? list.find((p) => p.status === "pending");
   const previous = list.filter((p) => p.id !== current?.id);
+  // Past weeks with hours but no payment: the office has not closed them yet. Shown in place so a
+  // week never looks like it vanished between the hours view and the payments list.
+  const awaiting = payments.data?.openWeeks ?? [];
+  const history = [
+    ...awaiting.map((w) => ({ kind: "open" as const, key: `open-${w.weekKey}`, weekKey: w.weekKey, endKey: w.endKey, minutes: w.minutes, cents: w.grossCents })),
+    ...previous.map((p) => ({ kind: "paid" as const, key: p.id, weekKey: p.weekKey, endKey: p.endKey, minutes: p.minutes, cents: p.amountCents, payment: p })),
+  ].sort((a, b) => (a.weekKey < b.weekKey ? 1 : -1));
   const hasOpen = data?.punches.some((p) => p.status === "open");
 
   return (
@@ -148,29 +155,35 @@ export default function WeekScreen() {
         <Txt size={15} weight="semibold">
           {t("worker.payments.title")}
         </Txt>
-        {payments.isSuccess && previous.length === 0 && !current && (
+        {payments.isSuccess && history.length === 0 && !current && (
           <Txt size={14} tone="muted">
             {t("worker.week.noPayments")}
           </Txt>
         )}
-        {previous.map((p) => (
-          <Card key={p.id} style={styles.row}>
+        {history.map((row) => (
+          <Card key={row.key} style={styles.row}>
             <View style={{ flex: 1 }}>
               <Txt size={15} weight="medium">
-                {formatWeekRange(p.weekKey, p.endKey, locale)}
+                {formatWeekRange(row.weekKey, row.endKey, locale)}
               </Txt>
               <View style={styles.meta}>
-                <Chip tone={PAY_TONES[p.status] ?? "neutral"} size="sm">
-                  {t(`worker.payments.status.${p.status}`)}
-                </Chip>
+                {row.kind === "paid" ? (
+                  <Chip tone={PAY_TONES[row.payment.status] ?? "neutral"} size="sm">
+                    {t(`worker.payments.status.${row.payment.status}`)}
+                  </Chip>
+                ) : (
+                  <Chip tone="neutral" size="sm">
+                    {t("worker.week.awaitingClose")}
+                  </Chip>
+                )}
                 <Txt size={13} tone="muted">
-                  {p.method ? `${t(`common.paymentMethod.${p.method}`)} · ` : ""}
-                  {formatMinutes(p.minutes)}
+                  {row.kind === "paid" && row.payment.method ? `${t(`common.paymentMethod.${row.payment.method}`)} · ` : ""}
+                  {formatMinutes(row.minutes)}
                 </Txt>
               </View>
             </View>
-            <Txt size={16} weight="semibold" tabular>
-              {formatMoney(p.amountCents, locale)}
+            <Txt size={16} weight="semibold" tabular tone={row.kind === "open" ? "muted" : undefined}>
+              {formatMoney(row.cents, locale)}
             </Txt>
           </Card>
         ))}
