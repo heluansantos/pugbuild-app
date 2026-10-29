@@ -346,3 +346,46 @@ export interface TaskDto {
   createdAt: string;
   updatedAt: string;
 }
+
+/* ---- Hours over a period (month / year / all) ---- */
+
+export type Period = "month" | "year" | "all";
+
+export interface PeriodSummaryDto {
+  period: Period;
+  at: string;
+  startKey: string;
+  endKey: string;
+  prevAt: string | null;
+  nextAt: string | null;
+  buckets: { key: string; kind: "block" | "month" | "year"; minutes: number }[];
+  totalMinutes: number;
+  grossCents: number;
+  paidCents: number;
+  daysWorked: number;
+}
+
+/* ---- Site detail and timeline ---- */
+
+export interface SiteDetailDto extends SiteDto {
+  openTasks: number;
+  doneTasks: number;
+  posts: number;
+  latestPhotoUrl?: string;
+}
+
+export interface FeedAuthorDto {
+  name: string;
+  photoUrl?: string;
+  role?: string;
+}
+
+export type FeedItemDto =
+  | { kind: "post"; id: string; at: string; author: FeedAuthorDto; text?: string; photos: TaskPhotoDto[]; canDelete: boolean }
+  | { kind: "task_created"; id: string; at: string; author: FeedAuthorDto; taskId: string; title: string; assigneeName?: string }
+  | { kind: "task_done"; id: string; at: string; author: FeedAuthorDto; taskId: string; title: string; note?: string; photos: TaskPhotoDto[] };
+
+export interface FeedPageDto {
+  items: FeedItemDto[];
+  nextBefore: string | null;
+}

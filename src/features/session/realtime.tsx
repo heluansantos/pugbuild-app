@@ -9,7 +9,7 @@ const KEY = process.env.EXPO_PUBLIC_PUSHER_KEY;
 const CLUSTER = process.env.EXPO_PUBLIC_PUSHER_CLUSTER ?? "us2";
 
 /** Same contract as the web (pugbuild-web/src/lib/realtime/events.ts). */
-const EVENTS = ["punch.clock_in", "punch.clock_out", "punch.annotated", "review.changed", "payment.changed", "site.changed", "task.changed"] as const;
+const EVENTS = ["punch.clock_in", "punch.clock_out", "punch.annotated", "review.changed", "payment.changed", "site.changed", "task.changed", "site.post"] as const;
 
 // The React Native bundle exposes the class as a named export (`module.exports.Pusher`), not as the default.
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -52,7 +52,8 @@ export function RealtimeSync() {
       "review.changed": () => invalidate([keys.officeToday, ["office", "week"]]),
       "payment.changed": () => invalidate([keys.payments, ["office", "week"]]),
       "site.changed": () => invalidate([keys.sites, keys.officeToday]),
-      "task.changed": () => invalidate([keys.tasks]),
+      "task.changed": () => invalidate([keys.tasks, ["site"]]),
+      "site.post": (p) => invalidate([["site", String(p.siteId)]]),
     };
     for (const name of EVENTS) channel.bind(name, handlers[name]);
 

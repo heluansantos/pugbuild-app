@@ -6,11 +6,13 @@ import { Card } from "../../components/ui/card";
 import { Chip, type ChipTone } from "../../components/ui/chip";
 import { Screen, Title } from "../../components/ui/screen";
 import { Txt } from "../../components/ui/text";
-import { useLocale } from "../../features/session/session";
+import { useLocale, useMe } from "../../features/session/session";
 import { DayBars } from "../../features/worker/day-bars";
+import { PeriodView } from "../../features/worker/period-view";
+import type { Period } from "../../lib/api-types";
 import { PaymentCard } from "../../features/worker/payment-card";
 import { api, keys } from "../../lib/api";
-import { formatMinutes, formatMoney, formatWeekRange, keyToDate } from "../../lib/format";
+import { formatMinutes, formatMoney, formatWeekRange, keyToDate, todayKeyIn } from "../../lib/format";
 import { t } from "../../lib/i18n";
 import { buildDayBars } from "../../lib/week-helpers";
 import { colors, radii } from "../../theme/tokens";
@@ -24,8 +26,13 @@ function shiftKey(key: string, days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
+type Mode = "week" | Period;
+const MODES: Mode[] = ["week", "month", "year", "all"];
+
 export default function WeekScreen() {
   const locale = useLocale();
+  const me = useMe();
+  const [mode, setMode] = useState<Mode>("week");
   const [weekKey, setWeekKey] = useState<string | undefined>(undefined);
   const week = useQuery({ queryKey: keys.week(weekKey), queryFn: () => api.week(weekKey) });
   const payments = useQuery({ queryKey: keys.payments, queryFn: api.payments.list });
@@ -37,17 +44,39 @@ export default function WeekScreen() {
   const data = week.data;
   const isCurrent = !!data && data.week.startKey <= data.todayKey && data.todayKey <= data.week.endKey;
   const list = payments.data?.payments ?? [];
-  const current = list.find((p) => p.status === "ready" || p.status === "disputed") ?? list.find((p) => p.status === "pending");
+  const current =
+    list.find((p) => p.status === "ready" || p.status === "disputed") ?? list.find((p) => p.status === "pending");
   const previous = list.filter((p) => p.id !== current?.id);
   const hasOpen = data?.punches.some((p) => p.status === "open");
 
   return (
     <Screen tabs>
       <View style={styles.header}>
-        <Title>{t("worker.week.title")}</Title>
-        {data && (
+        <Title>{mode === "week" ? t("worker.week.title") : t(`worker.week.periods.${mode}`)}</Title>
+        {/* Slim period switch: same pill language as the tab bar, no extra screen. */}
+        <View style={styles.modes} accessibilityRole="tablist">
+          {MODES.map((m) => (
+            <Pressable
+              key={m}
+              onPress={() => setMode(m)}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: mode === m }}
+              style={[styles.mode, mode === m && styles.modeActive]}
+            >
+              <Txt size={13} weight="semibold" tone={mode === m ? "white" : "muted"}>
+                {t(`worker.week.periods.${m}`)}
+              </Txt>
+            </Pressable>
+          ))}
+        </View>
+        {mode === "week" && data && (
           <View style={styles.pager}>
-            <Pressable onPress={() => setWeekKey(shiftKey(data.week.startKey, -7))} style={styles.pageBtn} accessibilityRole="button" accessibilityLabel={t("common.actions.back")}>
+            <Pressable
+              onPress={() => setWeekKey(shiftKey(data.week.startKey, -7))}
+              style={styles.pageBtn}
+              accessibilityRole="button"
+              accessibilityLabel={t("common.actions.back")}
+            >
               <ChevronLeft size={16} color={colors.ink} />
             </Pressable>
             <Txt size={13} weight="medium">
@@ -66,44 +95,54 @@ export default function WeekScreen() {
         )}
       </View>
 
-      <Card size="lg" style={{ gap: 16 }}>
-        {week.isPending ? (
-          <ActivityIndicator color={colors.ink} style={{ height: 150 }} />
-        ) : data ? (
-          <>
-            <View style={styles.totals}>
-              <View>
-                <Txt size={13} tone="muted">
-                  {t("worker.week.totalHours")}
-                </Txt>
-                <Txt size={40} weight="semibold" tabular tracking={-1}>
-                  {formatMinutes(data.totalMinutes)}
-                </Txt>
+      {mode !== "week" ? (
+        <PeriodView key={mode} period={mode} locale={locale} todayKey={todayKeyIn(me.company.settings.timezone)} />
+      ) : (
+        <Card size="lg" style={{ gap: 16 }}>
+          {week.isPending ? (
+            <ActivityIndicator color={colors.ink} style={{ height: 150 }} />
+          ) : data ? (
+            <>
+              <View style={styles.totals}>
+                <View>
+                  <Txt size={13} tone="muted">
+                    {t("worker.week.totalHours")}
+                  </Txt>
+                  <Txt size={40} weight="semibold" tabular tracking={-1}>
+                    {formatMinutes(data.totalMinutes)}
+                  </Txt>
+                </View>
+                <View style={{ alignItems: "flex-end" }}>
+                  <Txt size={13} tone="muted">
+                    {t("worker.week.gross")}
+                  </Txt>
+                  <Txt size={22} weight="semibold" tabular>
+                    {formatMoney(data.grossCents, locale)}
+                  </Txt>
+                </View>
               </View>
-              <View style={{ alignItems: "flex-end" }}>
+              <DayBars bars={bars} />
+              {hasOpen && (
                 <Txt size={13} tone="muted">
-                  {t("worker.week.gross")}
+                  {t("worker.week.openShift")}
                 </Txt>
-                <Txt size={22} weight="semibold" tabular>
-                  {formatMoney(data.grossCents, locale)}
-                </Txt>
-              </View>
-            </View>
-            <DayBars bars={bars} />
-            {hasOpen && (
-              <Txt size={13} tone="muted">
-                {t("worker.week.openShift")}
-              </Txt>
-            )}
-          </>
-        ) : (
-          <Txt size={14} tone="muted">
-            {t("common.states.offline")}
-          </Txt>
-        )}
-      </Card>
+              )}
+            </>
+          ) : (
+            <Txt size={14} tone="muted">
+              {t("common.states.offline")}
+            </Txt>
+          )}
+        </Card>
+      )}
 
-      {current && <PaymentCard payment={current} weekLabel={formatWeekRange(current.weekKey, current.endKey, locale)} locale={locale} />}
+      {current && (
+        <PaymentCard
+          payment={current}
+          weekLabel={formatWeekRange(current.weekKey, current.endKey, locale)}
+          locale={locale}
+        />
+      )}
 
       <View style={{ gap: 8 }}>
         <Txt size={15} weight="semibold">
@@ -141,8 +180,27 @@ export default function WeekScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: { gap: 8 },
-  pager: { flexDirection: "row", alignItems: "center", gap: 2, alignSelf: "flex-start", borderWidth: 1, borderColor: colors.line, borderRadius: radii.pill, padding: 4 },
+  header: { gap: 10 },
+  modes: {
+    flexDirection: "row",
+    gap: 2,
+    padding: 3,
+    borderRadius: radii.pill,
+    backgroundColor: colors.nav,
+    alignSelf: "flex-start",
+  },
+  mode: { height: 32, paddingHorizontal: 14, borderRadius: radii.pill, alignItems: "center", justifyContent: "center" },
+  modeActive: { backgroundColor: colors.ink },
+  pager: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+    alignSelf: "flex-start",
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderRadius: radii.pill,
+    padding: 4,
+  },
   pageBtn: { width: 36, height: 36, borderRadius: radii.pill, alignItems: "center", justifyContent: "center" },
   totals: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between" },
   row: { flexDirection: "row", alignItems: "center", gap: 12 },

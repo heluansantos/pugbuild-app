@@ -1,6 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type {
   ApiErrorCode,
+  FeedPageDto,
+  SiteDetailDto,
+  Period,
+  PeriodSummaryDto,
   BillingOverviewDto,
   TaskDto,
   MeDto,
@@ -164,12 +168,29 @@ export const api = {
     today: () => get<{ dayKey: string; punches: PunchDto[] }>("/api/v1/punches/today"),
   },
   week: (weekKey?: string) => get<WeekDto>(`/api/v1/week${weekKey ? `?week=${weekKey}` : ""}`),
+  hours: (period: Period, at?: string) => get<PeriodSummaryDto>(`/api/v1/hours?period=${period}${at ? `&at=${at}` : ""}`),
   payments: {
     list: () => get<{ payments: PaymentDto[] }>("/api/v1/payments"),
     confirm: (id: string) => post<{ ok: true }>(`/api/v1/payments/${id}/confirm`),
     dispute: (id: string, note: string) => post<{ ok: true }>(`/api/v1/payments/${id}/dispute`, { note }),
   },
   sites: () => get<{ sites: SiteDto[] }>("/api/v1/sites"),
+  site: {
+    get: (id: string) => get<SiteDetailDto>(`/api/v1/sites/${id}`),
+    feed: (id: string, before?: string) => get<FeedPageDto>(`/api/v1/sites/${id}/feed${before ? `?before=${encodeURIComponent(before)}` : ""}`),
+    /** Text and up to four photos picked on the phone, in one multipart request. */
+    post: async (id: string, text: string, photos: { uri: string; mimeType?: string }[]) => {
+      const form = new FormData();
+      if (text.trim()) form.append("text", text.trim());
+      for (const [i, p] of photos.entries()) {
+        const type = p.mimeType ?? "image/jpeg";
+        const raw = await (await fetch(p.uri)).blob();
+        form.append("files", new Blob([raw], { type }), `photo-${i}.${type.split("/")[1] ?? "jpg"}`);
+      }
+      return request<{ id: string }>(`/api/v1/sites/${id}/posts`, { method: "POST", body: form });
+    },
+    deletePost: (id: string, postId: string) => request<{ ok: true }>(`/api/v1/sites/${id}/posts/${postId}`, { method: "DELETE" }),
+  },
   tasks: {
     list: (status?: "open" | "done") => get<{ tasks: TaskDto[] }>(`/api/v1/tasks${status ? `?status=${status}` : ""}`),
     get: (id: string) => get<TaskDto>(`/api/v1/tasks/${id}`),
@@ -211,5 +232,8 @@ export const keys = {
   officeTeam: ["office", "team"] as const,
   billing: ["billing"] as const,
   tasks: ["tasks"] as const,
+  site: (id: string) => ["site", id] as const,
+  siteFeed: (id: string) => ["site", id, "feed"] as const,
+  hours: (period: string, at?: string) => ["week", "hours", period, at ?? "current"] as const,
   task: (id: string) => ["tasks", id] as const,
 };

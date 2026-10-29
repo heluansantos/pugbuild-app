@@ -58,7 +58,17 @@
     "previous": "Anteriores",
     "receivedOn": "Recibido en {method} · {date}",
     "noPayments": "Todavía no hay pagos.",
-    "openShift": "Turno todavía abierto"
+    "openShift": "Turno todavía abierto",
+    "periods": {
+      "week": "Semana",
+      "month": "Mes",
+      "year": "Año",
+      "all": "Todo"
+    },
+    "received": "Recibido",
+    "daysWorked": "{count} días trabajados",
+    "allTime": "Todo el período",
+    "noHoursPeriod": "Sin horas en este período."
   },
   "payments": {
     "title": "Pagos",
@@ -144,5 +154,28 @@
     "directions": "Ruta",
     "noPhotosYet": "Agrega una foto del trabajo terminado antes de cerrar, para que la oficina la vea.",
     "openCount": "{count} por hacer"
+  },
+  "siteFeed": {
+    "timeline": "Línea de tiempo",
+    "composerPlaceholder": "¿Qué hay de nuevo en la obra?",
+    "post": "Publicar",
+    "posting": "Publicando…",
+    "posted": "Publicado",
+    "addPhotos": "Fotos",
+    "photosLimit": "Hasta 4 fotos",
+    "deleted": "Publicación eliminada",
+    "confirmDelete": "¿Eliminar esta publicación?",
+    "delete": "Eliminar",
+    "empty": "Nada publicado todavía. Muestra cómo está la obra hoy.",
+    "taskCreated": "creó una tarea",
+    "taskDone": "terminó una tarea",
+    "assigned": "para {name}",
+    "openTasks": "{count} abiertas",
+    "doneTasks": "{count} terminadas",
+    "posts": "{count} novedades",
+    "now": "ahora",
+    "minutes": "{count} min",
+    "hours": "{count} h",
+    "loadingMore": "Cargando…"
   }
 }

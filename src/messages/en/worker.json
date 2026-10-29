@@ -58,7 +58,17 @@
     "previous": "Previous",
     "receivedOn": "Received by {method} · {date}",
     "noPayments": "No payments yet.",
-    "openShift": "Shift still open"
+    "openShift": "Shift still open",
+    "periods": {
+      "week": "Week",
+      "month": "Month",
+      "year": "Year",
+      "all": "All"
+    },
+    "received": "Received",
+    "daysWorked": "{count} days worked",
+    "allTime": "All time",
+    "noHoursPeriod": "No hours in this period."
   },
   "payments": {
     "title": "Payments",
@@ -144,5 +154,28 @@
     "directions": "Directions",
     "noPhotosYet": "Add a photo of the finished work before closing, so the office sees it.",
     "openCount": "{count} to do"
+  },
+  "siteFeed": {
+    "timeline": "Timeline",
+    "composerPlaceholder": "What's new on site?",
+    "post": "Post",
+    "posting": "Posting…",
+    "posted": "Posted",
+    "addPhotos": "Photos",
+    "photosLimit": "Up to 4 photos",
+    "deleted": "Post removed",
+    "confirmDelete": "Remove this post?",
+    "delete": "Remove",
+    "empty": "Nothing posted yet. Share how the job looks today.",
+    "taskCreated": "added a task",
+    "taskDone": "finished a task",
+    "assigned": "for {name}",
+    "openTasks": "{count} open",
+    "doneTasks": "{count} done",
+    "posts": "{count} updates",
+    "now": "now",
+    "minutes": "{count} min",
+    "hours": "{count} h",
+    "loadingMore": "Loading…"
   }
 }

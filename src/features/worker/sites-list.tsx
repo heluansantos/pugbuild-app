@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
 import { MapPin, Navigation } from "lucide-react-native";
 import { ActivityIndicator, Image, Pressable, StyleSheet, View } from "react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
@@ -18,6 +19,7 @@ import { colors, radii } from "../../theme/tokens";
 /** Active job sites by distance, each with a directions shortcut. Rendered inside the Tasks tab. */
 export function SitesList() {
   const me = useMe();
+  const router = useRouter();
   const locale = useLocale();
   const sites = useQuery({ queryKey: keys.sites, queryFn: api.sites });
   const list = sites.data?.sites ?? [];
@@ -34,6 +36,7 @@ export function SitesList() {
         const here = d !== null && d <= (site.radiusMeters ?? me.company.settings.siteRadiusMeters);
         return (
           <Animated.View key={site.id} entering={FadeInUp.delay(i * 40).duration(300)}>
+            <Pressable onPress={() => router.push({ pathname: "/site/[id]", params: { id: site.id } })} accessibilityRole="button" accessibilityLabel={site.name}>
             <Card style={styles.row}>
               {site.photos[0] ? (
                 <Image source={{ uri: site.photos[0].url }} style={[styles.photo, here && styles.hereRing]} accessibilityIgnoresInvertColors />
@@ -58,6 +61,7 @@ export function SitesList() {
                 </Pressable>
               </View>
             </Card>
+            </Pressable>
           </Animated.View>
         );
       })}
