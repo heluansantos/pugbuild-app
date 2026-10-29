@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { Redirect, type Href } from "expo-router";
-import { Bell } from "lucide-react-native";
 import { useMemo } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { Logo } from "../../components/brand/logo";
@@ -12,10 +11,11 @@ import { HomeView } from "../../features/worker/home-view";
 import { useOfflineSync } from "../../features/worker/use-offline-sync";
 import { Stat, WorkingView } from "../../features/worker/working-view";
 import { api, keys } from "../../lib/api";
-import { firstName, formatMinutes, formatTime } from "../../lib/format";
+import { firstName, formatMinutes, formatTime, todayKeyIn } from "../../lib/format";
+import type { PunchDto } from "../../lib/api-types";
 import { t } from "../../lib/i18n";
 import { buildWeekStrip } from "../../lib/week-helpers";
-import { colors, radii } from "../../theme/tokens";
+import { colors } from "../../theme/tokens";
 
 export default function ClockScreen() {
   const me = useMe();
@@ -25,7 +25,7 @@ export default function ClockScreen() {
 
 function WorkerClock() {
   const me = useMe();
-  const { pending } = useOfflineSync();
+  const { pending, items } = useOfflineSync();
   const open = useQuery({ queryKey: keys.openPunch, queryFn: api.punches.open, refetchInterval: 5 * 60_000 });
   const week = useQuery({ queryKey: keys.week(), queryFn: () => api.week() });
   const sites = useQuery({ queryKey: keys.sites, queryFn: api.sites, staleTime: 5 * 60_000 });
@@ -38,7 +38,24 @@ function WorkerClock() {
     return buildWeekStrip(week.data.week.dayKeys, worked, week.data.todayKey, settings.workDays, locale);
   }, [week.data, settings.workDays, locale]);
 
-  const punch = open.data ?? null;
+  // A shift tapped without signal shows immediately (timer running from the tap); a shift ended
+  // offline shows as ended. The server catches up when the queue replays.
+  const queuedIn = items.find((i) => i.kind === "clock-in");
+  const queuedOut = items.find((i) => i.kind === "clock-out");
+  let punch: PunchDto | null = open.data ?? null;
+  if (!punch && queuedIn && !queuedOut) {
+    punch = {
+      id: `queued-${queuedIn.id}`,
+      companyId: me.company.id,
+      membershipId: me.member.id,
+      personId: me.person.id,
+      dayKey: todayKeyIn(settings.timezone),
+      weekKey: "",
+      clockIn: { at: queuedIn.deviceAt, location: queuedIn.location, clientId: queuedIn.clientId },
+      status: "open",
+      flags: [],
+    };
+  } else if (punch && queuedOut) punch = null;
   const todayClosed = week.data?.punches.filter((p) => p.dayKey === week.data?.todayKey && p.status === "closed") ?? [];
   const todayMinutes = todayClosed.reduce((s, p) => s + (p.workedMinutes ?? 0), 0);
   const lastOut = todayClosed.at(-1)?.clockOut?.at;
@@ -49,9 +66,6 @@ function WorkerClock() {
     <Screen tabs>
       <View style={styles.header}>
         <Logo size={44} />
-        <View style={styles.bell} accessibilityLabel="Notifications">
-          <Bell size={20} color={colors.ink} />
-        </View>
       </View>
 
       {!punch && (
@@ -89,7 +103,6 @@ function WorkerClock() {
 
 const styles = StyleSheet.create({
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  bell: { width: 44, height: 44, borderRadius: radii.pill, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" },
   loading: { flex: 1, alignItems: "center", justifyContent: "center", minHeight: 260 },
   stats: { flexDirection: "row", gap: 8 },
 });

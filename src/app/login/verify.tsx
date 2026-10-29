@@ -16,7 +16,15 @@ import { t } from "../../lib/i18n";
 import { colors, fonts, radii } from "../../theme/tokens";
 
 const LENGTH = 6;
-const devCodeHint = () => /localhost|127\.0\.0\.1|192\.168\.|172\.|10\.|vercel\.app/.test(getApiUrl());
+// Only builds talking to a dev server or a Vercel preview, where the fixed code is accepted.
+const devCodeHint = () => {
+  try {
+    const host = new URL(getApiUrl()).hostname;
+    return (__DEV__ && /^(localhost|127\.0\.0\.1|10\.|172\.|192\.168\.)/.test(host)) || host.endsWith(".vercel.app");
+  } catch {
+    return false;
+  }
+};
 
 export default function VerifyScreen() {
   const router = useRouter();

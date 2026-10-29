@@ -9,12 +9,14 @@ import { Card } from "../../components/ui/card";
 import { Chip } from "../../components/ui/chip";
 import { Textarea } from "../../components/ui/field";
 import { Screen } from "../../components/ui/screen";
+import { LoadError } from "../../components/ui/load-error";
 import { Txt } from "../../components/ui/text";
 import { useToast } from "../../components/ui/toast";
-import { useLocale, useMe } from "../../features/session/session";
+import { useLocale, useSession } from "../../features/session/session";
 import { openSiteInMaps } from "../../features/worker/open-in-maps";
 import { errorText } from "../../features/worker/payment-card";
 import { api, keys } from "../../lib/api";
+import { shrinkPhoto } from "../../lib/photos";
 import type { TaskPhotoDto } from "../../lib/api-types";
 import { formatShortDate, keyToDate, todayKeyIn } from "../../lib/format";
 import { t } from "../../lib/i18n";
@@ -24,12 +26,12 @@ import { colors, radii } from "../../theme/tokens";
 export default function TaskDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const me = useMe();
+  const { me } = useSession();
   const locale = useLocale();
   const toast = useToast();
   const qc = useQueryClient();
-  const timezone = me.company.settings.timezone;
-  const staff = me.member.role !== "worker";
+  const timezone = me?.company.settings.timezone ?? "UTC";
+  const staff = !!me && me.member.role !== "worker";
   const task = useQuery({ queryKey: keys.task(id), queryFn: () => api.tasks.get(id), enabled: !!id });
   const sites = useQuery({ queryKey: keys.sites, queryFn: api.sites, staleTime: 5 * 60_000 });
   const [note, setNote] = useState("");
@@ -48,14 +50,18 @@ export default function TaskDetailScreen() {
           ? await ImagePicker.launchCameraAsync({ mediaTypes: ["images"], quality: 0.7 })
           : await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.7, allowsMultipleSelection: true, selectionLimit: 6 });
       if (picked.canceled) return 0;
-      for (const asset of picked.assets) await api.tasks.addPhoto(id, asset.uri, asset.mimeType ?? "image/jpeg");
+      for (const asset of picked.assets) {
+        const small = await shrinkPhoto(asset);
+        await api.tasks.addPhoto(id, small.uri, small.mimeType);
+      }
       return picked.assets.length;
     },
-    onSuccess: async (n) => {
+    onSuccess: (n) => {
       if (n > 0) toast.ok(t("worker.tasks.photoAdded"));
-      await refresh();
     },
     onError: (e) => toast.error(e instanceof Error && e.message === "denied" ? t("worker.profile.photoDenied") : errorText(e)),
+    // Some photos may have gone up before a failure: always show what the server has.
+    onSettled: () => refresh(),
   });
   const removePhoto = useMutation({
     mutationFn: (pathname: string) => api.tasks.removePhoto(id, pathname),
@@ -99,7 +105,10 @@ export default function TaskDetailScreen() {
   const site = data?.siteId ? sites.data?.sites.find((s) => s.id === data.siteId) : undefined;
   const mine = data?.completion?.photos ?? [];
   const overdue = data?.status === "open" && !!data.dueKey && data.dueKey < todayKeyIn(timezone);
-  const canClose = !!data && data.status === "open" && (staff || data.assigneeMembershipId === me.member.id);
+  const canClose = !!data && data.status === "open" && (staff || data.assigneeMembershipId === me?.member.id);
+
+  // Signed out while this screen was open: render nothing until the gate redirects.
+  if (!me) return null;
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
@@ -115,7 +124,9 @@ export default function TaskDetailScreen() {
           )}
         </View>
 
-        {task.isPending || !data ? (
+        {task.isError ? (
+          <LoadError onRetry={() => void task.refetch()} />
+        ) : task.isPending || !data ? (
           <ActivityIndicator color={colors.ink} style={{ height: 160 }} />
         ) : (
           <>

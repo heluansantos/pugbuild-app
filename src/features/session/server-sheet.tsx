@@ -19,7 +19,11 @@ export function ServerSheet({ open, onClose }: { open: boolean; onClose: () => v
   const current = getApiUrl();
 
   async function choose(url: string | null) {
-    await setApiUrl(url);
+    try {
+      await setApiUrl(url);
+    } catch {
+      return; // not an allowed server for this build
+    }
     onClose();
     await refresh();
   }

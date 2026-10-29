@@ -85,20 +85,27 @@ export function normalizePhone(raw: string): string | null {
   return null;
 }
 
-/** "07:02" in the company timezone. */
+/** Intl formatters are expensive to build; the clock re-renders every second, so reuse them. */
+const formatters = new Map<string, Intl.DateTimeFormat>();
+export function dtf(locale: string, options: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
+  const key = `${locale}|${JSON.stringify(options)}`;
+  let f = formatters.get(key);
+  if (!f) {
+    f = new Intl.DateTimeFormat(locale, options);
+    formatters.set(key, f);
+  }
+  return f;
+}
+
+/** "07:02" in the company timezone ("h23": never "24:05"). */
 export function formatTime(date: Date, timezone: string, locale: string): string {
-  return new Intl.DateTimeFormat(toIntlLocale(locale), {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-    timeZone: timezone,
-  }).format(date);
+  return dtf(toIntlLocale(locale), { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: timezone }).format(date);
 }
 
 /** "Terça, 20 de outubro" / "Tuesday, October 20". */
 export function formatLongDate(date: Date, timezone: string, locale: string): string {
   return cap(
-    new Intl.DateTimeFormat(toIntlLocale(locale), {
+    dtf(toIntlLocale(locale), {
       weekday: "long",
       day: "numeric",
       month: "long",
@@ -109,7 +116,10 @@ export function formatLongDate(date: Date, timezone: string, locale: string): st
 
 /** Today's YYYY-MM-DD in the company timezone (a due date compares against this, never against UTC). */
 export function todayKeyIn(timezone: string): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: timezone, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+  // formatToParts, not a locale's date pattern: ICU data differs between devices.
+  const parts = dtf("en-US", { timeZone: timezone, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+  return `${get("year")}-${get("month")}-${get("day")}`;
 }
 
 /** A YYYY-MM-DD key as a Date at noon UTC: format it with timeZone "UTC" to read the calendar day back. */
@@ -121,7 +131,7 @@ export function keyToDate(key: string): Date {
 /** Short weekday + day number for a day key: { label: "Qua", day: 14, weekday: 3 }. */
 export function dayParts(key: string, locale: string): { label: string; day: number; weekday: number } {
   const d = keyToDate(key);
-  const label = new Intl.DateTimeFormat(toIntlLocale(locale), { weekday: "short", timeZone: "UTC" })
+  const label = dtf(toIntlLocale(locale), { weekday: "short", timeZone: "UTC" })
     .format(d)
     .replace(".", "");
   return { label: cap(label), day: d.getUTCDate(), weekday: d.getUTCDay() };
@@ -133,9 +143,9 @@ export function formatWeekRange(startKey: string, endKey: string, locale: string
   const end = keyToDate(endKey);
   const il = toIntlLocale(locale);
   const wd = (d: Date) =>
-    cap(new Intl.DateTimeFormat(il, { weekday: "short", timeZone: "UTC" }).format(d).replace(".", ""));
+    cap(dtf(il, { weekday: "short", timeZone: "UTC" }).format(d).replace(".", ""));
   const mo = (d: Date) =>
-    new Intl.DateTimeFormat(il, { month: "short", timeZone: "UTC" }).format(d).replace(".", "");
+    dtf(il, { month: "short", timeZone: "UTC" }).format(d).replace(".", "");
   const sameMonth = start.getUTCMonth() === end.getUTCMonth();
   const a = sameMonth
     ? `${wd(start)} ${start.getUTCDate()}`
@@ -145,7 +155,7 @@ export function formatWeekRange(startKey: string, endKey: string, locale: string
 
 /** "20 out" / "Oct 20" */
 export function formatShortDate(date: Date, timezone: string, locale: string): string {
-  return new Intl.DateTimeFormat(toIntlLocale(locale), {
+  return dtf(toIntlLocale(locale), {
     day: "numeric",
     month: "short",
     timeZone: timezone,

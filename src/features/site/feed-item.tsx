@@ -1,5 +1,7 @@
 import { CheckCircle2, ClipboardList, Trash2 } from "lucide-react-native";
-import { Image, Pressable, StyleSheet, View } from "react-native";
+import { Image } from "expo-image";
+import { memo } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
 import { Avatar } from "../../components/ui/avatar";
 import { Txt } from "../../components/ui/text";
 import type { FeedItemDto, TaskPhotoDto } from "../../lib/api-types";
@@ -21,22 +23,22 @@ function Photos({ photos, onOpen }: { photos: TaskPhotoDto[]; onOpen: (url: stri
   if (photos.length === 0) return null;
   if (photos.length === 1)
     return (
-      <Pressable onPress={() => onOpen(photos[0]!.url)}>
-        <Image source={{ uri: photos[0]!.url }} style={styles.single} accessibilityIgnoresInvertColors />
+      <Pressable onPress={() => onOpen(photos[0]!.url)} accessibilityRole="imagebutton" accessibilityLabel={t("worker.siteFeed.photo")}>
+        <Image source={{ uri: photos[0]!.url }} style={styles.single} contentFit="cover" cachePolicy="disk" recyclingKey={photos[0]!.pathname} transition={150} />
       </Pressable>
     );
   return (
     <View style={styles.grid}>
       {photos.map((p) => (
-        <Pressable key={p.pathname} onPress={() => onOpen(p.url)} style={styles.cell}>
-          <Image source={{ uri: p.url }} style={styles.cellImg} accessibilityIgnoresInvertColors />
+        <Pressable key={p.pathname} onPress={() => onOpen(p.url)} style={styles.cell} accessibilityRole="imagebutton" accessibilityLabel={t("worker.siteFeed.photo")}>
+          <Image source={{ uri: p.url }} style={styles.cellImg} contentFit="cover" cachePolicy="disk" recyclingKey={p.pathname} transition={150} />
         </Pressable>
       ))}
     </View>
   );
 }
 
-export function FeedItem({ item, timezone, locale, onOpenPhoto, onOpenTask, onDelete }: { item: FeedItemDto; timezone: string; locale: string; onOpenPhoto: (url: string) => void; onOpenTask: (id: string) => void; onDelete: (id: string) => void }) {
+export const FeedItem = memo(function FeedItem({ item, timezone, locale, onOpenPhoto, onOpenTask, onDelete }: { item: FeedItemDto; timezone: string; locale: string; onOpenPhoto: (url: string) => void; onOpenTask: (id: string) => void; onDelete: (id: string) => void }) {
   return (
     <View style={styles.row}>
       <Avatar name={item.author.name} photoUrl={item.author.photoUrl} size={40} />
@@ -80,7 +82,7 @@ export function FeedItem({ item, timezone, locale, onOpenPhoto, onOpenTask, onDe
       </View>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   row: { flexDirection: "row", gap: 12, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: colors.line2 },

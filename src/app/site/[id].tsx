@@ -1,35 +1,35 @@
+import { Image } from "expo-image";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-import { ArrowLeft, ImagePlus, MapPin, Navigation, X } from "lucide-react-native";
-import { useState } from "react";
-import { ActivityIndicator, Alert, FlatList, Image, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View } from "react-native";
+import { ArrowLeft, MapPin, Navigation } from "lucide-react-native";
+import { useCallback } from "react";
+import { ActivityIndicator, Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Avatar } from "../../components/ui/avatar";
-import { Button } from "../../components/ui/button";
+import { LoadError } from "../../components/ui/load-error";
 import { Txt } from "../../components/ui/text";
 import { useToast } from "../../components/ui/toast";
-import { useLocale, useMe } from "../../features/session/session";
+import { useLocale, useSession } from "../../features/session/session";
 import { FeedItem } from "../../features/site/feed-item";
+import { SiteComposer } from "../../features/site/site-composer";
+import type { FeedItemDto } from "../../lib/api-types";
 import { openSiteInMaps } from "../../features/worker/open-in-maps";
 import { errorText } from "../../features/worker/payment-card";
 import { api, keys } from "../../lib/api";
 import { t } from "../../lib/i18n";
 import { colors, radii } from "../../theme/tokens";
 
-const MAX_PHOTOS = 4;
 
 /** Job site: who it is, what is open, and an X-style timeline the whole crew feeds. */
 export default function SiteScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const me = useMe();
+  const { me } = useSession();
   const locale = useLocale();
   const toast = useToast();
   const qc = useQueryClient();
-  const timezone = me.company.settings.timezone;
+  const timezone = me?.company.settings.timezone ?? "UTC";
   const site = useQuery({ queryKey: keys.site(id), queryFn: () => api.site.get(id), enabled: !!id });
   const feed = useInfiniteQuery({
     queryKey: keys.siteFeed(id),
@@ -40,27 +40,7 @@ export default function SiteScreen() {
   });
   const items = feed.data?.pages.flatMap((p) => p.items) ?? [];
 
-  const [text, setText] = useState("");
-  const [photos, setPhotos] = useState<ImagePicker.ImagePickerAsset[]>([]);
-
-  const pick = async () => {
-    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) return toast.error(t("worker.profile.photoDenied"));
-    const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], allowsMultipleSelection: true, selectionLimit: MAX_PHOTOS - photos.length, quality: 0.6 });
-    if (!res.canceled) setPhotos((p) => [...p, ...res.assets].slice(0, MAX_PHOTOS));
-  };
-
   const refresh = () => qc.invalidateQueries({ queryKey: ["site", id] });
-  const post = useMutation({
-    mutationFn: () => api.site.post(id, text, photos.map((p) => ({ uri: p.uri, mimeType: p.mimeType }))),
-    onSuccess: async () => {
-      setText("");
-      setPhotos([]);
-      toast.ok(t("worker.siteFeed.posted"));
-      await refresh();
-    },
-    onError: (e) => toast.error(errorText(e)),
-  });
   const remove = useMutation({
     mutationFn: (postId: string) => api.site.deletePost(id, postId),
     onSuccess: async () => {
@@ -69,19 +49,18 @@ export default function SiteScreen() {
     },
     onError: (e) => toast.error(errorText(e)),
   });
-  const confirmDelete = (postId: string) =>
+  const confirmDelete = useCallback((postId: string) =>
     Alert.alert(t("worker.siteFeed.confirmDelete"), undefined, [
       { text: t("common.actions.cancel"), style: "cancel" },
       { text: t("worker.siteFeed.delete"), style: "destructive", onPress: () => remove.mutate(postId) },
-    ]);
+    ]), [remove]);
 
   const s = site.data;
-  const canPost = (text.trim().length > 0 || photos.length > 0) && !post.isPending;
 
   const header = (
     <View style={{ gap: 16, paddingBottom: 8 }}>
       <View style={[styles.cover, { paddingTop: insets.top + 8 }]}>
-        {s?.latestPhotoUrl && <Image source={{ uri: s.latestPhotoUrl }} style={StyleSheet.absoluteFill} accessibilityIgnoresInvertColors />}
+        {s?.latestPhotoUrl && <Image source={{ uri: s.latestPhotoUrl }} style={StyleSheet.absoluteFill} contentFit="cover" cachePolicy="disk" transition={120} />}
         {s?.latestPhotoUrl && <View style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(20,20,20,0.25)" }]} />}
         <Pressable onPress={() => router.back()} style={styles.back} accessibilityRole="button" accessibilityLabel={t("common.actions.back")}>
           <ArrowLeft size={22} color={colors.ink} />
@@ -113,47 +92,34 @@ export default function SiteScreen() {
               {t("worker.siteFeed.openTasks", { count: s.openTasks })} · {t("worker.siteFeed.doneTasks", { count: s.doneTasks })} · {t("worker.siteFeed.posts", { count: s.posts })}
             </Txt>
           </View>
+        ) : site.isError ? (
+          <LoadError onRetry={() => void site.refetch()} />
         ) : (
           <ActivityIndicator color={colors.ink} />
         )}
       </View>
 
-      {s?.status === "active" && (
-        <View style={[styles.pad, styles.composer]}>
-          <Avatar name={me.person.name} photoUrl={me.person.photoUrl} size={40} />
-          <View style={{ flex: 1, gap: 10 }}>
-            <TextInput value={text} onChangeText={setText} placeholder={t("worker.siteFeed.composerPlaceholder")} placeholderTextColor={colors.muted2} multiline maxLength={1000} style={styles.input} />
-            {photos.length > 0 && (
-              <View style={styles.thumbs}>
-                {photos.map((p, i) => (
-                  <View key={p.uri}>
-                    <Image source={{ uri: p.uri }} style={styles.thumb} />
-                    <Pressable onPress={() => setPhotos((l) => l.filter((_, j) => j !== i))} style={styles.thumbX} hitSlop={6} accessibilityLabel={t("worker.siteFeed.delete")}>
-                      <X size={12} color={colors.white} />
-                    </Pressable>
-                  </View>
-                ))}
-              </View>
-            )}
-            <View style={styles.composerBar}>
-              <Pressable onPress={pick} disabled={photos.length >= MAX_PHOTOS} style={[styles.iconBtn, photos.length >= MAX_PHOTOS && { opacity: 0.4 }]} accessibilityRole="button" accessibilityLabel={t("worker.siteFeed.addPhotos")}>
-                <ImagePlus size={20} color={colors.ink} />
-              </Pressable>
-              <Txt size={12} tone="muted2" style={{ flex: 1 }}>
-                {photos.length}/{MAX_PHOTOS}
-              </Txt>
-              <Button size="md" disabled={!canPost} loading={post.isPending} onPress={() => post.mutate()}>
-                {t("worker.siteFeed.post")}
-              </Button>
-            </View>
-          </View>
-        </View>
-      )}
+      {s?.status === "active" && <SiteComposer siteId={id} name={me?.person.name ?? ""} photoUrl={me?.person.photoUrl} onPosted={refresh} />}
       <Txt size={13} weight="medium" tone="muted" style={styles.pad}>
         {t("worker.siteFeed.timeline").toUpperCase()}
       </Txt>
     </View>
   );
+
+  // Stable callbacks so memoized posts do not re-render on unrelated state changes.
+  const openPhoto = useCallback((url: string) => void WebBrowser.openBrowserAsync(url), []);
+  const openTask = useCallback((taskId: string) => router.push({ pathname: "/task/[id]", params: { id: taskId } }), [router]);
+  const renderItem = useCallback(
+    ({ item }: { item: FeedItemDto }) => (
+      <View style={styles.pad}>
+        <FeedItem item={item} timezone={timezone} locale={locale} onOpenPhoto={openPhoto} onOpenTask={openTask} onDelete={confirmDelete} />
+      </View>
+    ),
+    [timezone, locale, openPhoto, openTask, confirmDelete],
+  );
+
+  // Signed out while this screen was open: render nothing until the gate redirects.
+  if (!me) return null;
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -161,11 +127,7 @@ export default function SiteScreen() {
         data={items}
         keyExtractor={(i) => i.id}
         ListHeaderComponent={header}
-        renderItem={({ item }) => (
-          <View style={styles.pad}>
-            <FeedItem item={item} timezone={timezone} locale={locale} onOpenPhoto={(url) => void WebBrowser.openBrowserAsync(url)} onOpenTask={(taskId) => router.push({ pathname: "/task/[id]", params: { id: taskId } })} onDelete={confirmDelete} />
-          </View>
-        )}
+        renderItem={renderItem}
         ListEmptyComponent={
           feed.isPending ? (
             <ActivityIndicator color={colors.ink} style={{ marginTop: 24 }} />
@@ -192,11 +154,4 @@ const styles = StyleSheet.create({
   titleRow: { flexDirection: "row", alignItems: "center", gap: 12 },
   navBtn: { width: 44, height: 44, borderRadius: radii.pill, backgroundColor: colors.accent, alignItems: "center", justifyContent: "center" },
   meta: { flexDirection: "row", alignItems: "center", gap: 6 },
-  composer: { flexDirection: "row", gap: 12, paddingVertical: 14, marginHorizontal: 20, paddingHorizontal: 14, borderRadius: radii.cardMd, backgroundColor: colors.surface },
-  input: { minHeight: 44, fontFamily: "Outfit_400Regular", fontSize: 16, color: colors.ink, paddingTop: 10 },
-  thumbs: { flexDirection: "row", gap: 6 },
-  thumb: { width: 64, height: 64, borderRadius: 12, backgroundColor: colors.bg },
-  thumbX: { position: "absolute", top: 4, right: 4, width: 20, height: 20, borderRadius: 10, backgroundColor: "rgba(20,20,20,0.7)", alignItems: "center", justifyContent: "center" },
-  composerBar: { flexDirection: "row", alignItems: "center", gap: 8 },
-  iconBtn: { width: 40, height: 40, borderRadius: radii.pill, backgroundColor: colors.bg, alignItems: "center", justifyContent: "center" },
 });

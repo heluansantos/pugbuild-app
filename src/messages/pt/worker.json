@@ -115,7 +115,8 @@
     "queued": "Sem sinal. Guardamos seu ponto e enviamos quando voltar a conexão.",
     "synced": "Ponto sincronizado.",
     "confirmed": "Valeu! Pagamento confirmado.",
-    "disputed": "Enviado ao escritório."
+    "disputed": "Enviado ao escritório.",
+    "syncRejected": "Um ponto salvo offline foi recusado pelo servidor. Confira sua semana."
   },
   "impersonating": "Vendo como {company}",
   "backToAdmin": "Voltar ao admin",
@@ -176,6 +177,7 @@
     "now": "agora",
     "minutes": "{count} min",
     "hours": "{count} h",
-    "loadingMore": "Carregando…"
+    "loadingMore": "Carregando…",
+    "photo": "Foto"
   }
 }

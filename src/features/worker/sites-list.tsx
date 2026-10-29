@@ -1,7 +1,8 @@
+import { Image } from "expo-image";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { MapPin, Navigation } from "lucide-react-native";
-import { ActivityIndicator, Image, Pressable, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import { Card } from "../../components/ui/card";
 import { Chip } from "../../components/ui/chip";
@@ -39,7 +40,7 @@ export function SitesList() {
             <Pressable onPress={() => router.push({ pathname: "/site/[id]", params: { id: site.id } })} accessibilityRole="button" accessibilityLabel={site.name}>
             <Card style={styles.row}>
               {site.photos[0] ? (
-                <Image source={{ uri: site.photos[0].url }} style={[styles.photo, here && styles.hereRing]} accessibilityIgnoresInvertColors />
+                <Image source={{ uri: site.photos[0].url }} style={[styles.photo, here && styles.hereRing]} contentFit="cover" cachePolicy="disk" transition={120} />
               ) : (
                 <View style={[styles.icon, here && { backgroundColor: colors.okBg }]}>
                   <MapPin size={20} color={here ? colors.ok : colors.ink} />

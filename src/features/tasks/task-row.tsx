@@ -1,5 +1,6 @@
+import { Image } from "expo-image";
 import { CheckCircle2, ChevronRight, ClipboardList, ImageIcon, MapPin } from "lucide-react-native";
-import { Image, Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { Card } from "../../components/ui/card";
 import { Chip } from "../../components/ui/chip";
 import { Txt } from "../../components/ui/text";
@@ -16,7 +17,7 @@ export function TaskRow({ task, locale, timezone, onPress }: { task: TaskDto; lo
     <Pressable onPress={onPress} accessibilityRole="button">
       <Card style={[styles.row, task.status === "done" && { opacity: 0.8 }]}>
         {cover ? (
-          <Image source={{ uri: cover.url }} style={styles.photo} accessibilityIgnoresInvertColors />
+          <Image source={{ uri: cover.url }} style={styles.photo} contentFit="cover" cachePolicy="disk" transition={120} />
         ) : (
           <View style={[styles.icon, task.status === "done" && { backgroundColor: colors.okBg }]}>
             {task.status === "done" ? <CheckCircle2 size={20} color={colors.ok} /> : <ClipboardList size={20} color={colors.ink} />}

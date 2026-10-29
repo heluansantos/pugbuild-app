@@ -17,6 +17,7 @@ import { useMe, useSession, useLocale } from "../../features/session/session";
 import { BillingCard } from "../../features/office/billing-card";
 import { errorText } from "../../features/worker/payment-card";
 import { api, getApiUrl, keys } from "../../lib/api";
+import { shrinkPhoto } from "../../lib/photos";
 import { formatMoney, formatPhone } from "../../lib/format";
 import { t } from "../../lib/i18n";
 import { colors, radii } from "../../theme/tokens";
@@ -44,7 +45,8 @@ export default function ProfileScreen() {
       const picked = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], allowsEditing: true, aspect: [1, 1], quality: 0.8 });
       if (picked.canceled) return null;
       const asset = picked.assets[0]!;
-      await api.setPhoto(asset.uri, asset.mimeType ?? "image/jpeg");
+      const small = await shrinkPhoto(asset);
+      await api.setPhoto(small.uri, small.mimeType);
       await refresh();
       return true;
     },

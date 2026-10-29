@@ -12,7 +12,7 @@
       "bundleIdentifier": "com.pugbuild.app",
       "supportsTablet": false,
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "PugBuild uses your location only when you tap Start or Stop, to match your clock-in to the job site.",
+        "NSLocationWhenInUseUsageDescription": "PugBuild uses your location while the app is open to show the nearest job site and to record where you clock in and out. It is never tracked in the background.",
         "CFBundleAllowMixedLocalizations": true,
         "ITSAppUsesNonExemptEncryption": false,
         "LSApplicationQueriesSchemes": [
@@ -20,7 +20,8 @@
           "waze"
         ]
       },
-      "appleTeamId": "66CUAK7CAS"
+      "appleTeamId": "66CUAK7CAS",
+      "buildNumber": "1"
     },
     "android": {
       "package": "com.pugbuild.app",
@@ -31,9 +32,15 @@
       },
       "permissions": [
         "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION"
+        "ACCESS_FINE_LOCATION",
+        "CAMERA"
       ],
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "versionCode": 1,
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_BACKGROUND_LOCATION"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -46,7 +53,6 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      "expo-secure-store",
       "expo-localization",
       [
         "expo-splash-screen",
@@ -60,17 +66,21 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "PugBuild uses your location only when you tap Start or Stop, to match your clock-in to the job site."
+          "locationWhenInUsePermission": "PugBuild uses your location while the app is open to show the nearest job site and to record where you clock in and out. It is never tracked in the background.",
+          "isIosBackgroundLocationEnabled": false,
+          "isAndroidBackgroundLocationEnabled": false
         }
       ],
       "expo-web-browser",
       [
         "expo-image-picker",
         {
-          "photosPermission": "PugBuild uses your photo library only to set your profile picture.",
-          "cameraPermission": "PugBuild uses the camera only to take your profile picture."
+          "photosPermission": "PugBuild uses your photos for your profile picture, job site updates and finished-task photos you choose to share.",
+          "cameraPermission": "PugBuild uses the camera for your profile picture, job site updates and photos of finished tasks.",
+          "microphonePermission": false
         }
-      ]
+      ],
+      "expo-image"
     ],
     "experiments": {
       "typedRoutes": true

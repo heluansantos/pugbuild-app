@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as Haptics from "expo-haptics";
 import { Play } from "lucide-react-native";
+import { useRef } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import Animated, { FadeIn, useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { Txt } from "../../components/ui/text";
@@ -26,12 +27,13 @@ export function HomeView({ sites, queued }: { sites: SiteDto[]; queued: boolean 
   const locale = useLocale();
   const geo = useGeolocation();
   const nearest = geo.position ? nearestSite(geo.position, sites, me.company.settings.siteRadiusMeters) : null;
+  const tapping = useRef(false);
   const scale = useSharedValue(1);
   const anim = useAnimatedStyle(() => ({ transform: [{ scale: scale.get() }] }));
 
   const clockIn = useMutation({
     mutationFn: async () => {
-      const payload = { location: geo.position ?? undefined, deviceAt: new Date().toISOString(), clientId: newClientId() };
+      const payload = { location: geo.position ?? undefined, deviceAt: new Date().toISOString(), clientId: newClientId(), ownerId: me.member.id };
       try {
         return await api.punches.clockIn(payload);
       } catch (e) {
@@ -61,8 +63,11 @@ export function HomeView({ sites, queued }: { sites: SiteDto[]; queued: boolean 
         <View style={styles.ring}>
           <AnimatedPressable
             onPress={() => {
+              // Two taps inside one render must not send two clock-ins.
+              if (tapping.current || clockIn.isPending) return;
+              tapping.current = true;
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              clockIn.mutate();
+              clockIn.mutate(undefined, { onSettled: () => (tapping.current = false) });
             }}
             onPressIn={() => {
               scale.set(withSpring(0.95, { stiffness: 400, damping: 26 }));

@@ -27,7 +27,8 @@
     "saved": "Saved",
     "empty": "Nothing here yet",
     "offline": "You're offline. We'll sync when you're back.",
-    "error": "Something went wrong"
+    "error": "Something went wrong",
+    "errorBody": "Close the screen and try again. If it keeps happening, tell your office."
   },
   "roles": {
     "admin": "Admin",

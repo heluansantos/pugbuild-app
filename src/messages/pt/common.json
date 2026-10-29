@@ -27,7 +27,8 @@
     "saved": "Salvo",
     "empty": "Nada por aqui ainda",
     "offline": "Você está sem sinal. Vamos sincronizar quando voltar.",
-    "error": "Algo deu errado"
+    "error": "Algo deu errado",
+    "errorBody": "Tente de novo. Se continuar, avise o escritório."
   },
   "roles": {
     "admin": "Admin",

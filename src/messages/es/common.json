@@ -27,7 +27,8 @@
     "saved": "Guardado",
     "empty": "Nada por aquí todavía",
     "offline": "Estás sin señal. Sincronizamos cuando vuelvas.",
-    "error": "Algo salió mal"
+    "error": "Algo salió mal",
+    "errorBody": "Inténtalo de nuevo. Si sigue pasando, avisa a la oficina."
   },
   "roles": {
     "admin": "Admin",

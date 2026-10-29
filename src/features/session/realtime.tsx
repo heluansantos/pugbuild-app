@@ -1,30 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { AppState } from "react-native";
-import type Pusher from "pusher-js";
-import { getApiUrl, keys } from "../../lib/api";
+import { keys } from "../../lib/api";
+import { getSocket } from "./realtime-socket";
 import { useSession } from "./session";
-
-const KEY = process.env.EXPO_PUBLIC_PUSHER_KEY;
-const CLUSTER = process.env.EXPO_PUBLIC_PUSHER_CLUSTER ?? "us2";
 
 /** Same contract as the web (pugbuild-web/src/lib/realtime/events.ts). */
 const EVENTS = ["punch.clock_in", "punch.clock_out", "punch.annotated", "review.changed", "payment.changed", "site.changed", "task.changed", "site.post"] as const;
-
-// The React Native bundle exposes the class as a named export (`module.exports.Pusher`), not as the default.
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const PusherRN = (require("pusher-js/react-native") as { Pusher: typeof Pusher }).Pusher;
-
-let socket: Pusher | null = null;
-function getSocket(): Pusher | null {
-  if (!KEY) return null;
-  socket ??= new PusherRN(KEY, {
-    cluster: CLUSTER,
-    // The session cookie travels with the XHR, so the web's auth route accepts the app as-is.
-    channelAuthorization: { endpoint: `${getApiUrl()}/api/realtime/auth`, transport: "ajax" },
-  });
-  return socket;
-}
 
 /**
  * Keeps the screens fresh without polling: every company event invalidates the queries it touches,
@@ -57,11 +39,15 @@ export function RealtimeSync() {
     };
     for (const name of EVENTS) channel.bind(name, handlers[name]);
 
-    // Coming back from the background: the socket may have been cut, so refetch once and reconnect.
+    // Back from the background after a while: the socket may have dropped events, so refetch the
+    // screens on display once. Short trips (permission dialog, photo picker) do not count.
+    let hiddenAt = 0;
     const sub = AppState.addEventListener("change", (state) => {
+      if (state === "background") hiddenAt = Date.now();
       if (state === "active") {
         pusher.connect();
-        qc.invalidateQueries();
+        if (hiddenAt && Date.now() - hiddenAt > 30_000) qc.invalidateQueries({ refetchType: "active" });
+        hiddenAt = 0;
       }
     });
     return () => {

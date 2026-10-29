@@ -115,7 +115,8 @@
     "queued": "No signal. We saved your punch and will send it when you're back online.",
     "synced": "Punch synced.",
     "confirmed": "Thanks! Payment confirmed.",
-    "disputed": "Sent to the office."
+    "disputed": "Sent to the office.",
+    "syncRejected": "A punch saved offline was refused by the server. Check your week."
   },
   "impersonating": "Viewing as {company}",
   "backToAdmin": "Back to admin",
@@ -176,6 +177,7 @@
     "now": "now",
     "minutes": "{count} min",
     "hours": "{count} h",
-    "loadingMore": "Loading…"
+    "loadingMore": "Loading…",
+    "photo": "Photo"
   }
 }

@@ -115,7 +115,8 @@
     "queued": "Sin señal. Guardamos tu marcación y la enviamos cuando vuelva la conexión.",
     "synced": "Marcación sincronizada.",
     "confirmed": "¡Gracias! Pago confirmado.",
-    "disputed": "Enviado a la oficina."
+    "disputed": "Enviado a la oficina.",
+    "syncRejected": "Una marcación guardada sin señal fue rechazada. Revisa tu semana."
   },
   "impersonating": "Viendo como {company}",
   "backToAdmin": "Volver al admin",
@@ -176,6 +177,7 @@
     "now": "ahora",
     "minutes": "{count} min",
     "hours": "{count} h",
-    "loadingMore": "Cargando…"
+    "loadingMore": "Cargando…",
+    "photo": "Foto"
   }
 }

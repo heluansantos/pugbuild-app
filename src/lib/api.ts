@@ -24,7 +24,11 @@ import type {
  * Where the web app lives. Expo inlines EXPO_PUBLIC_* at build time; a person can override it
  * from the login screen (long-press the logo) without a rebuild, e.g. to point a demo at another deployment.
  */
-export const DEFAULT_API_URL = (process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3002").replace(/\/$/, "");
+const PRODUCTION_URL = "https://pugbuild.com";
+/** Build-time URL per EAS profile; a release build without one talks to production, never localhost. */
+export const DEFAULT_API_URL = (process.env.EXPO_PUBLIC_API_URL ?? (__DEV__ ? "http://localhost:3002" : PRODUCTION_URL)).replace(/\/$/, "");
+/** Switching servers is a developer tool: in release builds only these hosts are accepted. */
+export const SERVER_SWITCH_ENABLED = __DEV__ || process.env.EXPO_PUBLIC_ALLOW_SERVER_SWITCH === "1";
 const API_URL_KEY = "pb.apiUrl";
 let apiUrl = DEFAULT_API_URL;
 
@@ -36,11 +40,23 @@ export const SERVER_PRESETS: { label: string; url: string }[] = [
   { label: "Production", url: "https://pugbuild.com" },
   { label: "Preview (demo data)", url: "https://pugbuild-web-git-development-heluansantos-projects.vercel.app" },
 ];
+const ALLOWED_HOSTS = new Set(SERVER_PRESETS.map((p) => new URL(p.url).host));
+
+/** Release builds accept only the known https deployments; dev builds accept anything. */
+export function isAllowedServer(url: string): boolean {
+  try {
+    const u = new URL(url);
+    if (__DEV__) return u.protocol === "https:" || u.protocol === "http:";
+    return u.protocol === "https:" && (ALLOWED_HOSTS.has(u.host) || u.host === new URL(DEFAULT_API_URL).host);
+  } catch {
+    return false;
+  }
+}
 
 export async function loadApiUrl(): Promise<string> {
   try {
     const saved = await AsyncStorage.getItem(API_URL_KEY);
-    if (saved && /^https?:\/\//.test(saved)) apiUrl = saved.replace(/\/$/, "");
+    if (saved && SERVER_SWITCH_ENABLED && isAllowedServer(saved)) apiUrl = saved.replace(/\/$/, "");
   } catch {
     // storage unavailable: keep the build-time default
   }
@@ -49,6 +65,7 @@ export async function loadApiUrl(): Promise<string> {
 
 /** Null restores the build-time default. */
 export async function setApiUrl(url: string | null) {
+  if (url && (!SERVER_SWITCH_ENABLED || !isAllowedServer(url))) throw new Error("server_not_allowed");
   apiUrl = (url ?? DEFAULT_API_URL).replace(/\/$/, "");
   try {
     if (url) await AsyncStorage.setItem(API_URL_KEY, apiUrl);
@@ -94,10 +111,13 @@ type Envelope<T> = { ok: true; data: T } | { ok: false; error: { code: ApiErrorC
 
 const TIMEOUT_MS = 15_000;
 
-async function request<T>(path: string, init: RequestInit & { json?: unknown } = {}): Promise<T> {
-  const { json, headers, ...rest } = init;
+const UPLOAD_TIMEOUT_MS = 90_000;
+
+async function request<T>(path: string, init: RequestInit & { json?: unknown; timeoutMs?: number } = {}): Promise<T> {
+  const { json, headers, timeoutMs, ...rest } = init;
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  // Photos on a weak job-site signal take longer than a JSON call.
+  const timer = setTimeout(() => controller.abort(), timeoutMs ?? (rest.body instanceof FormData ? UPLOAD_TIMEOUT_MS : TIMEOUT_MS));
   let res: Response;
   try {
     res = await fetch(`${apiUrl}${path}`, {
@@ -107,7 +127,7 @@ async function request<T>(path: string, init: RequestInit & { json?: unknown } =
       headers: {
         Accept: "application/json",
         ...(json !== undefined ? { "Content-Type": "application/json" } : {}),
-        ...(BYPASS_SECRET ? { "x-vercel-protection-bypass": BYPASS_SECRET } : {}),
+        ...(BYPASS_SECRET && /\.vercel\.app$/.test(new URL(apiUrl).host) ? { "x-vercel-protection-bypass": BYPASS_SECRET } : {}),
         ...headers,
       },
       body: json !== undefined ? JSON.stringify(json) : rest.body,
@@ -171,13 +191,13 @@ export const api = {
   hours: (period: Period, at?: string) => get<PeriodSummaryDto>(`/api/v1/hours?period=${period}${at ? `&at=${at}` : ""}`),
   payments: {
     list: () => get<{ payments: PaymentDto[] }>("/api/v1/payments"),
-    confirm: (id: string) => post<{ ok: true }>(`/api/v1/payments/${id}/confirm`),
-    dispute: (id: string, note: string) => post<{ ok: true }>(`/api/v1/payments/${id}/dispute`, { note }),
+    confirm: (id: string) => post<{ ok: true }>(`/api/v1/payments/${encodeURIComponent(id)}/confirm`),
+    dispute: (id: string, note: string) => post<{ ok: true }>(`/api/v1/payments/${encodeURIComponent(id)}/dispute`, { note }),
   },
   sites: () => get<{ sites: SiteDto[] }>("/api/v1/sites"),
   site: {
-    get: (id: string) => get<SiteDetailDto>(`/api/v1/sites/${id}`),
-    feed: (id: string, before?: string) => get<FeedPageDto>(`/api/v1/sites/${id}/feed${before ? `?before=${encodeURIComponent(before)}` : ""}`),
+    get: (id: string) => get<SiteDetailDto>(`/api/v1/sites/${encodeURIComponent(id)}`),
+    feed: (id: string, before?: string) => get<FeedPageDto>(`/api/v1/sites/${encodeURIComponent(id)}/feed${before ? `?before=${encodeURIComponent(before)}` : ""}`),
     /** Text and up to four photos picked on the phone, in one multipart request. */
     post: async (id: string, text: string, photos: { uri: string; mimeType?: string }[]) => {
       const form = new FormData();
@@ -187,24 +207,24 @@ export const api = {
         const raw = await (await fetch(p.uri)).blob();
         form.append("files", new Blob([raw], { type }), `photo-${i}.${type.split("/")[1] ?? "jpg"}`);
       }
-      return request<{ id: string }>(`/api/v1/sites/${id}/posts`, { method: "POST", body: form });
+      return request<{ id: string }>(`/api/v1/sites/${encodeURIComponent(id)}/posts`, { method: "POST", body: form });
     },
-    deletePost: (id: string, postId: string) => request<{ ok: true }>(`/api/v1/sites/${id}/posts/${postId}`, { method: "DELETE" }),
+    deletePost: (id: string, postId: string) => request<{ ok: true }>(`/api/v1/sites/${encodeURIComponent(id)}/posts/${encodeURIComponent(postId)}`, { method: "DELETE" }),
   },
   tasks: {
     list: (status?: "open" | "done") => get<{ tasks: TaskDto[] }>(`/api/v1/tasks${status ? `?status=${status}` : ""}`),
-    get: (id: string) => get<TaskDto>(`/api/v1/tasks/${id}`),
-    complete: (id: string, note?: string) => post<TaskDto>(`/api/v1/tasks/${id}/complete`, { note }),
-    reopen: (id: string) => post<TaskDto>(`/api/v1/tasks/${id}/reopen`),
+    get: (id: string) => get<TaskDto>(`/api/v1/tasks/${encodeURIComponent(id)}`),
+    complete: (id: string, note?: string) => post<TaskDto>(`/api/v1/tasks/${encodeURIComponent(id)}/complete`, { note }),
+    reopen: (id: string) => post<TaskDto>(`/api/v1/tasks/${encodeURIComponent(id)}/reopen`),
     /** Multipart completion photo picked on the phone. */
     addPhoto: async (id: string, uri: string, mimeType = "image/jpeg") => {
       const raw = await (await fetch(uri)).blob();
       const form = new FormData();
       form.append("file", new Blob([raw], { type: mimeType }), `task.${mimeType.split("/")[1] ?? "jpg"}`);
       form.append("kind", "completion");
-      return request<TaskDto>(`/api/v1/tasks/${id}/photos`, { method: "POST", body: form });
+      return request<TaskDto>(`/api/v1/tasks/${encodeURIComponent(id)}/photos`, { method: "POST", body: form });
     },
-    removePhoto: (id: string, pathname: string) => request<TaskDto>(`/api/v1/tasks/${id}/photos`, { method: "DELETE", json: { pathname } }),
+    removePhoto: (id: string, pathname: string) => request<TaskDto>(`/api/v1/tasks/${encodeURIComponent(id)}/photos`, { method: "DELETE", json: { pathname } }),
   },
   billing: {
     overview: () => get<BillingOverviewDto>("/api/v1/billing"),

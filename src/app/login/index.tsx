@@ -11,7 +11,7 @@ import { Txt } from "../../components/ui/text";
 import { useToast } from "../../components/ui/toast";
 import { useSession } from "../../features/session/session";
 import { errorText } from "../../features/worker/payment-card";
-import { api, isApiError } from "../../lib/api";
+import { api, isApiError, SERVER_SWITCH_ENABLED } from "../../lib/api";
 import { normalizePhone } from "../../lib/format";
 import { t } from "../../lib/i18n";
 import { LanguagePills } from "../../features/session/language-pills";
@@ -48,7 +48,7 @@ export default function LoginScreen() {
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
       <Screen style={{ justifyContent: "center" }}>
         <Animated.View entering={FadeInUp.duration(360)} style={styles.stack}>
-          <Pressable onLongPress={() => setServerOpen(true)} delayLongPress={900} accessibilityLabel="PugBuild" style={styles.brand}>
+          <Pressable onLongPress={SERVER_SWITCH_ENABLED ? () => setServerOpen(true) : undefined} delayLongPress={900} accessibilityLabel="PugBuild" style={styles.brand}>
             <PugMark size={192} />
             <Txt size={34} weight="semibold" tracking={-0.8}>
               PugBuild
@@ -90,7 +90,7 @@ export default function LoginScreen() {
           </Txt>
           <LanguagePills />
         </Animated.View>
-        <ServerSheet open={serverOpen} onClose={() => setServerOpen(false)} />
+        {SERVER_SWITCH_ENABLED && <ServerSheet open={serverOpen} onClose={() => setServerOpen(false)} />}
       </Screen>
     </KeyboardAvoidingView>
   );
