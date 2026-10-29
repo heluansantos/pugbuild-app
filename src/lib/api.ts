@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import type {
   ApiErrorCode,
   BillingOverviewDto,
+  TaskDto,
   MeDto,
   MemberDto,
   MembershipSummary,
@@ -169,6 +170,21 @@ export const api = {
     dispute: (id: string, note: string) => post<{ ok: true }>(`/api/v1/payments/${id}/dispute`, { note }),
   },
   sites: () => get<{ sites: SiteDto[] }>("/api/v1/sites"),
+  tasks: {
+    list: (status?: "open" | "done") => get<{ tasks: TaskDto[] }>(`/api/v1/tasks${status ? `?status=${status}` : ""}`),
+    get: (id: string) => get<TaskDto>(`/api/v1/tasks/${id}`),
+    complete: (id: string, note?: string) => post<TaskDto>(`/api/v1/tasks/${id}/complete`, { note }),
+    reopen: (id: string) => post<TaskDto>(`/api/v1/tasks/${id}/reopen`),
+    /** Multipart completion photo picked on the phone. */
+    addPhoto: async (id: string, uri: string, mimeType = "image/jpeg") => {
+      const raw = await (await fetch(uri)).blob();
+      const form = new FormData();
+      form.append("file", new Blob([raw], { type: mimeType }), `task.${mimeType.split("/")[1] ?? "jpg"}`);
+      form.append("kind", "completion");
+      return request<TaskDto>(`/api/v1/tasks/${id}/photos`, { method: "POST", body: form });
+    },
+    removePhoto: (id: string, pathname: string) => request<TaskDto>(`/api/v1/tasks/${id}/photos`, { method: "DELETE", json: { pathname } }),
+  },
   billing: {
     overview: () => get<BillingOverviewDto>("/api/v1/billing"),
     portal: () => post<{ url: string }>("/api/v1/billing/portal"),
@@ -194,4 +210,6 @@ export const keys = {
   officeWeek: (weekKey?: string) => ["office", "week", weekKey ?? "current"] as const,
   officeTeam: ["office", "team"] as const,
   billing: ["billing"] as const,
+  tasks: ["tasks"] as const,
+  task: (id: string) => ["tasks", id] as const,
 };

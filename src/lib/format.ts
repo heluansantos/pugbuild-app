@@ -107,6 +107,11 @@ export function formatLongDate(date: Date, timezone: string, locale: string): st
   );
 }
 
+/** Today's YYYY-MM-DD in the company timezone (a due date compares against this, never against UTC). */
+export function todayKeyIn(timezone: string): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: timezone, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+}
+
 /** A YYYY-MM-DD key as a Date at noon UTC: format it with timeZone "UTC" to read the calendar day back. */
 export function keyToDate(key: string): Date {
   const [y, m, d] = key.split("-").map(Number);

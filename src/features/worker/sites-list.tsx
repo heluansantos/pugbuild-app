@@ -5,18 +5,18 @@ import Animated, { FadeInUp } from "react-native-reanimated";
 import { Card } from "../../components/ui/card";
 import { Chip } from "../../components/ui/chip";
 import { EmptyState } from "../../components/ui/empty-state";
-import { Screen, Title } from "../../components/ui/screen";
 import { Txt } from "../../components/ui/text";
-import { useMe, useLocale } from "../../features/session/session";
-import { openSiteInMaps } from "../../features/worker/open-in-maps";
-import { useGeolocation } from "../../features/worker/use-geolocation";
+import { useMe, useLocale } from "../session/session";
+import { openSiteInMaps } from "./open-in-maps";
+import { useGeolocation } from "./use-geolocation";
 import { api, keys } from "../../lib/api";
 import { formatDistance } from "../../lib/format";
 import { distanceMeters } from "../../lib/geo";
 import { t } from "../../lib/i18n";
 import { colors, radii } from "../../theme/tokens";
 
-export default function SitesScreen() {
+/** Active job sites by distance, each with a directions shortcut. Rendered inside the Tasks tab. */
+export function SitesList() {
   const me = useMe();
   const locale = useLocale();
   const sites = useQuery({ queryKey: keys.sites, queryFn: api.sites });
@@ -27,8 +27,7 @@ export default function SitesScreen() {
     .sort((a, b) => (a.d ?? Infinity) - (b.d ?? Infinity));
 
   return (
-    <Screen tabs>
-      <Title>{t("worker.sites.title")}</Title>
+    <View style={{ gap: 16 }}>
       {sites.isPending && <ActivityIndicator color={colors.ink} />}
       {sites.isSuccess && list.length === 0 && <EmptyState icon={<MapPin size={20} color={colors.ink} />} title={t("common.states.empty")} body={t("worker.sites.empty")} />}
       {rows.map(({ site, d }, i) => {
@@ -62,7 +61,7 @@ export default function SitesScreen() {
           </Animated.View>
         );
       })}
-    </Screen>
+    </View>
   );
 }
 

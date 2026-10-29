@@ -111,5 +111,38 @@
   "backToAdmin": "Voltar ao admin",
   "realtime": {
     "paymentReady": "Seu pagamento está pronto. Abra Semana para confirmar."
+  },
+  "tasks": {
+    "nav": "Tarefas",
+    "title": "Tarefas",
+    "segSites": "Obras",
+    "segTasks": "Tarefas",
+    "open": "A fazer",
+    "done": "Concluídas",
+    "empty": "Nenhuma tarefa para você agora.",
+    "emptyDone": "Nada concluído ainda.",
+    "dueOn": "Prazo {date}",
+    "overdue": "Atrasada",
+    "unassigned": "Sem responsável",
+    "assignedTo": "Responsável: {name}",
+    "details": "Detalhes",
+    "reference": "Fotos de referência",
+    "yourPhotos": "Suas fotos",
+    "addPhoto": "Adicionar foto",
+    "takePhoto": "Tirar foto",
+    "pickPhoto": "Escolher da galeria",
+    "photoAdded": "Foto adicionada",
+    "removePhoto": "Remover",
+    "note": "Observação para o escritório",
+    "notePlaceholder": "O que foi feito, algo que eles precisam saber",
+    "markDone": "Concluir tarefa",
+    "completing": "Concluindo…",
+    "completed": "Tarefa concluída. Bom trabalho.",
+    "completedBy": "Concluída por {name} · {date}",
+    "reopen": "Reabrir",
+    "reopened": "Tarefa reaberta",
+    "directions": "Rota",
+    "noPhotosYet": "Adicione uma foto do serviço pronto antes de concluir, para o escritório ver.",
+    "openCount": "{count} a fazer"
   }
 }

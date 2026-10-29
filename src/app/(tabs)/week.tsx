@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
 import { Card } from "../../components/ui/card";
+import { Chip, type ChipTone } from "../../components/ui/chip";
 import { Screen, Title } from "../../components/ui/screen";
 import { Txt } from "../../components/ui/text";
 import { useLocale } from "../../features/session/session";
@@ -13,6 +14,8 @@ import { formatMinutes, formatMoney, formatWeekRange, keyToDate } from "../../li
 import { t } from "../../lib/i18n";
 import { buildDayBars } from "../../lib/week-helpers";
 import { colors, radii } from "../../theme/tokens";
+
+const PAY_TONES: Record<string, ChipTone> = { pending: "neutral", ready: "accent", confirmed: "ok", disputed: "warn" };
 
 /** Day key ± n days (keys are calendar dates, so UTC arithmetic is exact). */
 function shiftKey(key: string, days: number): string {
@@ -104,7 +107,7 @@ export default function WeekScreen() {
 
       <View style={{ gap: 8 }}>
         <Txt size={15} weight="semibold">
-          {t("worker.week.previous")}
+          {t("worker.payments.title")}
         </Txt>
         {payments.isSuccess && previous.length === 0 && !current && (
           <Txt size={14} tone="muted">
@@ -117,10 +120,15 @@ export default function WeekScreen() {
               <Txt size={15} weight="medium">
                 {formatWeekRange(p.weekKey, p.endKey, locale)}
               </Txt>
-              <Txt size={13} tone="muted">
-                {t(`worker.payments.status.${p.status}`)}
-                {p.method ? ` · ${t(`common.paymentMethod.${p.method}`)}` : ""} · {formatMinutes(p.minutes)}
-              </Txt>
+              <View style={styles.meta}>
+                <Chip tone={PAY_TONES[p.status] ?? "neutral"} size="sm">
+                  {t(`worker.payments.status.${p.status}`)}
+                </Chip>
+                <Txt size={13} tone="muted">
+                  {p.method ? `${t(`common.paymentMethod.${p.method}`)} · ` : ""}
+                  {formatMinutes(p.minutes)}
+                </Txt>
+              </View>
             </View>
             <Txt size={16} weight="semibold" tabular>
               {formatMoney(p.amountCents, locale)}
@@ -138,4 +146,5 @@ const styles = StyleSheet.create({
   pageBtn: { width: 36, height: 36, borderRadius: radii.pill, alignItems: "center", justifyContent: "center" },
   totals: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between" },
   row: { flexDirection: "row", alignItems: "center", gap: 12 },
+  meta: { flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: 4 },
 });

@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { CalendarDays, Clock, CreditCard, HardHat, MapPin, User, Users } from "lucide-react-native";
+import { CalendarDays, ClipboardList, Clock, HardHat, User, Users } from "lucide-react-native";
 import { PillTabBar, type TabSpec } from "../../components/ui/pill-tab-bar";
 import { RealtimeSync } from "../../features/session/realtime";
 import { useSession } from "../../features/session/session";
@@ -9,8 +9,7 @@ import { colors } from "../../theme/tokens";
 const WORKER_TABS = (): TabSpec[] => [
   { name: "index", label: t("nav.worker.clock"), Icon: Clock },
   { name: "week", label: t("nav.worker.week"), Icon: HardHat },
-  { name: "payments", label: t("nav.worker.payments"), Icon: CreditCard },
-  { name: "sites", label: t("nav.worker.sites"), Icon: MapPin },
+  { name: "tasks", label: t("worker.tasks.nav"), Icon: ClipboardList },
   { name: "profile", label: t("nav.worker.profile"), Icon: User },
 ];
 
@@ -19,14 +18,14 @@ const STAFF_TABS = (): TabSpec[] => [
   { name: "office", label: t("office.nav.today"), Icon: Clock },
   { name: "office-week", label: t("office.nav.week"), Icon: CalendarDays },
   { name: "team", label: t("office.nav.team"), Icon: Users },
-  { name: "sites", label: t("nav.worker.sites"), Icon: MapPin },
+  { name: "tasks", label: t("worker.tasks.nav"), Icon: ClipboardList },
   { name: "profile", label: t("nav.worker.profile"), Icon: User },
 ];
 
 /** Always land on index: it sends office and admin to their home. */
 export const unstable_settings = { anchor: "index" };
 
-const ALL = ["index", "week", "payments", "sites", "profile", "office", "office-week", "team"];
+const ALL = ["index", "week", "tasks", "profile", "office", "office-week", "team"];
 
 export default function TabsLayout() {
   const { me } = useSession();

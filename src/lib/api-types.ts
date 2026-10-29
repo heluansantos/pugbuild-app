@@ -319,3 +319,30 @@ export interface BillingOverviewDto {
   invoices: InvoiceSummaryDto[];
   invoicesUnavailable: boolean;
 }
+
+/* ---- Tasks ---- */
+
+export type TaskStatus = "open" | "done";
+
+export interface TaskPhotoDto {
+  url: string;
+  pathname: string;
+  addedAt: string;
+}
+
+export interface TaskDto {
+  id: string;
+  companyId: string;
+  title: string;
+  description?: string;
+  siteId?: string;
+  siteName?: string;
+  assigneeMembershipId?: string;
+  assigneeName?: string;
+  dueKey?: string;
+  status: TaskStatus;
+  photos: TaskPhotoDto[];
+  completion?: { at: string; byName?: string; note?: string; photos: TaskPhotoDto[] };
+  createdAt: string;
+  updatedAt: string;
+}

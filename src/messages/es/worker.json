@@ -111,5 +111,38 @@
   "backToAdmin": "Volver al admin",
   "realtime": {
     "paymentReady": "Tu pago está listo. Abre Semana para confirmar."
+  },
+  "tasks": {
+    "nav": "Tareas",
+    "title": "Tareas",
+    "segSites": "Obras",
+    "segTasks": "Tareas",
+    "open": "Por hacer",
+    "done": "Terminadas",
+    "empty": "No tienes tareas por ahora.",
+    "emptyDone": "Nada terminado todavía.",
+    "dueOn": "Vence {date}",
+    "overdue": "Atrasada",
+    "unassigned": "Sin responsable",
+    "assignedTo": "Responsable: {name}",
+    "details": "Detalles",
+    "reference": "Fotos de referencia",
+    "yourPhotos": "Tus fotos",
+    "addPhoto": "Agregar foto",
+    "takePhoto": "Tomar foto",
+    "pickPhoto": "Elegir de la galería",
+    "photoAdded": "Foto agregada",
+    "removePhoto": "Quitar",
+    "note": "Nota para la oficina",
+    "notePlaceholder": "Qué se hizo, algo que deban saber",
+    "markDone": "Terminar tarea",
+    "completing": "Terminando…",
+    "completed": "Tarea terminada. Buen trabajo.",
+    "completedBy": "Terminada por {name} · {date}",
+    "reopen": "Reabrir",
+    "reopened": "Tarea reabierta",
+    "directions": "Ruta",
+    "noPhotosYet": "Agrega una foto del trabajo terminado antes de cerrar, para que la oficina la vea.",
+    "openCount": "{count} por hacer"
   }
 }

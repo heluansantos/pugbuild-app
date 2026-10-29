@@ -111,5 +111,38 @@
   "backToAdmin": "Back to admin",
   "realtime": {
     "paymentReady": "Your pay is ready. Open Week to confirm."
+  },
+  "tasks": {
+    "nav": "Tasks",
+    "title": "Tasks",
+    "segSites": "Job sites",
+    "segTasks": "Tasks",
+    "open": "To do",
+    "done": "Done",
+    "empty": "No tasks for you right now.",
+    "emptyDone": "Nothing finished yet.",
+    "dueOn": "Due {date}",
+    "overdue": "Overdue",
+    "unassigned": "Unassigned",
+    "assignedTo": "Assigned to {name}",
+    "details": "Details",
+    "reference": "Reference photos",
+    "yourPhotos": "Your photos",
+    "addPhoto": "Add photo",
+    "takePhoto": "Take photo",
+    "pickPhoto": "Choose from library",
+    "photoAdded": "Photo added",
+    "removePhoto": "Remove",
+    "note": "Note for the office",
+    "notePlaceholder": "What was done, anything they should know",
+    "markDone": "Mark as done",
+    "completing": "Finishing…",
+    "completed": "Task done. Nice work.",
+    "completedBy": "Done by {name} · {date}",
+    "reopen": "Reopen",
+    "reopened": "Task reopened",
+    "directions": "Directions",
+    "noPhotosYet": "Add a photo of the finished work before closing, so the office sees it.",
+    "openCount": "{count} to do"
   }
 }
