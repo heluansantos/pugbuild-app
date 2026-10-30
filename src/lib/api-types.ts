@@ -128,6 +128,8 @@ export interface PunchDto {
   workedMinutes?: number;
   lunchDeductedMinutes?: number;
   flags: string[];
+  /** Latest position the phone reported during this open shift (office map). */
+  live?: { at: string; location: GeoPoint; siteId?: string; distanceMeters?: number };
 }
 
 /** A past pay week with hours the office has not closed yet (no payment exists). */

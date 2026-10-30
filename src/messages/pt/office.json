@@ -79,5 +79,18 @@
     "paid": "Paga",
     "open": "Em aberto",
     "void": "Anulada"
+  },
+  "map": {
+    "title": "Onde a equipe está agora",
+    "open": "Abrir mapa",
+    "onSite": "{count} na obra",
+    "away": "{count} longe de obra",
+    "nobody": "Ninguém com ponto aberto agora",
+    "legendLive": "Ao vivo",
+    "legendPunch": "Bateu ponto",
+    "legendFar": "Longe de obra",
+    "noSite": "Sem obra",
+    "liveAt": "posição {time}",
+    "clockedAt": "ponto {time}"
   }
 }

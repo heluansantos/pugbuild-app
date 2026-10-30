@@ -79,5 +79,18 @@
     "paid": "Paid",
     "open": "Open",
     "void": "Void"
+  },
+  "map": {
+    "title": "Where the crew is now",
+    "open": "Open map",
+    "onSite": "{count} on site",
+    "away": "{count} far from a site",
+    "nobody": "Nobody clocked in right now",
+    "legendLive": "Live",
+    "legendPunch": "Clocked in",
+    "legendFar": "Far from site",
+    "noSite": "No job site",
+    "liveAt": "position {time}",
+    "clockedAt": "clocked in {time}"
   }
 }
