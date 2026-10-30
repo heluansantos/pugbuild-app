@@ -130,6 +130,19 @@ export interface PunchDto {
   flags: string[];
 }
 
+/** A past pay week with hours the office has not closed yet (no payment exists). */
+export interface OpenWeekDto {
+  weekKey: string;
+  endKey: string;
+  minutes: number;
+  grossCents: number;
+}
+
+export interface PayHistoryDto {
+  payments: PaymentDto[];
+  openWeeks: OpenWeekDto[];
+}
+
 export interface PaymentDto {
   id: string;
   closedWeekId: string;

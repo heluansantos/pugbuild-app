@@ -1,24 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import type {
-  ApiErrorCode,
-  FeedPageDto,
-  SiteDetailDto,
-  Period,
-  PeriodSummaryDto,
-  BillingOverviewDto,
-  TaskDto,
-  MeDto,
-  MemberDto,
-  MembershipSummary,
-  PaymentDto,
-  PunchDto,
-  PunchInput,
-  SiteDto,
-  TodayOverview,
-  VerifyResult,
-  WeekDto,
-  WeekSummaryDto,
-} from "./api-types";
+import type { ApiErrorCode, BillingOverviewDto, FeedPageDto, GeoPoint, MeDto, MemberDto, MembershipSummary, PayHistoryDto, Period, PeriodSummaryDto, PunchDto, PunchInput, SiteDetailDto, SiteDto, TaskDto, TodayOverview, VerifyResult, WeekDto, WeekSummaryDto } from "./api-types";
 
 /**
  * Where the web app lives. Expo inlines EXPO_PUBLIC_* at build time; a person can override it
@@ -185,12 +166,14 @@ export const api = {
     clockIn: (input: PunchInput) => post<PunchDto>("/api/v1/punches/clock-in", input),
     clockOut: (input: PunchInput) => post<PunchDto>("/api/v1/punches/clock-out", input),
     annotate: (input: { comment?: string; notifyOffice?: boolean }) => post<{ ok: true }>("/api/v1/punches/annotate", input),
+    /** Position during an open shift (office map). 409 when not clocked in. */
+    location: (location: GeoPoint) => post<{ accepted: boolean }>("/api/v1/punches/location", location),
     today: () => get<{ dayKey: string; punches: PunchDto[] }>("/api/v1/punches/today"),
   },
   week: (weekKey?: string) => get<WeekDto>(`/api/v1/week${weekKey ? `?week=${weekKey}` : ""}`),
   hours: (period: Period, at?: string) => get<PeriodSummaryDto>(`/api/v1/hours?period=${period}${at ? `&at=${at}` : ""}`),
   payments: {
-    list: () => get<{ payments: PaymentDto[] }>("/api/v1/payments"),
+    list: () => get<PayHistoryDto>("/api/v1/payments"),
     confirm: (id: string) => post<{ ok: true }>(`/api/v1/payments/${encodeURIComponent(id)}/confirm`),
     dispute: (id: string, note: string) => post<{ ok: true }>(`/api/v1/payments/${encodeURIComponent(id)}/dispute`, { note }),
   },

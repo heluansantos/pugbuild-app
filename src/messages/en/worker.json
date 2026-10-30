@@ -26,7 +26,8 @@
     "starting": "Starting…",
     "gpsAccuracy": "GPS ±{meters} m",
     "approxLocation": "Approximate location. Turn on Precise Location for PugBuild so your clock-in lands on the right site.",
-    "openSettings": "Settings"
+    "openSettings": "Settings",
+    "earlierToday": "Includes {time} from earlier today"
   },
   "sheets": {
     "commentTitle": "Comment",
@@ -68,7 +69,8 @@
     "received": "Received",
     "daysWorked": "{count} days worked",
     "allTime": "All time",
-    "noHoursPeriod": "No hours in this period."
+    "noHoursPeriod": "No hours in this period.",
+    "awaitingClose": "Awaiting week close"
   },
   "payments": {
     "title": "Payments",

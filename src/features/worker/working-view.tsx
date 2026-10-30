@@ -22,14 +22,28 @@ import { useMe, useLocale } from "../session/session";
 import { errorText } from "./payment-card";
 import { ShiftClock } from "./shift-clock";
 import { useGeolocation } from "./use-geolocation";
+import { useLiveLocation } from "./use-live-location";
 import { offlineQueue } from "./use-offline-sync";
 
 
-export function WorkingView({ punch, sites, weekMinutesBefore }: { punch: PunchDto; sites: SiteDto[]; weekMinutesBefore: number }) {
+export function WorkingView({
+  punch,
+  sites,
+  weekMinutesBefore,
+  todayMinutesBefore,
+}: {
+  punch: PunchDto;
+  sites: SiteDto[];
+  weekMinutesBefore: number;
+  /** Closed shifts earlier today: the big clock continues from them instead of restarting at zero. */
+  todayMinutesBefore: number;
+}) {
   const me = useMe();
   const qc = useQueryClient();
   const toast = useToast();
   const geo = useGeolocation();
+  // Office map: a position every few minutes while the shift runs and the app is open.
+  useLiveLocation(punch, geo.position);
   const { settings } = me.company;
   const locale = useLocale();
   const clockInAt = new Date(punch.clockIn.at);
@@ -107,7 +121,7 @@ export function WorkingView({ punch, sites, weekMinutesBefore }: { punch: PunchD
         </Txt>
       </View>
 
-      <ShiftClock clockInAt={punch.clockIn.at} lunch={settings.lunch} />
+      <ShiftClock clockInAt={punch.clockIn.at} lunch={settings.lunch} earlierMinutes={todayMinutesBefore} />
 
       <Card style={styles.siteRow}>
         <View style={[styles.icon, { backgroundColor: siteName ? colors.okBg : colors.warnBg }]}>
