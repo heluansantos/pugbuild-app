@@ -51,7 +51,8 @@
     "flags": "{count} to review",
     "openPunches": "{count} still open",
     "noHours": "No hours yet",
-    "payDay": "pay day {date}"
+    "payDay": "pay day {date}",
+    "paidAfterLunch": "{paid} paid · {lunch} lunch"
   },
   "billing": {
     "title": "Billing",
@@ -92,5 +93,40 @@
     "noSite": "No job site",
     "liveAt": "position {time}",
     "clockedAt": "clocked in {time}"
+  },
+  "siteCosts": {
+    "title": "Costs",
+    "estimate": "Estimate",
+    "total": "Total",
+    "labor": "Labor",
+    "expenses": "Materials & services",
+    "people": "{count} people worked here",
+    "peopleTitle": "People on this site",
+    "days": "{count} days",
+    "workingNow": "Working now",
+    "addExpense": "Add expense",
+    "kinds": {
+      "material": "Material",
+      "service": "Service",
+      "other": "Other"
+    },
+    "description": "What was it",
+    "descriptionPlaceholder": "e.g. Drywall, 20 sheets",
+    "amount": "Amount",
+    "date": "Date",
+    "vendor": "Vendor (optional)",
+    "save": "Save",
+    "empty": "No expenses yet",
+    "confirmDelete": "Delete this expense?",
+    "delete": "Delete",
+    "saved": "Expense saved",
+    "deleted": "Expense deleted",
+    "laborHint": "From the crew's clock-ins at this site, at each person's current rate",
+    "laborPaid": "{hours} paid",
+    "invalidAmount": "Enter a valid amount",
+    "invalidDate": "Use the date format YYYY-MM-DD",
+    "noPeople": "Nobody has clocked in here yet",
+    "open": "Open site costs",
+    "invalidDescription": "Describe the expense (up to 200 characters)"
   }
 }

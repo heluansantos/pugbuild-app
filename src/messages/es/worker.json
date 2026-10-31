@@ -15,7 +15,6 @@
     "working": "Trabajando",
     "startedAt": "Entrada a las {time}",
     "timeToday": "Tiempo hoy",
-    "lunchDeducted": "almuerzo de {minutes} min ya descontado",
     "registeredNear": "Marcación registrada cerca de",
     "farFromSite": "Marcación lejos de una obra. La oficina lo revisará.",
     "noLocationPunch": "Marcación registrada sin ubicación.",
@@ -70,7 +69,10 @@
     "daysWorked": "{count} días trabajados",
     "allTime": "Todo el período",
     "noHoursPeriod": "Sin horas en este período.",
-    "awaitingClose": "Esperando el cierre"
+    "awaitingClose": "Esperando el cierre",
+    "paidAfterLunch": "{paid} pagadas · {lunch} de almuerzo",
+    "worked": "{hours} trabajadas",
+    "lunchOnly": "{lunch} de almuerzo"
   },
   "payments": {
     "title": "Pagos",

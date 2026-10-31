@@ -125,8 +125,12 @@ export interface PunchDto {
   clockIn: PunchEventDto;
   clockOut?: PunchEventDto;
   status: PunchStatus;
+  /** Gross minutes, clock-in to clock-out. */
   workedMinutes?: number;
+  /** Minutes the pay rule removes for lunch. */
   lunchDeductedMinutes?: number;
+  /** workedMinutes - lunchDeductedMinutes: what the money corresponds to. */
+  paidMinutes?: number;
   flags: string[];
   /** Latest position the phone reported during this open shift (office map). */
   live?: { at: string; location: GeoPoint; siteId?: string; distanceMeters?: number };
@@ -136,7 +140,10 @@ export interface PunchDto {
 export interface OpenWeekDto {
   weekKey: string;
   endKey: string;
+  /** Paid minutes (after lunch). */
   minutes: number;
+  workedMinutes: number;
+  lunchMinutes: number;
   grossCents: number;
 }
 
@@ -152,7 +159,10 @@ export interface PaymentDto {
   endKey: string;
   membershipId: string;
   amountCents: number;
+  /** Paid minutes (after lunch): what the amount corresponds to. */
   minutes: number;
+  workedMinutes?: number;
+  lunchMinutes?: number;
   method?: PaymentMethod;
   pickupNote?: string;
   status: PaymentStatus;
@@ -174,7 +184,10 @@ export interface WeekDto {
   week: { startKey: string; endKey: string; dayKeys: string[] };
   todayKey: string;
   minutesByDay: Record<string, number>;
+  /** Gross minutes. */
   totalMinutes: number;
+  lunchMinutes: number;
+  paidMinutes: number;
   grossCents: number;
   hourlyRateCents: number;
   overtime: OvertimeRule;
@@ -268,7 +281,10 @@ export interface WeekLine {
   name: string;
   role: Role;
   hourlyRateCents: number;
+  /** Gross minutes. */
   minutes: number;
+  lunchMinutes: number;
+  paidMinutes: number;
   regularMinutes: number;
   overtimeMinutes: number;
   grossCents: number;
@@ -283,6 +299,8 @@ export interface WeekSummaryDto {
   closed: { id: string; weekKey: string; endKey: string; closedAt: string; totalMinutes: number; totalGrossCents: number } | null;
   lines: WeekLine[];
   totalMinutes: number;
+  totalLunchMinutes: number;
+  totalPaidMinutes: number;
   totalGrossCents: number;
   openPunches: number;
   unresolvedFlags: number;
@@ -403,4 +421,59 @@ export type FeedItemDto =
 export interface FeedPageDto {
   items: FeedItemDto[];
   nextBefore: string | null;
+}
+
+/* ---- Site costs (admin / office) ---- */
+
+export type SiteExpenseKind = "material" | "service" | "other";
+
+export interface SiteExpenseDto {
+  id: string;
+  siteId: string;
+  kind: SiteExpenseKind;
+  description: string;
+  amountCents: number;
+  /** YYYY-MM-DD */
+  spentOn: string;
+  vendor?: string;
+  createdBy: { personId: string; name: string };
+  createdAt: string;
+}
+
+export interface SiteCostPerson {
+  membershipId: string;
+  personId: string;
+  name: string;
+  photoUrl?: string;
+  minutes: number;
+  paidMinutes: number;
+  cents: number;
+  days: number;
+  lastAt: string;
+  working: boolean;
+}
+
+export interface SiteCostsDto {
+  siteId: string;
+  labor: {
+    /** Gross minutes worked at this site (closed punches + live open shifts). */
+    minutes: number;
+    paidMinutes: number;
+    /** Estimate: each person's paid minutes at their current hourly rate. */
+    cents: number;
+    openShifts: number;
+    people: SiteCostPerson[];
+  };
+  expenses: SiteExpenseDto[];
+  expenseCents: number;
+  byKind: Record<SiteExpenseKind, number>;
+  totalCents: number;
+}
+
+export interface SiteExpenseInput {
+  kind: SiteExpenseKind;
+  description: string;
+  amountCents: number;
+  spentOn: string;
+  vendor?: string;
 }

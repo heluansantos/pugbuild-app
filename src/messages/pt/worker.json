@@ -15,7 +15,6 @@
     "working": "Trabalhando",
     "startedAt": "Entrada às {time}",
     "timeToday": "Tempo hoje",
-    "lunchDeducted": "almoço de {minutes} min já descontado",
     "registeredNear": "Ponto registrado perto de",
     "farFromSite": "Ponto longe de obra. O escritório vai revisar.",
     "noLocationPunch": "Ponto registrado sem localização.",
@@ -70,7 +69,10 @@
     "daysWorked": "{count} dias trabalhados",
     "allTime": "Todo o período",
     "noHoursPeriod": "Sem horas neste período.",
-    "awaitingClose": "Aguardando fechamento"
+    "awaitingClose": "Aguardando fechamento",
+    "paidAfterLunch": "{paid} pagas · {lunch} de almoço",
+    "worked": "{hours} trabalhadas",
+    "lunchOnly": "{lunch} de almoço"
   },
   "payments": {
     "title": "Pagamentos",

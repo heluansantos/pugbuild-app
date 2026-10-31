@@ -51,7 +51,8 @@
     "flags": "{count} para revisar",
     "openPunches": "{count} ainda abertos",
     "noHours": "Sem horas ainda",
-    "payDay": "pagamento {date}"
+    "payDay": "pagamento {date}",
+    "paidAfterLunch": "{paid} pagas · {lunch} de almoço"
   },
   "billing": {
     "title": "Faturamento",
@@ -92,5 +93,40 @@
     "noSite": "Sem obra",
     "liveAt": "posição {time}",
     "clockedAt": "ponto {time}"
+  },
+  "siteCosts": {
+    "title": "Custos",
+    "estimate": "Estimativa",
+    "total": "Total",
+    "labor": "Mão de obra",
+    "expenses": "Materiais e serviços",
+    "people": "{count} pessoas trabalharam aqui",
+    "peopleTitle": "Pessoas nesta obra",
+    "days": "{count} dias",
+    "workingNow": "Trabalhando agora",
+    "addExpense": "Adicionar gasto",
+    "kinds": {
+      "material": "Material",
+      "service": "Serviço",
+      "other": "Outro"
+    },
+    "description": "O que foi",
+    "descriptionPlaceholder": "ex.: Drywall, 20 placas",
+    "amount": "Valor",
+    "date": "Data",
+    "vendor": "Fornecedor (opcional)",
+    "save": "Salvar",
+    "empty": "Nenhum gasto ainda",
+    "confirmDelete": "Apagar este gasto?",
+    "delete": "Apagar",
+    "saved": "Gasto salvo",
+    "deleted": "Gasto apagado",
+    "laborHint": "Calculado pelos pontos da equipe nesta obra, com o valor/hora atual de cada pessoa",
+    "laborPaid": "{hours} pagas",
+    "invalidAmount": "Informe um valor válido",
+    "invalidDate": "Use a data no formato AAAA-MM-DD",
+    "noPeople": "Ninguém bateu ponto aqui ainda",
+    "open": "Abrir custos da obra",
+    "invalidDescription": "Descreva o gasto (até 200 caracteres)"
   }
 }

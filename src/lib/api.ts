@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import type { ApiErrorCode, BillingOverviewDto, FeedPageDto, GeoPoint, MeDto, MemberDto, MembershipSummary, PayHistoryDto, Period, PeriodSummaryDto, PunchDto, PunchInput, SiteDetailDto, SiteDto, TaskDto, TodayOverview, VerifyResult, WeekDto, WeekSummaryDto } from "./api-types";
+import type { ApiErrorCode, BillingOverviewDto, FeedPageDto, GeoPoint, MeDto, MemberDto, MembershipSummary, PayHistoryDto, Period, PeriodSummaryDto, PunchDto, PunchInput, SiteCostsDto, SiteDetailDto, SiteDto, SiteExpenseDto, SiteExpenseInput, TaskDto, TodayOverview, VerifyResult, WeekDto, WeekSummaryDto } from "./api-types";
 
 /**
  * Where the web app lives. Expo inlines EXPO_PUBLIC_* at build time; a person can override it
@@ -192,6 +192,9 @@ export const api = {
       }
       return request<{ id: string }>(`/api/v1/sites/${encodeURIComponent(id)}/posts`, { method: "POST", body: form });
     },
+    costs: (id: string) => get<SiteCostsDto>(`/api/v1/sites/${encodeURIComponent(id)}/costs`),
+    addExpense: (id: string, input: SiteExpenseInput) => post<SiteExpenseDto>(`/api/v1/sites/${encodeURIComponent(id)}/expenses`, input),
+    deleteExpense: (id: string, expenseId: string) => request<{ ok: true }>(`/api/v1/sites/${encodeURIComponent(id)}/expenses/${encodeURIComponent(expenseId)}`, { method: "DELETE" }),
     deletePost: (id: string, postId: string) => request<{ ok: true }>(`/api/v1/sites/${encodeURIComponent(id)}/posts/${encodeURIComponent(postId)}`, { method: "DELETE" }),
   },
   tasks: {
@@ -236,6 +239,7 @@ export const keys = {
   billing: ["billing"] as const,
   tasks: ["tasks"] as const,
   site: (id: string) => ["site", id] as const,
+  siteCosts: (id: string) => ["site", id, "costs"] as const,
   siteFeed: (id: string) => ["site", id, "feed"] as const,
   hours: (period: string, at?: string) => ["week", "hours", period, at ?? "current"] as const,
   task: (id: string) => ["tasks", id] as const,

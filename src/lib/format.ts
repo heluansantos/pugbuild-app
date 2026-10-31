@@ -14,6 +14,12 @@ export function formatMinutes(totalMinutes: number): string {
   return `${h}h${m.toString().padStart(2, "0")}`;
 }
 
+/** Short span for a deduction: 30 → "30 min", 150 → "2h30". */
+export function formatLunch(minutes: number): string {
+  const safe = Math.max(0, Math.round(minutes));
+  return safe < 60 ? `${safe} min` : formatMinutes(safe);
+}
+
 /** 342 → "05:42" */
 export function formatClock(totalMinutes: number): string {
   const safe = Math.max(0, Math.round(totalMinutes));

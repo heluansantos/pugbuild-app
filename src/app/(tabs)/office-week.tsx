@@ -9,7 +9,7 @@ import { Screen, Title } from "../../components/ui/screen";
 import { Txt } from "../../components/ui/text";
 import { useLocale } from "../../features/session/session";
 import { api, keys } from "../../lib/api";
-import { formatMinutes, formatMoney, formatWeekRange, keyToDate } from "../../lib/format";
+import { formatLunch, formatMinutes, formatMoney, formatWeekRange, keyToDate } from "../../lib/format";
 import { t } from "../../lib/i18n";
 import { colors, radii } from "../../theme/tokens";
 
@@ -74,6 +74,11 @@ export default function OfficeWeekScreen() {
                 <Txt size={22} weight="semibold" tabular tone="white">
                   {formatMoney(data.totalGrossCents, locale)}
                 </Txt>
+                {data.totalLunchMinutes > 0 && (
+                  <Txt size={12} tone="white" style={{ opacity: 0.7 }}>
+                    {t("office.week.paidAfterLunch", { paid: formatMinutes(data.totalPaidMinutes), lunch: formatLunch(data.totalLunchMinutes) })}
+                  </Txt>
+                )}
               </View>
               <View style={{ alignItems: "flex-end" }}>
                 <Txt size={13} tone="white" style={{ opacity: 0.7 }}>
