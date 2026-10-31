@@ -15,7 +15,6 @@
     "working": "Working",
     "startedAt": "Started at {time}",
     "timeToday": "Time today",
-    "lunchDeducted": "{minutes} min lunch already deducted",
     "registeredNear": "Clocked in near",
     "farFromSite": "Clocked in away from a job site. The office will review it.",
     "noLocationPunch": "Clocked in without location.",
@@ -70,7 +69,10 @@
     "daysWorked": "{count} days worked",
     "allTime": "All time",
     "noHoursPeriod": "No hours in this period.",
-    "awaitingClose": "Awaiting week close"
+    "awaitingClose": "Awaiting week close",
+    "paidAfterLunch": "{paid} paid · {lunch} lunch",
+    "worked": "{hours} worked",
+    "lunchOnly": "{lunch} lunch"
   },
   "payments": {
     "title": "Payments",

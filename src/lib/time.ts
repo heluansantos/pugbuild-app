@@ -1,11 +1,13 @@
 import type { LunchRule } from "./api-types";
 
 export interface WorkedResult {
-  /** Minutes paid after lunch deduction. */
+  /** Gross minutes worked: clock-in to clock-out, what the person writes down. */
   workedMinutes: number;
-  /** Minutes removed for lunch (0 when paid or shift too short). */
+  /** Minutes the pay rule removes for lunch (0 when paid or shift too short). Money only. */
   lunchDeductedMinutes: number;
-  /** Raw span between clock-in and clock-out. */
+  /** Minutes the pay corresponds to: worked minus lunch. */
+  paidMinutes: number;
+  /** Raw span between clock-in and clock-out (same as workedMinutes). */
   spanMinutes: number;
 }
 
@@ -15,14 +17,15 @@ export function minutesBetween(start: Date, end: Date): number {
 }
 
 /**
- * Same rule as the server: lunch is deducted automatically when unpaid and the shift reaches the
- * minimum length. The phone only previews it; the server's number wins at clock-out.
+ * Hours are gross; same lunch rule as the server, applied to pay only: lunch is deducted
+ * automatically when unpaid and the shift reaches the minimum length. The phone only previews it;
+ * the server's number wins at clock-out.
  */
 export function computeWorked(clockIn: Date, clockOut: Date, lunch: LunchRule): WorkedResult {
   const spanMinutes = minutesBetween(clockIn, clockOut);
   const deduct = !lunch.paid && lunch.minutes > 0 && spanMinutes >= lunch.minShiftMinutes;
   const lunchDeductedMinutes = deduct ? Math.min(lunch.minutes, spanMinutes) : 0;
-  return { spanMinutes, lunchDeductedMinutes, workedMinutes: spanMinutes - lunchDeductedMinutes };
+  return { spanMinutes, lunchDeductedMinutes, workedMinutes: spanMinutes, paidMinutes: spanMinutes - lunchDeductedMinutes };
 }
 
 /** Live counter for an open shift. */

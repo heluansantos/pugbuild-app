@@ -12,7 +12,7 @@ import { PeriodView } from "../../features/worker/period-view";
 import type { Period } from "../../lib/api-types";
 import { PaymentCard } from "../../features/worker/payment-card";
 import { api, keys } from "../../lib/api";
-import { formatMinutes, formatMoney, formatWeekRange, keyToDate, todayKeyIn } from "../../lib/format";
+import { formatLunch, formatMinutes, formatMoney, formatWeekRange, keyToDate, todayKeyIn } from "../../lib/format";
 import { t } from "../../lib/i18n";
 import { buildDayBars } from "../../lib/week-helpers";
 import { colors, radii } from "../../theme/tokens";
@@ -51,8 +51,8 @@ export default function WeekScreen() {
   // week never looks like it vanished between the hours view and the payments list.
   const awaiting = payments.data?.openWeeks ?? [];
   const history = [
-    ...awaiting.map((w) => ({ kind: "open" as const, key: `open-${w.weekKey}`, weekKey: w.weekKey, endKey: w.endKey, minutes: w.minutes, cents: w.grossCents })),
-    ...previous.map((p) => ({ kind: "paid" as const, key: p.id, weekKey: p.weekKey, endKey: p.endKey, minutes: p.minutes, cents: p.amountCents, payment: p })),
+    ...awaiting.map((w) => ({ kind: "open" as const, key: `open-${w.weekKey}`, weekKey: w.weekKey, endKey: w.endKey, minutes: w.minutes, lunchMinutes: w.lunchMinutes, cents: w.grossCents })),
+    ...previous.map((p) => ({ kind: "paid" as const, key: p.id, weekKey: p.weekKey, endKey: p.endKey, minutes: p.minutes, lunchMinutes: p.lunchMinutes ?? 0, cents: p.amountCents, payment: p })),
   ].sort((a, b) => (a.weekKey < b.weekKey ? 1 : -1));
   const hasOpen = data?.punches.some((p) => p.status === "open");
 
@@ -126,6 +126,11 @@ export default function WeekScreen() {
                   <Txt size={22} weight="semibold" tabular>
                     {formatMoney(data.grossCents, locale)}
                   </Txt>
+                  {data.lunchMinutes > 0 && (
+                    <Txt size={12} tone="muted">
+                      {t("worker.week.paidAfterLunch", { paid: formatMinutes(data.paidMinutes), lunch: formatLunch(data.lunchMinutes) })}
+                    </Txt>
+                  )}
                 </View>
               </View>
               <DayBars bars={bars} />
@@ -179,6 +184,7 @@ export default function WeekScreen() {
                 <Txt size={13} tone="muted">
                   {row.kind === "paid" && row.payment.method ? `${t(`common.paymentMethod.${row.payment.method}`)} · ` : ""}
                   {formatMinutes(row.minutes)}
+                  {row.lunchMinutes > 0 ? ` · ${t("worker.week.lunchOnly", { lunch: formatLunch(row.lunchMinutes) })}` : ""}
                 </Txt>
               </View>
             </View>

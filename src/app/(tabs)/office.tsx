@@ -6,6 +6,7 @@ import { Card } from "../../components/ui/card";
 import { Chip } from "../../components/ui/chip";
 import { Screen } from "../../components/ui/screen";
 import { Txt } from "../../components/ui/text";
+import { MapCard } from "../../features/office/map-card";
 import { ReviewCard } from "../../features/office/review-card";
 import { TeamRow } from "../../features/office/team-row";
 import { useMe, useLocale } from "../../features/session/session";
@@ -58,6 +59,8 @@ export default function OfficeTodayScreen() {
             <Kpi label={t("office.today.kpiWeek")} value={formatMinutes(data.weekMinutes)} />
             <Kpi label={t("office.today.kpiReview")} value={String(review.length)} warn={review.length > 0} />
           </View>
+
+          <MapCard overview={data} defaultRadius={me.company.settings.siteRadiusMeters} />
 
           <Txt size={18} weight="semibold">
             {t("office.review.title")}

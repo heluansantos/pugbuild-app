@@ -11,6 +11,7 @@ import { Txt } from "../../components/ui/text";
 import { useToast } from "../../components/ui/toast";
 import { useLocale, useSession } from "../../features/session/session";
 import { FeedItem } from "../../features/site/feed-item";
+import { SiteCostsCard } from "../../features/site/site-costs-card";
 import { SiteComposer } from "../../features/site/site-composer";
 import type { FeedItemDto } from "../../lib/api-types";
 import { openSiteInMaps } from "../../features/worker/open-in-maps";
@@ -99,6 +100,7 @@ export default function SiteScreen() {
         )}
       </View>
 
+      {s && me && me.member.role !== "worker" && <SiteCostsCard siteId={id} locale={locale} />}
       {s?.status === "active" && <SiteComposer siteId={id} name={me?.person.name ?? ""} photoUrl={me?.person.photoUrl} onPosted={refresh} />}
       <Txt size={13} weight="medium" tone="muted" style={styles.pad}>
         {t("worker.siteFeed.timeline").toUpperCase()}

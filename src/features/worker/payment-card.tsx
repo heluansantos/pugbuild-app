@@ -10,7 +10,7 @@ import { Txt } from "../../components/ui/text";
 import { useToast } from "../../components/ui/toast";
 import { api, isApiError, keys } from "../../lib/api";
 import type { PaymentDto } from "../../lib/api-types";
-import { formatMinutes, formatMoney } from "../../lib/format";
+import { formatLunch, formatMinutes, formatMoney } from "../../lib/format";
 import { t } from "../../lib/i18n";
 import { colors, radii } from "../../theme/tokens";
 
@@ -69,7 +69,11 @@ export function PaymentCard({ payment, weekLabel, locale }: { payment: PaymentDt
             {formatMoney(payment.amountCents, locale)}
           </Txt>
           <Txt size={14} tone="muted3">
-            {weekLabel} · {t("worker.week.hours", { hours: formatMinutes(payment.minutes) })}
+            {[
+              weekLabel,
+              t("worker.week.worked", { hours: formatMinutes(payment.workedMinutes ?? payment.minutes + (payment.lunchMinutes ?? 0)) }),
+              ...(payment.lunchMinutes ? [t("worker.week.paidAfterLunch", { paid: formatMinutes(payment.minutes), lunch: formatLunch(payment.lunchMinutes) })] : []),
+            ].join(" · ")}
           </Txt>
         </View>
         {payment.pickupNote && (

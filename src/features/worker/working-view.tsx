@@ -121,7 +121,7 @@ export function WorkingView({
         </Txt>
       </View>
 
-      <ShiftClock clockInAt={punch.clockIn.at} lunch={settings.lunch} earlierMinutes={todayMinutesBefore} />
+      <ShiftClock clockInAt={punch.clockIn.at} earlierMinutes={todayMinutesBefore} />
 
       <Card style={styles.siteRow}>
         <View style={[styles.icon, { backgroundColor: siteName ? colors.okBg : colors.warnBg }]}>
