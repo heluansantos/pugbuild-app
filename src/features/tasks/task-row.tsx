@@ -7,9 +7,12 @@ import { Txt } from "../../components/ui/text";
 import type { TaskDto } from "../../lib/api-types";
 import { formatShortDate, keyToDate, todayKeyIn } from "../../lib/format";
 import { t } from "../../lib/i18n";
-import { colors, radii } from "../../theme/tokens";
+import { radii, type Palette } from "../../theme/tokens";
+import { useTheme, useThemedStyles } from "../../theme/theme";
 
 export function TaskRow({ task, locale, timezone, onPress }: { task: TaskDto; locale: string; timezone: string; onPress: () => void }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const cover = task.completion?.photos[0] ?? task.photos[0];
   const overdue = task.status === "open" && !!task.dueKey && task.dueKey < todayKeyIn(timezone);
   const photoCount = task.photos.length + (task.completion?.photos.length ?? 0);
@@ -62,10 +65,11 @@ export function TaskRow({ task, locale, timezone, onPress }: { task: TaskDto; lo
   );
 }
 
-const styles = StyleSheet.create({
-  row: { flexDirection: "row", alignItems: "center", gap: 12 },
-  photo: { width: 52, height: 52, borderRadius: radii.icon, backgroundColor: colors.bg },
-  icon: { width: 52, height: 52, borderRadius: radii.icon, backgroundColor: colors.bg, alignItems: "center", justifyContent: "center" },
-  meta: { flexDirection: "row", alignItems: "center", gap: 10, flexWrap: "wrap" },
-  metaItem: { flexDirection: "row", alignItems: "center", gap: 4, maxWidth: 200 },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    row: { flexDirection: "row", alignItems: "center", gap: 12 },
+    photo: { width: 52, height: 52, borderRadius: radii.icon, backgroundColor: c.bg },
+    icon: { width: 52, height: 52, borderRadius: radii.icon, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" },
+    meta: { flexDirection: "row", alignItems: "center", gap: 10, flexWrap: "wrap" },
+    metaItem: { flexDirection: "row", alignItems: "center", gap: 4, maxWidth: 200 },
+  });

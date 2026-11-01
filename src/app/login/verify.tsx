@@ -13,7 +13,8 @@ import { errorText } from "../../features/worker/payment-card";
 import { api, getApiUrl, isApiError } from "../../lib/api";
 import { formatPhone } from "../../lib/format";
 import { t } from "../../lib/i18n";
-import { colors, fonts, radii } from "../../theme/tokens";
+import { fonts, radii, type Palette } from "../../theme/tokens";
+import { useTheme, useThemedStyles } from "../../theme/theme";
 
 const LENGTH = 6;
 // Only builds talking to a dev server or a Vercel preview, where the fixed code is accepted.
@@ -27,6 +28,8 @@ const devCodeHint = () => {
 };
 
 export default function VerifyScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const router = useRouter();
   const toast = useToast();
   const { pendingPhone, locale, afterVerify } = useSession();
@@ -132,12 +135,13 @@ export default function VerifyScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  stack: { gap: 20 },
-  back: { width: 44, height: 44, borderRadius: radii.pill, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" },
-  boxes: { flexDirection: "row", gap: 8, justifyContent: "center" },
-  box: { flex: 1, maxWidth: 52, height: 62, borderRadius: radii.card, backgroundColor: colors.surface, borderWidth: 1.5, borderColor: colors.line, alignItems: "center", justifyContent: "center" },
-  boxActive: { borderColor: colors.ink },
-  boxError: { borderColor: colors.danger },
-  hidden: { position: "absolute", opacity: 0, width: 1, height: 1, fontFamily: fonts.regular },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    stack: { gap: 20 },
+    back: { width: 44, height: 44, borderRadius: radii.pill, backgroundColor: c.surface, alignItems: "center", justifyContent: "center" },
+    boxes: { flexDirection: "row", gap: 8, justifyContent: "center" },
+    box: { flex: 1, maxWidth: 52, height: 62, borderRadius: radii.card, backgroundColor: c.surface, borderWidth: 1.5, borderColor: c.line, alignItems: "center", justifyContent: "center" },
+    boxActive: { borderColor: c.ink },
+    boxError: { borderColor: c.danger },
+    hidden: { position: "absolute", opacity: 0, width: 1, height: 1, fontFamily: fonts.regular },
+  });

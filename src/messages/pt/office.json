@@ -79,7 +79,8 @@
     "invoices": "Faturas recentes",
     "paid": "Paga",
     "open": "Em aberto",
-    "void": "Anulada"
+    "void": "Anulada",
+    "disabledNote": "O faturamento ainda não está configurado neste servidor. Mudanças de plano são feitas no painel web."
   },
   "map": {
     "title": "Onde a equipe está agora",

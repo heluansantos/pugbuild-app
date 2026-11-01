@@ -2,6 +2,7 @@ import { Image } from "expo-image";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
+import { StatusBar } from "expo-status-bar";
 import { ArrowLeft, MapPin, Navigation } from "lucide-react-native";
 import { useCallback } from "react";
 import { ActivityIndicator, Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, View } from "react-native";
@@ -18,11 +19,14 @@ import { openSiteInMaps } from "../../features/worker/open-in-maps";
 import { errorText } from "../../features/worker/payment-card";
 import { api, keys } from "../../lib/api";
 import { t } from "../../lib/i18n";
-import { colors, radii } from "../../theme/tokens";
+import { radii, type Palette } from "../../theme/tokens";
+import { useTheme, useThemedStyles } from "../../theme/theme";
 
 
 /** Job site: who it is, what is open, and an X-style timeline the whole crew feeds. */
 export default function SiteScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -61,6 +65,8 @@ export default function SiteScreen() {
   const header = (
     <View style={{ gap: 16, paddingBottom: 8 }}>
       <View style={[styles.cover, { paddingTop: insets.top + 8 }]}>
+        {/* The cover is yellow in both themes: dark status bar text, unless a photo covers it. */}
+        {!s?.latestPhotoUrl && <StatusBar style="dark" />}
         {s?.latestPhotoUrl && <Image source={{ uri: s.latestPhotoUrl }} style={StyleSheet.absoluteFill} contentFit="cover" cachePolicy="disk" transition={120} />}
         {s?.latestPhotoUrl && <View style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(20,20,20,0.25)" }]} />}
         <Pressable onPress={() => router.back()} style={styles.back} accessibilityRole="button" accessibilityLabel={t("common.actions.back")}>
@@ -75,7 +81,7 @@ export default function SiteScreen() {
                 {s.name}
               </Txt>
               <Pressable onPress={() => void openSiteInMaps(s)} style={styles.navBtn} accessibilityRole="button" accessibilityLabel={t("worker.tasks.directions")}>
-                <Navigation size={18} color={colors.ink} />
+                <Navigation size={18} color={colors.onAccent} />
               </Pressable>
             </View>
             <View style={styles.meta}>
@@ -117,7 +123,7 @@ export default function SiteScreen() {
         <FeedItem item={item} timezone={timezone} locale={locale} onOpenPhoto={openPhoto} onOpenTask={openTask} onDelete={confirmDelete} />
       </View>
     ),
-    [timezone, locale, openPhoto, openTask, confirmDelete],
+    [styles.pad, timezone, locale, openPhoto, openTask, confirmDelete],
   );
 
   // Signed out while this screen was open: render nothing until the gate redirects.
@@ -149,11 +155,12 @@ export default function SiteScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  pad: { paddingHorizontal: 20 },
-  cover: { height: 170, backgroundColor: colors.accent, paddingHorizontal: 20, overflow: "hidden" },
-  back: { width: 44, height: 44, borderRadius: radii.pill, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" },
-  titleRow: { flexDirection: "row", alignItems: "center", gap: 12 },
-  navBtn: { width: 44, height: 44, borderRadius: radii.pill, backgroundColor: colors.accent, alignItems: "center", justifyContent: "center" },
-  meta: { flexDirection: "row", alignItems: "center", gap: 6 },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    pad: { paddingHorizontal: 20 },
+    cover: { height: 170, backgroundColor: c.accent, paddingHorizontal: 20, overflow: "hidden" },
+    back: { width: 44, height: 44, borderRadius: radii.pill, backgroundColor: c.surface, alignItems: "center", justifyContent: "center" },
+    titleRow: { flexDirection: "row", alignItems: "center", gap: 12 },
+    navBtn: { width: 44, height: 44, borderRadius: radii.pill, backgroundColor: c.accent, alignItems: "center", justifyContent: "center" },
+    meta: { flexDirection: "row", alignItems: "center", gap: 6 },
+  });

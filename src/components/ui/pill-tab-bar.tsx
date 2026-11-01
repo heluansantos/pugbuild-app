@@ -4,7 +4,8 @@ import { useEffect } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import Animated, { FadeIn, FadeOut, LinearTransition, interpolateColor, useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { colors, radii, shadow } from "../../theme/tokens";
+import { useTheme, useThemedStyles } from "../../theme/theme";
+import { radii, type Palette, type Shadows } from "../../theme/tokens";
 import { Txt } from "./text";
 import type { ComponentProps, ComponentType } from "react";
 
@@ -30,6 +31,7 @@ const LAYOUT = LinearTransition.springify().damping(24).stiffness(260).mass(0.9)
  */
 export function PillTabBar({ state, emitter, navigateToTab, tabs }: BottomTabBarProps & { tabs: TabSpec[] }) {
   const insets = useSafeAreaInsets();
+  const styles = useThemedStyles(makeStyles);
   return (
     <View pointerEvents="box-none" style={[styles.host, { paddingBottom: Math.max(insets.bottom, 12) }]}>
       <View style={styles.bar} accessibilityRole="tablist">
@@ -53,22 +55,26 @@ export function PillTabBar({ state, emitter, navigateToTab, tabs }: BottomTabBar
 }
 
 function PillItem({ spec, active, onPress }: { spec: TabSpec; active: boolean; onPress: () => void }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const progress = useSharedValue(active ? 1 : 0);
   useEffect(() => {
     progress.set(withSpring(active ? 1 : 0, SPRING));
   }, [active, progress]);
+  const ink = colors.ink;
+  // Same hue at zero alpha, so the fade never passes through a different grey.
   const fill = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(progress.get(), [0, 1], ["rgba(20,20,20,0)", colors.ink]),
+    backgroundColor: interpolateColor(progress.get(), [0, 1], [`${ink}00`, ink]),
   }));
 
   return (
     <Animated.View layout={LAYOUT} style={active ? styles.grow : styles.fixed}>
       <Pressable onPress={onPress} accessibilityRole="tab" accessibilityState={{ selected: active }} accessibilityLabel={spec.label} hitSlop={4} style={styles.press}>
         <Animated.View style={[styles.item, fill]}>
-          <spec.Icon color={active ? colors.white : colors.muted} size={22} />
+          <spec.Icon color={active ? colors.onInk : colors.muted} size={22} />
           {active && (
             <Animated.View entering={FadeIn.delay(90).duration(200)} exiting={FadeOut.duration(80)} style={styles.label}>
-              <Txt size={14} weight="semibold" tone="white" numberOfLines={1}>
+              <Txt size={14} weight="semibold" tone="onInk" numberOfLines={1}>
                 {spec.label}
               </Txt>
             </Animated.View>
@@ -79,21 +85,22 @@ function PillItem({ spec, active, onPress }: { spec: TabSpec; active: boolean; o
   );
 }
 
-const styles = StyleSheet.create({
-  host: { position: "absolute", left: 0, right: 0, bottom: 0, alignItems: "center", paddingHorizontal: 20 },
-  bar: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    padding: 6,
-    borderRadius: radii.pill,
-    backgroundColor: colors.nav,
-    alignSelf: "stretch",
-    ...shadow.soft,
-  },
-  fixed: { width: 48 },
-  grow: { flexGrow: 1, flexBasis: 0, minWidth: 48 },
-  press: { alignSelf: "stretch" },
-  item: { height: 48, borderRadius: radii.pill, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingHorizontal: 12 },
-  label: { flexShrink: 1 },
-});
+const makeStyles = (c: Palette, shadow: Shadows) =>
+  StyleSheet.create({
+    host: { position: "absolute", left: 0, right: 0, bottom: 0, alignItems: "center", paddingHorizontal: 20 },
+    bar: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      padding: 6,
+      borderRadius: radii.pill,
+      backgroundColor: c.nav,
+      alignSelf: "stretch",
+      ...shadow.soft,
+    },
+    fixed: { width: 48 },
+    grow: { flexGrow: 1, flexBasis: 0, minWidth: 48 },
+    press: { alignSelf: "stretch" },
+    item: { height: 48, borderRadius: radii.pill, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingHorizontal: 12 },
+    label: { flexShrink: 1 },
+  });

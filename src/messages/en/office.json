@@ -79,7 +79,8 @@
     "invoices": "Recent invoices",
     "paid": "Paid",
     "open": "Open",
-    "void": "Void"
+    "void": "Void",
+    "disabledNote": "Billing is not set up on this server yet. Plan changes happen on the web dashboard."
   },
   "map": {
     "title": "Where the crew is now",

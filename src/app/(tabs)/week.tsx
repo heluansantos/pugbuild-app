@@ -15,7 +15,8 @@ import { api, keys } from "../../lib/api";
 import { formatLunch, formatMinutes, formatMoney, formatWeekRange, keyToDate, todayKeyIn } from "../../lib/format";
 import { t } from "../../lib/i18n";
 import { buildDayBars } from "../../lib/week-helpers";
-import { colors, radii } from "../../theme/tokens";
+import { radii, type Palette } from "../../theme/tokens";
+import { useTheme, useThemedStyles } from "../../theme/theme";
 
 const PAY_TONES: Record<string, ChipTone> = { pending: "neutral", ready: "accent", confirmed: "ok", disputed: "warn" };
 
@@ -30,6 +31,8 @@ type Mode = "week" | Period;
 const MODES: Mode[] = ["week", "month", "year", "all"];
 
 export default function WeekScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const locale = useLocale();
   const me = useMe();
   const [mode, setMode] = useState<Mode>("week");
@@ -70,7 +73,7 @@ export default function WeekScreen() {
               accessibilityState={{ selected: mode === m }}
               style={[styles.mode, mode === m && styles.modeActive]}
             >
-              <Txt size={13} weight="semibold" tone={mode === m ? "white" : "muted"}>
+              <Txt size={13} weight="semibold" tone={mode === m ? "onInk" : "muted"}>
                 {t(`worker.week.periods.${m}`)}
               </Txt>
             </Pressable>
@@ -198,30 +201,31 @@ export default function WeekScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  header: { gap: 10 },
-  modes: {
-    flexDirection: "row",
-    gap: 2,
-    padding: 3,
-    borderRadius: radii.pill,
-    backgroundColor: colors.nav,
-    alignSelf: "flex-start",
-  },
-  mode: { height: 32, paddingHorizontal: 14, borderRadius: radii.pill, alignItems: "center", justifyContent: "center" },
-  modeActive: { backgroundColor: colors.ink },
-  pager: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 2,
-    alignSelf: "flex-start",
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: radii.pill,
-    padding: 4,
-  },
-  pageBtn: { width: 36, height: 36, borderRadius: radii.pill, alignItems: "center", justifyContent: "center" },
-  totals: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between" },
-  row: { flexDirection: "row", alignItems: "center", gap: 12 },
-  meta: { flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: 4 },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    header: { gap: 10 },
+    modes: {
+      flexDirection: "row",
+      gap: 2,
+      padding: 3,
+      borderRadius: radii.pill,
+      backgroundColor: c.nav,
+      alignSelf: "flex-start",
+    },
+    mode: { height: 32, paddingHorizontal: 14, borderRadius: radii.pill, alignItems: "center", justifyContent: "center" },
+    modeActive: { backgroundColor: c.ink },
+    pager: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 2,
+      alignSelf: "flex-start",
+      borderWidth: 1,
+      borderColor: c.line,
+      borderRadius: radii.pill,
+      padding: 4,
+    },
+    pageBtn: { width: 36, height: 36, borderRadius: radii.pill, alignItems: "center", justifyContent: "center" },
+    totals: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between" },
+    row: { flexDirection: "row", alignItems: "center", gap: 12 },
+    meta: { flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: 4 },
+  });

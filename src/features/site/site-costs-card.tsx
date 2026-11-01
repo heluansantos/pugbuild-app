@@ -6,10 +6,13 @@ import { Txt } from "../../components/ui/text";
 import { api, keys } from "../../lib/api";
 import { formatMinutes, formatMoney } from "../../lib/format";
 import { t } from "../../lib/i18n";
-import { colors, radii } from "../../theme/tokens";
+import { radii, type Palette } from "../../theme/tokens";
+import { useTheme, useThemedStyles } from "../../theme/theme";
 
 /** Admin and office only: what this site has cost so far; tap for the full breakdown. */
 export function SiteCostsCard({ siteId, locale }: { siteId: string; locale: string }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const router = useRouter();
   const costs = useQuery({ queryKey: keys.siteCosts(siteId), queryFn: () => api.site.costs(siteId) });
   const d = costs.data;
@@ -52,6 +55,7 @@ export function SiteCostsCard({ siteId, locale }: { siteId: string; locale: stri
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.stat}>
       <Txt size={12} tone="muted">
@@ -64,10 +68,11 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-const styles = StyleSheet.create({
-  pad: { paddingHorizontal: 20 },
-  card: { backgroundColor: colors.surface, borderRadius: radii.cardLg, padding: 16, gap: 12 },
-  between: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  stats: { flexDirection: "row", gap: 8 },
-  stat: { flex: 1, gap: 2, backgroundColor: colors.bg, borderRadius: radii.card, paddingHorizontal: 12, paddingVertical: 10 },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    pad: { paddingHorizontal: 20 },
+    card: { backgroundColor: c.surface, borderRadius: radii.cardLg, padding: 16, gap: 12 },
+    between: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+    stats: { flexDirection: "row", gap: 8 },
+    stat: { flex: 1, gap: 2, backgroundColor: c.bg, borderRadius: radii.card, paddingHorizontal: 12, paddingVertical: 10 },
+  });

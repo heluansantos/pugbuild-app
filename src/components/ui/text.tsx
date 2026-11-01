@@ -1,21 +1,10 @@
 import { Text as RNText, StyleSheet, type TextProps } from "react-native";
-import { colors, fonts } from "../../theme/tokens";
+import { fonts, type ColorName } from "../../theme/tokens";
+import { useTheme } from "../../theme/theme";
 
 type Weight = "regular" | "medium" | "semibold";
-type Tone = "ink" | "muted" | "muted2" | "muted3" | "white" | "accent" | "ok" | "warn" | "danger" | "line";
-
-const toneColor: Record<Tone, string> = {
-  ink: colors.ink,
-  muted: colors.muted,
-  muted2: colors.muted2,
-  muted3: colors.muted3,
-  white: colors.white,
-  accent: colors.accent,
-  ok: colors.ok,
-  warn: colors.warn,
-  danger: colors.danger,
-  line: colors.line,
-};
+/** Palette entries that make sense as text colour. `onInk` is text on an `ink` surface. */
+type Tone = Extract<ColorName, "ink" | "muted" | "muted2" | "muted3" | "onInk" | "onAccent" | "accent" | "accentOnInk" | "ok" | "warn" | "danger" | "line">;
 
 export interface TxtProps extends TextProps {
   size?: number;
@@ -29,6 +18,7 @@ export interface TxtProps extends TextProps {
 
 /** Outfit everywhere; the only Text the app should use. */
 export function Txt({ size = 15, weight = "regular", tone = "ink", tabular, tracking, center, style, ...rest }: TxtProps) {
+  const { colors } = useTheme();
   return (
     <RNText
       {...rest}
@@ -38,7 +28,7 @@ export function Txt({ size = 15, weight = "regular", tone = "ink", tabular, trac
           fontSize: size,
           lineHeight: Math.round(size * 1.3),
           fontFamily: fonts[weight],
-          color: toneColor[tone],
+          color: colors[tone],
         },
         tabular && styles.tabular,
         tracking !== undefined && { letterSpacing: tracking },

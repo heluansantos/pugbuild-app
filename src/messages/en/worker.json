@@ -183,5 +183,13 @@
     "hours": "{count} h",
     "loadingMore": "Loading…",
     "photo": "Photo"
+  },
+  "liveActivity": {
+    "settingLabel": "Timer on Lock Screen",
+    "settingHint": "Shows your running shift clock on the Lock Screen and Dynamic Island while you are clocked in.",
+    "brand": "PugBuild",
+    "noSite": "No site",
+    "startedAt": "Started {time}",
+    "hint": "Open PugBuild to finish"
   }
 }

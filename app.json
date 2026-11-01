@@ -6,7 +6,7 @@
     "scheme": "pugbuild",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "backgroundColor": "#F4F3EF",
     "ios": {
       "bundleIdentifier": "com.pugbuild.app",
@@ -15,6 +15,7 @@
         "NSLocationWhenInUseUsageDescription": "PugBuild uses your location while the app is open to show the nearest job site and to record where you clock in and out. It is never tracked in the background.",
         "CFBundleAllowMixedLocalizations": true,
         "ITSAppUsesNonExemptEncryption": false,
+        "NSSupportsLiveActivities": true,
         "LSApplicationQueriesSchemes": [
           "comgooglemaps",
           "waze"
@@ -80,7 +81,14 @@
           "microphonePermission": false
         }
       ],
-      "expo-image"
+      "expo-image",
+      [
+        "expo-widgets",
+        {
+          "bundleIdentifier": "com.pugbuild.app.widgets",
+          "groupIdentifier": "group.com.pugbuild.app"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

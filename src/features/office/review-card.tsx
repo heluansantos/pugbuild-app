@@ -9,11 +9,14 @@ import { api, keys } from "../../lib/api";
 import type { ReviewItem } from "../../lib/api-types";
 import { formatDistance, formatShortDate, formatTime, keyToDate } from "../../lib/format";
 import { t } from "../../lib/i18n";
-import { colors, radii } from "../../theme/tokens";
+import { radii, type Palette } from "../../theme/tokens";
 import { errorText } from "../worker/payment-card";
+import { useTheme, useThemedStyles } from "../../theme/theme";
 
 /** One line of the office review queue, mirroring the web dashboard's list. */
 export function ReviewCard({ item, timezone, locale }: { item: ReviewItem; timezone: string; locale: string }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const qc = useQueryClient();
   const toast = useToast();
   const approve = useMutation({
@@ -69,7 +72,8 @@ export function ReviewCard({ item, timezone, locale }: { item: ReviewItem; timez
   );
 }
 
-const styles = StyleSheet.create({
-  row: { flexDirection: "row", alignItems: "center", gap: 12 },
-  icon: { width: 36, height: 36, borderRadius: radii.pill, backgroundColor: colors.warnBg, alignItems: "center", justifyContent: "center" },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    row: { flexDirection: "row", alignItems: "center", gap: 12 },
+    icon: { width: 36, height: 36, borderRadius: radii.pill, backgroundColor: c.warnBg, alignItems: "center", justifyContent: "center" },
+  });

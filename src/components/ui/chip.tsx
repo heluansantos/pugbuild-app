@@ -1,19 +1,21 @@
 import { StyleSheet, View } from "react-native";
-import { colors, radii } from "../../theme/tokens";
+import { useTheme } from "../../theme/theme";
+import { radii, type Palette } from "../../theme/tokens";
 import { Txt } from "./text";
 
 export type ChipTone = "neutral" | "ok" | "warn" | "accent" | "dark";
 
-const tones: Record<ChipTone, { bg: string; fg: string; dot?: string }> = {
-  neutral: { bg: colors.nav, fg: colors.ink },
-  ok: { bg: colors.okBg, fg: colors.ok },
-  warn: { bg: colors.warnBg, fg: colors.warn },
-  accent: { bg: colors.accent, fg: colors.ink },
-  dark: { bg: colors.ink, fg: colors.white, dot: colors.accent },
-};
+const tones = (c: Palette): Record<ChipTone, { bg: string; fg: string; dot?: string }> => ({
+  neutral: { bg: c.nav, fg: c.ink },
+  ok: { bg: c.okBg, fg: c.ok },
+  warn: { bg: c.warnBg, fg: c.warn },
+  accent: { bg: c.accent, fg: c.onAccent },
+  dark: { bg: c.ink, fg: c.onInk, dot: c.accentOnInk },
+});
 
 export function Chip({ children, tone = "neutral", size = "md", dot }: { children: string; tone?: ChipTone; size?: "sm" | "md"; dot?: boolean }) {
-  const t = tones[tone];
+  const { colors } = useTheme();
+  const t = tones(colors)[tone];
   return (
     <View style={[styles.base, { backgroundColor: t.bg, paddingVertical: size === "sm" ? 4 : 7, paddingHorizontal: size === "sm" ? 10 : 14 }]}>
       {dot && <View style={[styles.dot, { backgroundColor: t.dot ?? t.fg }]} />}

@@ -13,19 +13,23 @@ import { Screen, Title } from "../../components/ui/screen";
 import { Txt } from "../../components/ui/text";
 import { useToast } from "../../components/ui/toast";
 import { LanguagePills } from "../../features/session/language-pills";
+import { ThemePills } from "../../features/session/theme-pills";
 import { useMe, useSession, useLocale } from "../../features/session/session";
 import { BillingCard } from "../../features/office/billing-card";
+import { LiveActivityRow } from "../../features/worker/live-activity-row";
 import { errorText } from "../../features/worker/payment-card";
 import { api, getApiUrl, keys } from "../../lib/api";
 import { shrinkPhoto } from "../../lib/photos";
 import { formatMoney, formatPhone } from "../../lib/format";
 import { t } from "../../lib/i18n";
-import { colors, radii } from "../../theme/tokens";
+import { useTheme } from "../../theme/theme";
+import { radii } from "../../theme/tokens";
 
 const SUPPORT_EMAIL = "hello@pugbuild.com";
 
 export default function ProfileScreen() {
   const me = useMe();
+  const { colors } = useTheme();
   const { signOut, refresh } = useSession();
   const router = useRouter();
   const toast = useToast();
@@ -72,7 +76,9 @@ export default function ProfileScreen() {
       <Card size="lg" style={styles.person}>
         <Pressable onPress={() => photo.mutate()} disabled={photo.isPending} accessibilityRole="button" accessibilityLabel={t("worker.profile.changePhoto")} style={styles.avatarWrap}>
           <Avatar name={me.person.name} photoUrl={me.person.photoUrl} size={64} />
-          <View style={styles.badge}>{photo.isPending ? <ActivityIndicator size="small" color={colors.ink} /> : <Camera size={14} color={colors.ink} />}</View>
+          <View style={[styles.badge, { backgroundColor: colors.accent, borderColor: colors.surface }]}>
+            {photo.isPending ? <ActivityIndicator size="small" color={colors.onAccent} /> : <Camera size={14} color={colors.onAccent} />}
+          </View>
         </Pressable>
         <View style={{ flex: 1 }}>
           <Txt size={18} weight="semibold" numberOfLines={1}>
@@ -91,7 +97,7 @@ export default function ProfileScreen() {
 
       <Card size="lg" style={{ paddingVertical: 4 }}>
         {rows.map(([k, v]) => (
-          <View key={k} style={styles.row}>
+          <View key={k} style={[styles.row, { borderBottomColor: colors.line2 }]}>
             <Txt size={15} tone="muted">
               {k}
             </Txt>
@@ -100,13 +106,21 @@ export default function ProfileScreen() {
             </Txt>
           </View>
         ))}
-        <View style={[styles.row, { borderBottomWidth: 0, gap: 12 }]}>
+        <View style={[styles.row, { borderBottomColor: colors.line2, gap: 12 }]}>
           <Txt size={15} tone="muted">
             {t("common.language")}
           </Txt>
           <LanguagePills compact />
         </View>
+        <View style={styles.themeRow}>
+          <Txt size={15} tone="muted">
+            {t("common.theme.label")}
+          </Txt>
+          <ThemePills />
+        </View>
       </Card>
+
+      {me.member.role === "worker" && <LiveActivityRow />}
 
       {me.member.role !== "worker" && <BillingCard locale={locale} timezone={me.company.settings.timezone} isAdmin={me.member.role === "admin"} />}
 
@@ -142,6 +156,7 @@ export default function ProfileScreen() {
 }
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
+  const { colors } = useTheme();
   return (
     <View style={{ gap: 10 }}>
       <View style={styles.sectionTitle}>
@@ -158,6 +173,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 }
 
 function LinkRow({ icon, label, onPress, inset }: { icon: ReactNode; label: string; onPress: () => void; inset?: boolean }) {
+  const { colors } = useTheme();
   const inner = (
     <>
       {icon}
@@ -183,8 +199,9 @@ function LinkRow({ icon, label, onPress, inset }: { icon: ReactNode; label: stri
 const styles = StyleSheet.create({
   person: { flexDirection: "row", alignItems: "center", gap: 14 },
   avatarWrap: { width: 64, height: 64 },
-  badge: { position: "absolute", right: -2, bottom: -2, width: 26, height: 26, borderRadius: radii.pill, backgroundColor: colors.accent, borderWidth: 2, borderColor: colors.surface, alignItems: "center", justifyContent: "center" },
-  row: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: colors.line2 },
+  badge: { position: "absolute", right: -2, bottom: -2, width: 26, height: 26, borderRadius: radii.pill, borderWidth: 2, alignItems: "center", justifyContent: "center" },
+  row: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: 14, borderBottomWidth: 1 },
+  themeRow: { paddingVertical: 14, gap: 10 },
   link: { flexDirection: "row", alignItems: "center", gap: 12 },
   insetRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 4 },
   sectionTitle: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 4 },

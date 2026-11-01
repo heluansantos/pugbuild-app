@@ -2,7 +2,8 @@ import { createContext, useCallback, useContext, useMemo, useRef, useState, type
 import { StyleSheet, View } from "react-native";
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { colors, radii, shadow } from "../../theme/tokens";
+import { useThemedStyles } from "../../theme/theme";
+import { radii, type Palette, type Shadows } from "../../theme/tokens";
 import { Txt } from "./text";
 
 type Tone = "neutral" | "ok" | "error";
@@ -24,6 +25,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<ToastItem[]>([]);
   const seq = useRef(0);
   const insets = useSafeAreaInsets();
+  const styles = useThemedStyles(makeStyles);
 
   const toast = useCallback((text: string, tone: Tone = "neutral") => {
     const id = ++seq.current;
@@ -48,7 +50,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             style={[styles.item, i.tone === "ok" && styles.ok, i.tone === "error" && styles.error]}
             accessibilityLiveRegion="polite"
           >
-            <Txt size={14} weight="medium" tone={i.tone === "neutral" ? "white" : "ink"} center>
+            <Txt size={14} weight="medium" tone={i.tone === "neutral" ? "onInk" : "ink"} center>
               {i.text}
             </Txt>
           </Animated.View>
@@ -64,9 +66,10 @@ export function useToast(): ToastApi {
   return ctx;
 }
 
-const styles = StyleSheet.create({
-  host: { position: "absolute", left: 20, right: 20, gap: 8, alignItems: "center" },
-  item: { backgroundColor: colors.ink, borderRadius: radii.card, paddingHorizontal: 16, paddingVertical: 12, maxWidth: 360, ...shadow.float },
-  ok: { backgroundColor: colors.okBg },
-  error: { backgroundColor: colors.warnBg },
-});
+const makeStyles = (c: Palette, shadow: Shadows) =>
+  StyleSheet.create({
+    host: { position: "absolute", left: 20, right: 20, gap: 8, alignItems: "center" },
+    item: { backgroundColor: c.ink, borderRadius: radii.card, paddingHorizontal: 16, paddingVertical: 12, maxWidth: 360, ...shadow.float },
+    ok: { backgroundColor: c.okBg },
+    error: { backgroundColor: c.warnBg },
+  });

@@ -17,7 +17,8 @@ import { formatLongDate, formatMinutes, formatTime } from "../../lib/format";
 import { t } from "../../lib/i18n";
 import { isNetworkError, newClientId } from "../../lib/offline-queue";
 import { computeElapsed } from "../../lib/time";
-import { colors, radii } from "../../theme/tokens";
+import { useTheme } from "../../theme/theme";
+import { radii } from "../../theme/tokens";
 import { useMe, useLocale } from "../session/session";
 import { errorText } from "./payment-card";
 import { ShiftClock } from "./shift-clock";
@@ -39,6 +40,7 @@ export function WorkingView({
   todayMinutesBefore: number;
 }) {
   const me = useMe();
+  const { colors } = useTheme();
   const qc = useQueryClient();
   const toast = useToast();
   const geo = useGeolocation();
@@ -145,7 +147,7 @@ export function WorkingView({
         </View>
       </Card>
 
-      <Pressable onPress={() => setSheet(true)} style={styles.secondary} accessibilityRole="button">
+      <Pressable onPress={() => setSheet(true)} style={[styles.secondary, { backgroundColor: colors.surface }]} accessibilityRole="button">
         <MessageSquare size={20} color={colors.ink} />
         <Txt size={15} weight="medium">
           {t("worker.home.comment")}
@@ -189,9 +191,8 @@ export function Stat({ label, value }: { label: string; value: string }) {
 const styles = StyleSheet.create({
   root: { flex: 1, gap: 14 },
   center: { alignItems: "center" },
-  lunch: { backgroundColor: colors.bg, borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 4 },
   siteRow: { flexDirection: "row", alignItems: "center", gap: 12 },
   icon: { width: 40, height: 40, borderRadius: radii.icon, alignItems: "center", justifyContent: "center" },
-  secondary: { height: 50, borderRadius: radii.pill, backgroundColor: colors.surface, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
+  secondary: { height: 50, borderRadius: radii.pill, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
   stats: { flexDirection: "row", gap: 8 },
 });

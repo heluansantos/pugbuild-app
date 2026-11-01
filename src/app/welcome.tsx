@@ -13,7 +13,8 @@ import { useSession } from "../features/session/session";
 import { errorText } from "../features/worker/payment-card";
 import { api, getApiUrl, keys } from "../lib/api";
 import { t } from "../lib/i18n";
-import { colors, radii } from "../theme/tokens";
+import { radii, type Palette } from "../theme/tokens";
+import { useTheme, useThemedStyles } from "../theme/theme";
 
 type Key = "terms" | "location" | "sms";
 const ITEMS: { key: Key; Icon: typeof FileText }[] = [
@@ -24,6 +25,8 @@ const ITEMS: { key: Key; Icon: typeof FileText }[] = [
 
 /** First sign-in: Terms + Privacy, location at clock-in and SMS, all required (same as the web /welcome). */
 export default function WelcomeScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const router = useRouter();
   const toast = useToast();
   const { locale, refresh, signOut } = useSession();
@@ -84,7 +87,7 @@ export default function WelcomeScreen() {
                   </View>
                 )}
               </View>
-              <View style={[styles.check, checked[key] && styles.checked]}>{checked[key] && <Check size={16} color={colors.ink} strokeWidth={3} />}</View>
+              <View style={[styles.check, checked[key] && styles.checked]}>{checked[key] && <Check size={16} color={colors.onAccent} strokeWidth={3} />}</View>
             </Card>
           </Pressable>
         ))}
@@ -101,10 +104,11 @@ export default function WelcomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  item: { flexDirection: "row", gap: 12, alignItems: "flex-start" },
-  icon: { width: 40, height: 40, borderRadius: radii.icon, backgroundColor: colors.bg, alignItems: "center", justifyContent: "center" },
-  links: { flexDirection: "row", gap: 14, marginTop: 4 },
-  check: { width: 28, height: 28, borderRadius: 9, borderWidth: 1.5, borderColor: colors.line, alignItems: "center", justifyContent: "center" },
-  checked: { backgroundColor: colors.accent, borderColor: colors.accent },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    item: { flexDirection: "row", gap: 12, alignItems: "flex-start" },
+    icon: { width: 40, height: 40, borderRadius: radii.icon, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" },
+    links: { flexDirection: "row", gap: 14, marginTop: 4 },
+    check: { width: 28, height: 28, borderRadius: 9, borderWidth: 1.5, borderColor: c.line, alignItems: "center", justifyContent: "center" },
+    checked: { backgroundColor: c.accent, borderColor: c.accent },
+  });

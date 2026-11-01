@@ -13,12 +13,13 @@ import { useMe, useLocale } from "../../features/session/session";
 import { api, keys } from "../../lib/api";
 import { firstName, formatMinutes, formatMoney, formatShortDate, keyToDate } from "../../lib/format";
 import { t } from "../../lib/i18n";
-import { colors } from "../../theme/tokens";
+import { useTheme } from "../../theme/theme";
 
 const COLLAPSED = 3;
 
 /** Office and admin home: the web dashboard's "Today", sized for a phone. */
 export default function OfficeTodayScreen() {
+  const { colors } = useTheme();
   const me = useMe();
   const locale = useLocale();
   const { timezone } = me.company.settings;
@@ -103,10 +104,11 @@ export default function OfficeTodayScreen() {
 }
 
 function Kpi({ label, value, sub, dark, warn }: { label: string; value: string; sub?: string; dark?: boolean; warn?: boolean }) {
-  const tone = dark ? "white" : "ink";
+  const { colors } = useTheme();
+  const tone = dark ? "onInk" : "ink";
   return (
     <Card tone={dark ? "ink" : "surface"} style={[styles.kpi, warn && { backgroundColor: colors.warnBg }]}>
-      <Txt size={12} tone={dark ? "white" : "muted"} style={dark ? { opacity: 0.7 } : undefined}>
+      <Txt size={12} tone={dark ? "onInk" : "muted"} style={dark ? { opacity: 0.7 } : undefined}>
         {label}
       </Txt>
       <View style={{ flexDirection: "row", alignItems: "baseline", gap: 6 }}>
@@ -114,7 +116,7 @@ function Kpi({ label, value, sub, dark, warn }: { label: string; value: string; 
           {value}
         </Txt>
         {sub && (
-          <Txt size={12} tone={dark ? "white" : "muted"} style={dark ? { opacity: 0.7 } : undefined}>
+          <Txt size={12} tone={dark ? "onInk" : "muted"} style={dark ? { opacity: 0.7 } : undefined}>
             {sub}
           </Txt>
         )}

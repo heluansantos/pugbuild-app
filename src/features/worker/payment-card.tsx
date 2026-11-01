@@ -12,13 +12,16 @@ import { api, isApiError, keys } from "../../lib/api";
 import type { PaymentDto } from "../../lib/api-types";
 import { formatLunch, formatMinutes, formatMoney } from "../../lib/format";
 import { t } from "../../lib/i18n";
-import { colors, radii } from "../../theme/tokens";
+import { radii, type Palette } from "../../theme/tokens";
+import { useTheme, useThemedStyles } from "../../theme/theme";
 
 export function errorText(e: unknown): string {
   return t(`errors.${isApiError(e) ? e.code : "unknown"}`);
 }
 
 export function PaymentCard({ payment, weekLabel, locale }: { payment: PaymentDto; weekLabel: string; locale: string }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const qc = useQueryClient();
   const toast = useToast();
   const [open, setOpen] = useState(false);
@@ -51,21 +54,21 @@ export function PaymentCard({ payment, weekLabel, locale }: { payment: PaymentDt
       <Card size="lg" tone="ink" style={{ gap: 14 }}>
         <View style={styles.between}>
           <View style={styles.inline}>
-            <View style={[styles.dot, { backgroundColor: payment.status === "disputed" ? colors.warnDot : colors.accent }]} />
-            <Txt size={15} weight="medium" tone="white">
+            <View style={[styles.dot, { backgroundColor: payment.status === "disputed" ? colors.warnDot : colors.accentOnInk }]} />
+            <Txt size={15} weight="medium" tone="onInk">
               {headline}
             </Txt>
           </View>
           {payment.method && (
             <View style={styles.method}>
-              <Txt size={13} weight="semibold">
+              <Txt size={13} weight="semibold" tone="onAccent">
                 {t(`common.paymentMethod.${payment.method}`)}
               </Txt>
             </View>
           )}
         </View>
         <View>
-          <Txt size={30} weight="semibold" tone="white" tabular tracking={-0.5}>
+          <Txt size={30} weight="semibold" tone="onInk" tabular tracking={-0.5}>
             {formatMoney(payment.amountCents, locale)}
           </Txt>
           <Txt size={14} tone="muted3">
@@ -107,10 +110,11 @@ export function PaymentCard({ payment, weekLabel, locale }: { payment: PaymentDt
   );
 }
 
-const styles = StyleSheet.create({
-  between: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
-  inline: { flexDirection: "row", alignItems: "center", gap: 8, flex: 1 },
-  dot: { width: 8, height: 8, borderRadius: 4 },
-  method: { backgroundColor: colors.accent, borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 4 },
-  pickup: { flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: colors.ink2, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12 },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    between: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
+    inline: { flexDirection: "row", alignItems: "center", gap: 8, flex: 1 },
+    dot: { width: 8, height: 8, borderRadius: 4 },
+    method: { backgroundColor: c.accent, borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 4 },
+    pickup: { flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: c.ink2, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12 },
+  });

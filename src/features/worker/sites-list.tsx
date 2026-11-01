@@ -15,10 +15,13 @@ import { api, keys } from "../../lib/api";
 import { formatDistance } from "../../lib/format";
 import { distanceMeters } from "../../lib/geo";
 import { t } from "../../lib/i18n";
-import { colors, radii } from "../../theme/tokens";
+import { radii, type Palette } from "../../theme/tokens";
+import { useTheme, useThemedStyles } from "../../theme/theme";
 
 /** Active job sites by distance, each with a directions shortcut. Rendered inside the Tasks tab. */
 export function SitesList() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const me = useMe();
   const router = useRouter();
   const locale = useLocale();
@@ -58,7 +61,7 @@ export function SitesList() {
                 {d !== null && <Chip tone={here ? "ok" : "neutral"} size="sm">{here ? t("worker.sites.here") : t("worker.sites.away", { distance: formatDistance(d, locale) })}</Chip>}
                 {/* Only sites the office confirmed are listed here, so directions always point at a real address. */}
                 <Pressable onPress={() => void openSiteInMaps(site)} style={styles.navBtn} accessibilityRole="button" accessibilityLabel={t("worker.sites.openInMaps")} hitSlop={6}>
-                  <Navigation size={18} color={colors.ink} />
+                  <Navigation size={18} color={colors.onAccent} />
                 </Pressable>
               </View>
             </Card>
@@ -70,11 +73,12 @@ export function SitesList() {
   );
 }
 
-const styles = StyleSheet.create({
-  row: { flexDirection: "row", alignItems: "center", gap: 12 },
-  photo: { width: 48, height: 48, borderRadius: radii.icon, backgroundColor: colors.bg },
-  hereRing: { borderWidth: 2, borderColor: colors.ok },
-  icon: { width: 48, height: 48, borderRadius: radii.icon, backgroundColor: colors.bg, alignItems: "center", justifyContent: "center" },
-  trail: { alignItems: "flex-end", gap: 8 },
-  navBtn: { width: 40, height: 40, borderRadius: radii.pill, backgroundColor: colors.accent, alignItems: "center", justifyContent: "center" },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    row: { flexDirection: "row", alignItems: "center", gap: 12 },
+    photo: { width: 48, height: 48, borderRadius: radii.icon, backgroundColor: c.bg },
+    hereRing: { borderWidth: 2, borderColor: c.ok },
+    icon: { width: 48, height: 48, borderRadius: radii.icon, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" },
+    trail: { alignItems: "flex-end", gap: 8 },
+    navBtn: { width: 40, height: 40, borderRadius: radii.pill, backgroundColor: c.accent, alignItems: "center", justifyContent: "center" },
+  });

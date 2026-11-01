@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import Animated, { Easing, useAnimatedProps, useSharedValue, withTiming } from "react-native-reanimated";
 import Svg, { Circle } from "react-native-svg";
-import { colors, shadow } from "../../theme/tokens";
+import { useTheme, useThemedStyles } from "../../theme/theme";
+import type { Palette, Shadows } from "../../theme/tokens";
 import type { ReactNode } from "react";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -14,6 +15,8 @@ const STROKE = 12;
 
 /** The 270px progress ring from the "Trabalhando" mockup. `fraction` is 0–1 of a full shift. */
 export function RingTimer({ fraction, children }: { fraction: number; children: ReactNode }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const progress = useSharedValue(0);
   useEffect(() => {
     progress.set(withTiming(Math.min(1, Math.max(0, fraction)), { duration: 1000, easing: Easing.bezier(0.22, 1, 0.36, 1) }));
@@ -48,17 +51,18 @@ export function RingTimer({ fraction, children }: { fraction: number; children: 
   );
 }
 
-const styles = StyleSheet.create({
-  wrap: { width: SIZE, height: SIZE, alignSelf: "center", alignItems: "center", justifyContent: "center" },
-  inner: {
-    position: "absolute",
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: colors.surface,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 4,
-    ...shadow.soft,
-  },
-});
+const makeStyles = (c: Palette, shadow: Shadows) =>
+  StyleSheet.create({
+    wrap: { width: SIZE, height: SIZE, alignSelf: "center", alignItems: "center", justifyContent: "center" },
+    inner: {
+      position: "absolute",
+      width: 200,
+      height: 200,
+      borderRadius: 100,
+      backgroundColor: c.surface,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 4,
+      ...shadow.soft,
+    },
+  });

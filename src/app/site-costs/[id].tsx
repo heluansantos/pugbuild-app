@@ -20,12 +20,15 @@ import { api, keys } from "../../lib/api";
 import type { SiteExpenseDto, SiteExpenseKind } from "../../lib/api-types";
 import { formatMinutes, formatMoney, formatShortDate, keyToDate, todayKeyIn } from "../../lib/format";
 import { t } from "../../lib/i18n";
-import { colors, radii } from "../../theme/tokens";
+import { radii, type Palette } from "../../theme/tokens";
+import { useTheme, useThemedStyles } from "../../theme/theme";
 
 const KIND_TONES: Record<SiteExpenseKind, ChipTone> = { material: "neutral", service: "accent", other: "neutral" };
 
 /** Admin and office: what a job site has cost (crew hours at today's rates, plus materials and services). */
 export default function SiteCostsScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { id } = useLocalSearchParams<{ id: string }>();
   const { me } = useSession();
   const router = useRouter();
@@ -103,37 +106,37 @@ export default function SiteCostsScreen() {
           <>
             <Card size="lg" tone="ink" style={{ gap: 14 }}>
               <View style={styles.between}>
-                <Txt size={13} tone="white" style={{ opacity: 0.7 }}>
+                <Txt size={13} tone="onInk" style={{ opacity: 0.7 }}>
                   {t("office.siteCosts.total")}
                 </Txt>
                 <Chip size="sm" tone="accent">
                   {t("office.siteCosts.estimate")}
                 </Chip>
               </View>
-              <Txt size={40} weight="semibold" tabular tracking={-1} tone="white">
+              <Txt size={40} weight="semibold" tabular tracking={-1} tone="onInk">
                 {formatMoney(d.totalCents, locale)}
               </Txt>
               <View style={styles.stats}>
                 <View style={{ flex: 1, gap: 2 }}>
-                  <Txt size={13} tone="white" style={{ opacity: 0.7 }}>
+                  <Txt size={13} tone="onInk" style={{ opacity: 0.7 }}>
                     {t("office.siteCosts.labor")}
                   </Txt>
-                  <Txt size={20} weight="semibold" tabular tone="white">
+                  <Txt size={20} weight="semibold" tabular tone="onInk">
                     {formatMoney(d.labor.cents, locale)}
                   </Txt>
-                  <Txt size={12} tone="white" style={{ opacity: 0.7 }}>
+                  <Txt size={12} tone="onInk" style={{ opacity: 0.7 }}>
                     {formatMinutes(d.labor.minutes)} · {t("office.siteCosts.laborPaid", { hours: formatMinutes(d.labor.paidMinutes) })}
                   </Txt>
                 </View>
                 <View style={{ flex: 1, gap: 2 }}>
-                  <Txt size={13} tone="white" style={{ opacity: 0.7 }}>
+                  <Txt size={13} tone="onInk" style={{ opacity: 0.7 }}>
                     {t("office.siteCosts.expenses")}
                   </Txt>
-                  <Txt size={20} weight="semibold" tabular tone="white">
+                  <Txt size={20} weight="semibold" tabular tone="onInk">
                     {formatMoney(d.expenseCents, locale)}
                   </Txt>
                   {d.expenseCents > 0 && (
-                    <Txt size={12} tone="white" style={{ opacity: 0.7 }} numberOfLines={2}>
+                    <Txt size={12} tone="onInk" style={{ opacity: 0.7 }} numberOfLines={2}>
                       {EXPENSE_KINDS.filter((k) => d.byKind[k] > 0)
                         .map((k) => `${t(`office.siteCosts.kinds.${k}`)} ${formatMoney(d.byKind[k], locale)}`)
                         .join(" · ")}
@@ -141,7 +144,7 @@ export default function SiteCostsScreen() {
                   )}
                 </View>
               </View>
-              <Txt size={12} tone="white" style={{ opacity: 0.7 }}>
+              <Txt size={12} tone="onInk" style={{ opacity: 0.7 }}>
                 {t("office.siteCosts.laborHint")}
               </Txt>
             </Card>
@@ -187,7 +190,7 @@ export default function SiteCostsScreen() {
               <Txt size={15} weight="semibold">
                 {t("office.siteCosts.expenses")}
               </Txt>
-              <Button leading={<Plus size={18} color={colors.white} />} onPress={openSheet}>
+              <Button leading={<Plus size={18} color={colors.onInk} />} onPress={openSheet}>
                 {t("office.siteCosts.addExpense")}
               </Button>
               {d.expenses.length === 0 ? (
@@ -230,7 +233,7 @@ export default function SiteCostsScreen() {
         <View style={styles.kinds} accessibilityRole="tablist">
           {EXPENSE_KINDS.map((k) => (
             <Pressable key={k} onPress={() => set("kind", k)} accessibilityRole="tab" accessibilityState={{ selected: form.kind === k }} style={[styles.kind, form.kind === k && styles.kindActive]}>
-              <Txt size={14} weight="semibold" tone={form.kind === k ? "white" : "muted"}>
+              <Txt size={14} weight="semibold" tone={form.kind === k ? "onInk" : "muted"}>
                 {t(`office.siteCosts.kinds.${k}`)}
               </Txt>
             </Pressable>
@@ -248,13 +251,14 @@ export default function SiteCostsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  back: { width: 44, height: 44, borderRadius: radii.pill, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" },
-  between: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  stats: { flexDirection: "row", gap: 12 },
-  row: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.line2 },
-  expense: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
-  kinds: { flexDirection: "row", gap: 2, padding: 3, borderRadius: radii.pill, backgroundColor: colors.nav },
-  kind: { flex: 1, height: 38, borderRadius: radii.pill, alignItems: "center", justifyContent: "center" },
-  kindActive: { backgroundColor: colors.ink },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    back: { width: 44, height: 44, borderRadius: radii.pill, backgroundColor: c.surface, alignItems: "center", justifyContent: "center" },
+    between: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+    stats: { flexDirection: "row", gap: 12 },
+    row: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: c.line2 },
+    expense: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
+    kinds: { flexDirection: "row", gap: 2, padding: 3, borderRadius: radii.pill, backgroundColor: c.nav },
+    kind: { flex: 1, height: 38, borderRadius: radii.pill, alignItems: "center", justifyContent: "center" },
+    kindActive: { backgroundColor: c.ink },
+  });

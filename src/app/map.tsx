@@ -13,10 +13,13 @@ import { useLocale, useSession } from "../features/session/session";
 import { api, keys } from "../lib/api";
 import { formatTime } from "../lib/format";
 import { t } from "../lib/i18n";
-import { colors, radii } from "../theme/tokens";
+import { radii, type Palette } from "../theme/tokens";
+import { useTheme, useThemedStyles } from "../theme/theme";
 
 /** Office map: job sites, who is at each one right now, and the live dots moving in between. */
 export default function MapScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { me } = useSession();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -36,7 +39,7 @@ export default function MapScreen() {
           <ArrowLeft size={22} color={colors.ink} />
         </Pressable>
         <View style={styles.titlePill}>
-          <Txt size={14} weight="semibold" tone="white" numberOfLines={1}>
+          <Txt size={14} weight="semibold" tone="onInk" numberOfLines={1}>
             {t("office.map.title")}
           </Txt>
         </View>
@@ -84,6 +87,7 @@ export default function MapScreen() {
 }
 
 function Legend({ color, ring, label }: { color: string; ring?: boolean; label: string }) {
+  const { colors } = useTheme();
   return (
     <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
       <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: color, borderWidth: ring ? 2 : 0, borderColor: colors.ink }} />
@@ -94,11 +98,12 @@ function Legend({ color, ring, label }: { color: string; ring?: boolean; label: 
   );
 }
 
-const styles = StyleSheet.create({
-  top: { position: "absolute", left: 16, right: 16, flexDirection: "row", alignItems: "center", gap: 10 },
-  back: { width: 44, height: 44, borderRadius: radii.pill, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" },
-  titlePill: { flexShrink: 1, paddingHorizontal: 14, height: 36, borderRadius: radii.pill, backgroundColor: colors.ink, alignItems: "center", justifyContent: "center" },
-  sheet: { backgroundColor: colors.surface, borderTopLeftRadius: radii.cardLg, borderTopRightRadius: radii.cardLg, paddingHorizontal: 20, paddingTop: 14, gap: 10, marginTop: -radii.cardLg },
-  legend: { flexDirection: "row", gap: 14, flexWrap: "wrap" },
-  row: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 8 },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    top: { position: "absolute", left: 16, right: 16, flexDirection: "row", alignItems: "center", gap: 10 },
+    back: { width: 44, height: 44, borderRadius: radii.pill, backgroundColor: c.surface, alignItems: "center", justifyContent: "center" },
+    titlePill: { flexShrink: 1, paddingHorizontal: 14, height: 36, borderRadius: radii.pill, backgroundColor: c.ink, alignItems: "center", justifyContent: "center" },
+    sheet: { backgroundColor: c.surface, borderTopLeftRadius: radii.cardLg, borderTopRightRadius: radii.cardLg, paddingHorizontal: 20, paddingTop: 14, gap: 10, marginTop: -radii.cardLg },
+    legend: { flexDirection: "row", gap: 14, flexWrap: "wrap" },
+    row: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 8 },
+  });
