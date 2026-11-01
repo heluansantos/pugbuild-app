@@ -191,5 +191,21 @@
     "noSite": "No site",
     "startedAt": "Started {time}",
     "hint": "Open PugBuild to finish"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "clockOutReminder": "Forgot to clock out",
+    "newTask": "New task for me",
+    "paymentReady": "Pay is ready",
+    "hint": "The clock-out reminder is set on this phone when you start a shift and works without signal.",
+    "enable": "Allow notifications…",
+    "permissionTitle": "Get a nudge if you forget",
+    "permissionBody": "PugBuild can remind you to clock out and tell you when a task or your pay is ready.",
+    "permissionAllow": "Allow",
+    "permissionLater": "Not now",
+    "reminderTitle": "Still clocked in?",
+    "reminderBody": "Your shift is still running. Open PugBuild to clock out.",
+    "test": "Dev: test reminder in 10 s",
+    "testScheduled": "Reminder in 10 seconds."
   }
 }

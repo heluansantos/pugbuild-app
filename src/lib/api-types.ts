@@ -51,6 +51,12 @@ export interface CompanyDto {
   settings: CompanySettings;
 }
 
+export interface NotificationPrefs {
+  clockOutReminder: boolean;
+  newTask: boolean;
+  paymentReady: boolean;
+}
+
 export interface PersonDto {
   id: string;
   phone: string;
@@ -61,6 +67,8 @@ export interface PersonDto {
   photoUrl?: string;
   consentAcceptedAt?: string;
   consentVersion?: string;
+  /** Mirror of the Profile switches; absent on servers that predate it (= everything on). */
+  notificationPrefs?: NotificationPrefs;
 }
 
 export interface MemberDto {

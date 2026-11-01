@@ -191,5 +191,21 @@
     "noSite": "Sem obra",
     "startedAt": "Início {time}",
     "hint": "Abra o PugBuild para finalizar"
+  },
+  "notifications": {
+    "title": "Notificações",
+    "clockOutReminder": "Esqueci de encerrar o ponto",
+    "newTask": "Nova tarefa para mim",
+    "paymentReady": "Pagamento pronto",
+    "hint": "O lembrete de saída é marcado neste celular quando você inicia a jornada e funciona sem sinal.",
+    "enable": "Permitir notificações…",
+    "permissionTitle": "Um toque se você esquecer",
+    "permissionBody": "O PugBuild pode lembrar você de encerrar o ponto e avisar quando houver tarefa nova ou pagamento pronto.",
+    "permissionAllow": "Permitir",
+    "permissionLater": "Agora não",
+    "reminderTitle": "Ponto ainda aberto?",
+    "reminderBody": "Sua jornada continua aberta. Abra o PugBuild para encerrar.",
+    "test": "Dev: testar lembrete em 10 s",
+    "testScheduled": "Lembrete em 10 segundos."
   }
 }

@@ -11,6 +11,8 @@ import type { SiteDto } from "../../lib/api-types";
 import { nearestSite } from "../../lib/geo";
 import { t } from "../../lib/i18n";
 import { isNetworkError, newClientId } from "../../lib/offline-queue";
+import { askNotificationPermission } from "../notifications/permission";
+import { registerPushToken } from "../notifications/push-token";
 import { useLocale, useMe } from "../session/session";
 import { NearbyCard } from "./nearby-card";
 import { errorText } from "./payment-card";
@@ -50,6 +52,11 @@ export function HomeView({ sites, queued }: { sites: SiteDto[]; queued: boolean 
       toast[res ? "ok" : "toast"](res ? t("worker.toasts.clockedIn") : t("worker.toasts.queued"));
       await qc.invalidateQueries({ queryKey: keys.openPunch });
       await qc.invalidateQueries({ queryKey: keys.week() });
+      // The right moment to ask: the shift just started, so "remind me to clock out" makes sense.
+      // Granted → the phone schedules its reminders (clock screen) and tells the server where it is.
+      void askNotificationPermission().then((granted) => {
+        if (granted) void registerPushToken();
+      });
     },
     onError: (e) => {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);

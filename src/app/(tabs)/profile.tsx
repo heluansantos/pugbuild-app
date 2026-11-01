@@ -16,6 +16,7 @@ import { LanguagePills } from "../../features/session/language-pills";
 import { ThemePills } from "../../features/session/theme-pills";
 import { useMe, useSession, useLocale } from "../../features/session/session";
 import { BillingCard } from "../../features/office/billing-card";
+import { NotificationsCard } from "../../features/notifications/notifications-card";
 import { LiveActivityRow } from "../../features/worker/live-activity-row";
 import { errorText } from "../../features/worker/payment-card";
 import { api, getApiUrl, keys } from "../../lib/api";
@@ -121,6 +122,8 @@ export default function ProfileScreen() {
       </Card>
 
       {me.member.role === "worker" && <LiveActivityRow />}
+
+      <NotificationsCard />
 
       {me.member.role !== "worker" && <BillingCard locale={locale} timezone={me.company.settings.timezone} isAdmin={me.member.role === "admin"} />}
 

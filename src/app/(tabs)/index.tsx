@@ -9,6 +9,7 @@ import { WeekStrip } from "../../components/ui/week-strip";
 import { useMe, useLocale } from "../../features/session/session";
 import { HomeView } from "../../features/worker/home-view";
 import { useOfflineSync } from "../../features/worker/use-offline-sync";
+import { useClockOutReminders } from "../../features/notifications/clock-out-reminders";
 import { useShiftLiveActivity } from "../../features/worker/live-activity";
 import { Stat, WorkingView } from "../../features/worker/working-view";
 import { api, keys } from "../../lib/api";
@@ -65,6 +66,8 @@ function WorkerClock() {
   // Lock Screen / Dynamic Island timer follows the open shift; with no shift it ends any leftover activity.
   const liveSiteName = punch?.clockIn.siteId ? (sites.data?.sites.find((s) => s.id === punch.clockIn.siteId)?.name ?? null) : null;
   useShiftLiveActivity(punch, liveSiteName, todayMinutes);
+  // "Still clocked in?" on the phone at the company's window and at 12 h; cancelled at clock-out.
+  useClockOutReminders(punch);
   const weekMinutesBefore = (week.data?.totalMinutes ?? 0) - (punch ? (week.data?.minutesByDay[punch.dayKey] ?? 0) : 0) + (punch ? todayMinutes : 0);
 
   return (

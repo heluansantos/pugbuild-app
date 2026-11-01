@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import type { ApiErrorCode, BillingOverviewDto, FeedPageDto, GeoPoint, MeDto, MemberDto, MembershipSummary, PayHistoryDto, Period, PeriodSummaryDto, PunchDto, PunchInput, SiteCostsDto, SiteDetailDto, SiteDto, SiteExpenseDto, SiteExpenseInput, TaskDto, TodayOverview, VerifyResult, WeekDto, WeekSummaryDto } from "./api-types";
+import type { ApiErrorCode, BillingOverviewDto, FeedPageDto, GeoPoint, MeDto, MemberDto, MembershipSummary, NotificationPrefs, PayHistoryDto, Period, PeriodSummaryDto, PunchDto, PunchInput, SiteCostsDto, SiteDetailDto, SiteDto, SiteExpenseDto, SiteExpenseInput, TaskDto, TodayOverview, VerifyResult, WeekDto, WeekSummaryDto } from "./api-types";
 
 /**
  * Where the web app lives. Expo inlines EXPO_PUBLIC_* at build time; a person can override it
@@ -136,6 +136,8 @@ async function request<T>(path: string, init: RequestInit & { json?: unknown; ti
 
 const get = <T>(path: string) => request<T>(path);
 const post = <T>(path: string, json: unknown = {}) => request<T>(path, { method: "POST", json });
+const put = <T>(path: string, json: unknown = {}) => request<T>(path, { method: "PUT", json });
+const del = <T>(path: string, json: unknown = {}) => request<T>(path, { method: "DELETE", json });
 
 export const api = {
   /** The only endpoint without the envelope. */
@@ -151,7 +153,12 @@ export const api = {
     selectCompany: (membershipId: string) => post<{ ok: true; role: string }>("/api/v1/select-company", { membershipId }),
     consent: (locale: string) => post<{ ok: true }>("/api/v1/consent", { sms: true, location: true, locale }),
   },
-  me: () => get<MeDto>("/api/v1/me"),
+  me: Object.assign(() => get<MeDto>("/api/v1/me"), {
+    /** This phone's Expo push token, after notifications were allowed. */
+    registerPushToken: (input: { token: string; platform: "ios" | "android" }) => post<{ ok: true }>("/api/v1/me/push-token", input),
+    removePushToken: (token: string) => del<{ ok: true }>("/api/v1/me/push-token", { token }),
+    setNotificationPrefs: (prefs: NotificationPrefs) => put<{ ok: true }>("/api/v1/me/notification-prefs", prefs),
+  }),
   /** Multipart upload of a profile photo picked on the phone (read as a Blob: RN 0.88 dropped the {uri,name,type} form part). */
   setPhoto: async (uri: string, mimeType = "image/jpeg") => {
     const raw = await (await fetch(uri)).blob();
