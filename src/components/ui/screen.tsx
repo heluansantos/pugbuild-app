@@ -2,6 +2,7 @@ import { ScrollView, StyleSheet, View, type ScrollViewProps } from "react-native
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { ReactNode } from "react";
 import { useTheme } from "../../theme/theme";
+import { Glow } from "./glow";
 import { spacing } from "../../theme/tokens";
 import { Txt } from "./text";
 
@@ -12,14 +13,18 @@ export function Screen({ children, scroll = true, tabs = false, style, ...rest }
   const padding = { paddingTop: insets.top + 8, paddingBottom: (tabs ? 96 : 16) + insets.bottom, paddingHorizontal: spacing.screen };
   if (!scroll)
     return (
-      <View style={[styles.root, { backgroundColor: colors.bg }, padding, style]}>
-        {children}
+      <View style={[styles.root, { backgroundColor: colors.bg }]}>
+        <Glow />
+        <View style={[styles.root, padding, style]}>{children}</View>
       </View>
     );
   return (
-    <ScrollView style={[styles.root, { backgroundColor: colors.bg }]} contentContainerStyle={[styles.content, padding, style]} keyboardShouldPersistTaps="handled" indicatorStyle={scheme === "dark" ? "white" : "black"} {...rest}>
-      {children}
-    </ScrollView>
+    <View style={[styles.root, { backgroundColor: colors.bg }]}>
+      <Glow />
+      <ScrollView style={styles.root} contentContainerStyle={[styles.content, padding, style]} keyboardShouldPersistTaps="handled" indicatorStyle={scheme === "dark" ? "white" : "black"} {...rest}>
+        {children}
+      </ScrollView>
+    </View>
   );
 }
 
