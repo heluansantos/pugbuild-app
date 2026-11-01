@@ -11,8 +11,9 @@ import { useToast } from "../../components/ui/toast";
 import { api } from "../../lib/api";
 import { t } from "../../lib/i18n";
 import { shrinkPhoto } from "../../lib/photos";
-import { colors, radii } from "../../theme/tokens";
+import { radii, type Palette } from "../../theme/tokens";
 import { errorText } from "../worker/payment-card";
+import { useTheme, useThemedStyles } from "../../theme/theme";
 
 const MAX_PHOTOS = 4;
 
@@ -21,6 +22,8 @@ const MAX_PHOTOS = 4;
  * not every post in the timeline.
  */
 export function SiteComposer({ siteId, name, photoUrl, onPosted }: { siteId: string; name: string; photoUrl?: string; onPosted: () => Promise<unknown> }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const toast = useToast();
   const [text, setText] = useState("");
   const [photos, setPhotos] = useState<ImagePicker.ImagePickerAsset[]>([]);
@@ -77,12 +80,13 @@ export function SiteComposer({ siteId, name, photoUrl, onPosted }: { siteId: str
   );
 }
 
-const styles = StyleSheet.create({
-  composer: { flexDirection: "row", gap: 12, paddingVertical: 14, marginHorizontal: 20, paddingHorizontal: 14, borderRadius: radii.cardMd, backgroundColor: colors.surface },
-  input: { minHeight: 44, fontFamily: "Outfit_400Regular", fontSize: 16, color: colors.ink, paddingTop: 10 },
-  thumbs: { flexDirection: "row", gap: 6 },
-  thumb: { width: 64, height: 64, borderRadius: 12, backgroundColor: colors.bg },
-  thumbX: { position: "absolute", top: 4, right: 4, width: 20, height: 20, borderRadius: 10, backgroundColor: "rgba(20,20,20,0.7)", alignItems: "center", justifyContent: "center" },
-  bar: { flexDirection: "row", alignItems: "center", gap: 8 },
-  iconBtn: { width: 40, height: 40, borderRadius: radii.pill, backgroundColor: colors.bg, alignItems: "center", justifyContent: "center" },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    composer: { flexDirection: "row", gap: 12, paddingVertical: 14, marginHorizontal: 20, paddingHorizontal: 14, borderRadius: radii.cardMd, backgroundColor: c.surface },
+    input: { minHeight: 44, fontFamily: "Outfit_400Regular", fontSize: 16, color: c.ink, paddingTop: 10 },
+    thumbs: { flexDirection: "row", gap: 6 },
+    thumb: { width: 64, height: 64, borderRadius: 12, backgroundColor: c.bg },
+    thumbX: { position: "absolute", top: 4, right: 4, width: 20, height: 20, borderRadius: 10, backgroundColor: "rgba(20,20,20,0.7)", alignItems: "center", justifyContent: "center" },
+    bar: { flexDirection: "row", alignItems: "center", gap: 8 },
+    iconBtn: { width: 40, height: 40, borderRadius: radii.pill, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" },
+  });

@@ -11,13 +11,16 @@ import { api, keys } from "../../lib/api";
 import type { BillingStatus } from "../../lib/api-types";
 import { formatMoney, formatShortDate } from "../../lib/format";
 import { t } from "../../lib/i18n";
-import { colors, radii } from "../../theme/tokens";
+import { radii, type Palette } from "../../theme/tokens";
 import { errorText } from "../worker/payment-card";
+import { useTheme, useThemedStyles } from "../../theme/theme";
 
 const TONES: Record<BillingStatus, ChipTone> = { trialing: "accent", active: "ok", past_due: "warn", read_only: "warn", suspended: "warn", canceled: "neutral", comped: "neutral" };
 
 /** Admin and office: plan status; admin also gets the Stripe portal (card, cancel, invoice history). */
 export function BillingCard({ locale, timezone, isAdmin }: { locale: string; timezone: string; isAdmin: boolean }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const toast = useToast();
   const overview = useQuery({ queryKey: keys.billing, queryFn: api.billing.overview, staleTime: 60_000 });
   const open = useMutation({
@@ -31,7 +34,7 @@ export function BillingCard({ locale, timezone, isAdmin }: { locale: string; tim
 
   const data = overview.data;
   if (overview.isPending) return <ActivityIndicator color={colors.ink} style={{ height: 60 }} />;
-  if (!data || !data.enabled || !data.billing) return null;
+  if (!data || !data.billing) return null;
   const b = data.billing;
   const date = (iso?: string) => (iso ? formatShortDate(new Date(iso), timezone, locale) : "");
   const line =
@@ -68,13 +71,18 @@ export function BillingCard({ locale, timezone, isAdmin }: { locale: string; tim
           {t(`office.billing.status.${b.status}`)}
         </Chip>
       </View>
-      {isAdmin && b.status !== "comped" && (
+      {!data.enabled && (
+        <Txt size={13} tone="muted">
+          {t("office.billing.disabledNote")}
+        </Txt>
+      )}
+      {isAdmin && data.enabled && b.status !== "comped" && (
         <View style={{ gap: 6 }}>
           <Button
             variant={needsCard ? "primary" : "secondary"}
             size="md"
             loading={open.isPending}
-            leading={<CreditCard size={18} color={needsCard ? colors.white : colors.ink} />}
+            leading={<CreditCard size={18} color={needsCard ? colors.onInk : colors.ink} />}
             onPress={() => open.mutate(needsCard || !b.hasCustomer ? "checkout" : "portal")}
           >
             {needsCard ? t("office.billing.addCard") : t("office.billing.manage")}
@@ -112,7 +120,8 @@ export function BillingCard({ locale, timezone, isAdmin }: { locale: string; tim
   );
 }
 
-const styles = StyleSheet.create({
-  head: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
-  invoice: { flexDirection: "row", alignItems: "center", gap: 10, padding: 10, borderRadius: radii.card, backgroundColor: colors.bg },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    head: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
+    invoice: { flexDirection: "row", alignItems: "center", gap: 10, padding: 10, borderRadius: radii.card, backgroundColor: c.bg },
+  });

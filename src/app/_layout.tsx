@@ -5,15 +5,15 @@ import type { ErrorBoundaryProps } from "expo-router";
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
-import { AppState, Platform, Pressable, StyleSheet, View } from "react-native";
-import { Txt } from "../components/ui/text";
+import { useEffect, useState } from "react";
+import { AppState, Platform, Pressable, StyleSheet, Text as RNText, useColorScheme, View } from "react-native";
 import { t } from "../lib/i18n";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ToastProvider } from "../components/ui/toast";
 import { SessionProvider, useSession } from "../features/session/session";
-import { colors } from "../theme/tokens";
+import { loadThemePreference, ThemeProvider, useTheme, type ThemePreference } from "../theme/theme";
+import { darkColors, fonts, lightColors } from "../theme/tokens";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -33,27 +33,41 @@ const queryClient = new QueryClient({
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({ Outfit_400Regular, Outfit_500Medium, Outfit_600SemiBold });
-  if (!fontsLoaded) return null;
+  // The saved theme is read alongside the fonts; the splash stays up until both are ready so the
+  // first painted frame already has the right palette.
+  const [themePreference, setThemePreference] = useState<ThemePreference | null>(null);
+  useEffect(() => {
+    void loadThemePreference().then(setThemePreference);
+  }, []);
+  if (!fontsLoaded || themePreference === null) return null;
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
-          <SessionProvider>
-            <ToastProvider>
-              <StatusBar style="dark" />
-              <Gate />
-            </ToastProvider>
-          </SessionProvider>
-        </QueryClientProvider>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+    <ThemeProvider initialPreference={themePreference}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaProvider>
+          <QueryClientProvider client={queryClient}>
+            <SessionProvider>
+              <ToastProvider>
+                <ThemedStatusBar />
+                <Gate />
+              </ToastProvider>
+            </SessionProvider>
+          </QueryClientProvider>
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    </ThemeProvider>
   );
+}
+
+function ThemedStatusBar() {
+  const { scheme } = useTheme();
+  return <StatusBar style={scheme === "dark" ? "light" : "dark"} />;
 }
 
 /** Sends the person to the right place for their session state; screens never guess. */
 function Gate() {
   const session = useSession();
   const { status, locale } = session;
+  const { colors } = useTheme();
   const segments = useSegments();
   const router = useRouter();
 
@@ -86,24 +100,23 @@ function Gate() {
 /** Any render error lands here instead of a blank screen; "Try again" re-mounts the route. */
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   if (__DEV__) console.error(error);
+  // Rendered outside the providers, so it reads the system scheme directly and styles itself with plain text.
+  const c = useColorScheme() === "dark" ? darkColors : lightColors;
   return (
-    <View style={styles.error}>
-      <Txt size={22} weight="semibold" center>
-        {t("common.states.error")}
-      </Txt>
-      <Txt size={15} tone="muted" center>
-        {t("common.states.errorBody")}
-      </Txt>
-      <Pressable onPress={retry} style={styles.retry} accessibilityRole="button">
-        <Txt size={16} weight="semibold" tone="white">
-          {t("common.actions.retry")}
-        </Txt>
+    <View style={[styles.error, { backgroundColor: c.bg }]}>
+      <RNText style={[styles.title, { color: c.ink }]}>{t("common.states.error")}</RNText>
+      <RNText style={[styles.body, { color: c.muted }]}>{t("common.states.errorBody")}</RNText>
+      <Pressable onPress={retry} style={[styles.retry, { backgroundColor: c.ink }]} accessibilityRole="button">
+        <RNText style={[styles.retryLabel, { color: c.onInk }]}>{t("common.actions.retry")}</RNText>
       </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  error: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12, padding: 32, backgroundColor: colors.bg },
-  retry: { marginTop: 12, height: 52, paddingHorizontal: 28, borderRadius: 999, backgroundColor: colors.ink, alignItems: "center", justifyContent: "center" },
+  error: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12, padding: 32 },
+  title: { fontFamily: fonts.semibold, fontSize: 22, textAlign: "center" },
+  body: { fontFamily: fonts.regular, fontSize: 15, textAlign: "center" },
+  retry: { marginTop: 12, height: 52, paddingHorizontal: 28, borderRadius: 999, alignItems: "center", justifyContent: "center" },
+  retryLabel: { fontFamily: fonts.semibold, fontSize: 16 },
 });

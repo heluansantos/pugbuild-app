@@ -1,7 +1,8 @@
 import { ActivityIndicator, Pressable, StyleSheet, View, type PressableProps, type ViewStyle } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import type { ReactNode } from "react";
-import { colors, fonts, radii, touch } from "../../theme/tokens";
+import { useTheme } from "../../theme/theme";
+import { fonts, radii, touch, type Palette } from "../../theme/tokens";
 import { Txt } from "./text";
 
 type Variant = "primary" | "secondary" | "accent" | "inverse" | "ghost" | "danger";
@@ -11,14 +12,15 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 const heights: Record<Size, number> = { md: touch.min, lg: touch.primary, hero: touch.hero };
 
-const variantStyles: Record<Variant, { bg: string; fg: string; border?: string }> = {
-  primary: { bg: colors.ink, fg: colors.white },
-  secondary: { bg: colors.surface, fg: colors.ink, border: colors.line },
-  accent: { bg: colors.accent, fg: colors.ink },
-  inverse: { bg: colors.white, fg: colors.ink },
-  ghost: { bg: "transparent", fg: colors.line, border: colors.ink3 },
-  danger: { bg: colors.dangerBg, fg: colors.danger },
-};
+const variantStyles = (c: Palette): Record<Variant, { bg: string; fg: string; border?: string }> => ({
+  primary: { bg: c.ink, fg: c.onInk },
+  secondary: { bg: c.surface, fg: c.ink, border: c.line },
+  accent: { bg: c.accent, fg: c.onAccent },
+  // "Inverse" sits on an ink surface, so it flips ink's own pairing.
+  inverse: { bg: c.onInk, fg: c.ink },
+  ghost: { bg: "transparent", fg: c.line, border: c.inkLine },
+  danger: { bg: c.dangerBg, fg: c.danger },
+});
 
 export interface ButtonProps extends Omit<PressableProps, "style" | "children"> {
   children: ReactNode;
@@ -33,7 +35,8 @@ export interface ButtonProps extends Omit<PressableProps, "style" | "children"> 
 export function Button({ children, variant = "primary", size = "lg", loading, leading, style, disabled, ...rest }: ButtonProps) {
   const scale = useSharedValue(1);
   const anim = useAnimatedStyle(() => ({ transform: [{ scale: scale.get() }] }));
-  const v = variantStyles[variant];
+  const { colors } = useTheme();
+  const v = variantStyles(colors)[variant];
   const isDisabled = disabled || loading;
   return (
     <AnimatedPressable

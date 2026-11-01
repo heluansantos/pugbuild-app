@@ -9,13 +9,14 @@ import { WeekStrip } from "../../components/ui/week-strip";
 import { useMe, useLocale } from "../../features/session/session";
 import { HomeView } from "../../features/worker/home-view";
 import { useOfflineSync } from "../../features/worker/use-offline-sync";
+import { useShiftLiveActivity } from "../../features/worker/live-activity";
 import { Stat, WorkingView } from "../../features/worker/working-view";
 import { api, keys } from "../../lib/api";
 import { firstName, formatMinutes, formatTime, todayKeyIn } from "../../lib/format";
 import type { PunchDto } from "../../lib/api-types";
 import { t } from "../../lib/i18n";
 import { buildWeekStrip } from "../../lib/week-helpers";
-import { colors } from "../../theme/tokens";
+import { useTheme } from "../../theme/theme";
 
 export default function ClockScreen() {
   const me = useMe();
@@ -24,6 +25,7 @@ export default function ClockScreen() {
 }
 
 function WorkerClock() {
+  const { colors } = useTheme();
   const me = useMe();
   const { pending, items } = useOfflineSync();
   const open = useQuery({ queryKey: keys.openPunch, queryFn: api.punches.open, refetchInterval: 5 * 60_000 });
@@ -60,6 +62,9 @@ function WorkerClock() {
   const todayMinutes = todayClosed.reduce((s, p) => s + (p.workedMinutes ?? 0), 0);
   const lastOut = todayClosed.at(-1)?.clockOut?.at;
   const firstIn = todayClosed[0]?.clockIn.at;
+  // Lock Screen / Dynamic Island timer follows the open shift; with no shift it ends any leftover activity.
+  const liveSiteName = punch?.clockIn.siteId ? (sites.data?.sites.find((s) => s.id === punch.clockIn.siteId)?.name ?? null) : null;
+  useShiftLiveActivity(punch, liveSiteName, todayMinutes);
   const weekMinutesBefore = (week.data?.totalMinutes ?? 0) - (punch ? (week.data?.minutesByDay[punch.dayKey] ?? 0) : 0) + (punch ? todayMinutes : 0);
 
   return (

@@ -9,8 +9,9 @@ import type { Period, PeriodSummaryDto } from "../../lib/api-types";
 import { formatMinutes, formatMoney, toIntlLocale } from "../../lib/format";
 import { t } from "../../lib/i18n";
 import type { DayBar } from "../../lib/week-helpers";
-import { colors, radii } from "../../theme/tokens";
+import { radii, type Palette } from "../../theme/tokens";
 import { DayBars } from "./day-bars";
+import { useTheme, useThemedStyles } from "../../theme/theme";
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -33,6 +34,8 @@ function bucketLabel(b: PeriodSummaryDto["buckets"][number], locale: string) {
 
 /** Month, year or all-time totals with one bar per block, month or year. Same card as the week. */
 export function PeriodView({ period, locale, todayKey }: { period: Exclude<Period, never>; locale: string; todayKey: string }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [at, setAt] = useState<string | undefined>(undefined);
   const q = useQuery({ queryKey: keys.hours(period, at), queryFn: () => api.hours(period, at) });
   const d = q.data;
@@ -108,9 +111,10 @@ export function PeriodView({ period, locale, todayKey }: { period: Exclude<Perio
   );
 }
 
-const styles = StyleSheet.create({
-  pager: { flexDirection: "row", alignItems: "center", gap: 2, alignSelf: "flex-start", borderWidth: 1, borderColor: colors.line, borderRadius: radii.pill, padding: 4 },
-  pageBtn: { width: 36, height: 36, borderRadius: radii.pill, alignItems: "center", justifyContent: "center" },
-  totals: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between" },
-  foot: { flexDirection: "row", justifyContent: "space-between", borderTopWidth: 1, borderTopColor: colors.line2, paddingTop: 12 },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    pager: { flexDirection: "row", alignItems: "center", gap: 2, alignSelf: "flex-start", borderWidth: 1, borderColor: c.line, borderRadius: radii.pill, padding: 4 },
+    pageBtn: { width: 36, height: 36, borderRadius: radii.pill, alignItems: "center", justifyContent: "center" },
+    totals: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between" },
+    foot: { flexDirection: "row", justifyContent: "space-between", borderTopWidth: 1, borderTopColor: c.line2, paddingTop: 12 },
+  });

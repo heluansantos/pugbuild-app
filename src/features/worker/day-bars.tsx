@@ -3,12 +3,13 @@ import Animated, { FadeInUp } from "react-native-reanimated";
 import { Txt } from "../../components/ui/text";
 import { formatMinutes } from "../../lib/format";
 import type { DayBar } from "../../lib/week-helpers";
-import { colors } from "../../theme/tokens";
+import { useTheme } from "../../theme/theme";
 
 const MAX_H = 108;
 
 /** More than a week of bars (a year has 12) switches to compact labels that never wrap. */
 export function DayBars({ bars }: { bars: DayBar[] }) {
+  const { colors } = useTheme();
   const compact = bars.length > 7;
   return (
     <View style={[styles.grid, compact && { gap: 4 }]}>

@@ -7,7 +7,8 @@ import { Txt } from "../../components/ui/text";
 import type { FeedItemDto, TaskPhotoDto } from "../../lib/api-types";
 import { formatShortDate } from "../../lib/format";
 import { t } from "../../lib/i18n";
-import { colors, radii } from "../../theme/tokens";
+import { radii, type Palette } from "../../theme/tokens";
+import { useTheme, useThemedStyles } from "../../theme/theme";
 
 /** "agora", "12 min", "3 h", then the short date. */
 export function relativeTime(iso: string, timezone: string, locale: string): string {
@@ -20,6 +21,7 @@ export function relativeTime(iso: string, timezone: string, locale: string): str
 
 /** X-style photo grid: one wide photo, or a 2-column grid for 2–4. */
 function Photos({ photos, onOpen }: { photos: TaskPhotoDto[]; onOpen: (url: string) => void }) {
+  const styles = useThemedStyles(makeStyles);
   if (photos.length === 0) return null;
   if (photos.length === 1)
     return (
@@ -39,6 +41,8 @@ function Photos({ photos, onOpen }: { photos: TaskPhotoDto[]; onOpen: (url: stri
 }
 
 export const FeedItem = memo(function FeedItem({ item, timezone, locale, onOpenPhoto, onOpenTask, onDelete }: { item: FeedItemDto; timezone: string; locale: string; onOpenPhoto: (url: string) => void; onOpenTask: (id: string) => void; onDelete: (id: string) => void }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.row}>
       <Avatar name={item.author.name} photoUrl={item.author.photoUrl} size={40} />
@@ -84,13 +88,14 @@ export const FeedItem = memo(function FeedItem({ item, timezone, locale, onOpenP
   );
 });
 
-const styles = StyleSheet.create({
-  row: { flexDirection: "row", gap: 12, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: colors.line2 },
-  head: { flexDirection: "row", alignItems: "center", gap: 6 },
-  task: { flexDirection: "row", alignItems: "flex-start", gap: 8, padding: 10, borderRadius: radii.icon, backgroundColor: colors.bg },
-  single: { width: "100%", aspectRatio: 4 / 3, borderRadius: 16, backgroundColor: colors.bg },
-  grid: { flexDirection: "row", flexWrap: "wrap", gap: 4, borderRadius: 16, overflow: "hidden" },
-  cell: { width: "49%", aspectRatio: 1 },
-  cellImg: { width: "100%", height: "100%", backgroundColor: colors.bg },
-  del: { alignSelf: "flex-start", paddingVertical: 2 },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    row: { flexDirection: "row", gap: 12, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: c.line2 },
+    head: { flexDirection: "row", alignItems: "center", gap: 6 },
+    task: { flexDirection: "row", alignItems: "flex-start", gap: 8, padding: 10, borderRadius: radii.icon, backgroundColor: c.bg },
+    single: { width: "100%", aspectRatio: 4 / 3, borderRadius: 16, backgroundColor: c.bg },
+    grid: { flexDirection: "row", flexWrap: "wrap", gap: 4, borderRadius: 16, overflow: "hidden" },
+    cell: { width: "49%", aspectRatio: 1 },
+    cellImg: { width: "100%", height: "100%", backgroundColor: c.bg },
+    del: { alignSelf: "flex-start", paddingVertical: 2 },
+  });

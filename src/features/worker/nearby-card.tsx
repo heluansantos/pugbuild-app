@@ -7,12 +7,15 @@ import type { SiteDto } from "../../lib/api-types";
 import { formatDistance } from "../../lib/format";
 import type { NearestSite } from "../../lib/geo";
 import { t } from "../../lib/i18n";
-import { colors, radii } from "../../theme/tokens";
+import { radii, type Palette } from "../../theme/tokens";
 import type { GeoStatus } from "./use-geolocation";
+import { useTheme, useThemedStyles } from "../../theme/theme";
 
 const COARSE_METERS = 150;
 
 export function NearbyCard({ status, nearest, hasSites, locale, accuracy }: { status: GeoStatus; nearest: NearestSite<SiteDto> | null; hasSites: boolean; locale: string; accuracy?: number }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   // iOS "Precise Location: Off" (or a weak fix) reports hundreds of meters: the punch would land far from the site.
   const coarse = status === "ready" && accuracy !== undefined && accuracy > COARSE_METERS;
   const denied = status === "denied" || status === "unavailable";
@@ -57,9 +60,10 @@ export function NearbyCard({ status, nearest, hasSites, locale, accuracy }: { st
   );
 }
 
-const styles = StyleSheet.create({
-  row: { flexDirection: "row", alignItems: "center", gap: 12 },
-  icon: { width: 40, height: 40, borderRadius: radii.icon, backgroundColor: colors.bg, alignItems: "center", justifyContent: "center" },
-  trail: { alignItems: "flex-end", gap: 4 },
-  hint: { flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 14, paddingVertical: 10, borderRadius: radii.card, backgroundColor: colors.warnBg },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    row: { flexDirection: "row", alignItems: "center", gap: 12 },
+    icon: { width: 40, height: 40, borderRadius: radii.icon, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" },
+    trail: { alignItems: "flex-end", gap: 4 },
+    hint: { flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 14, paddingVertical: 10, borderRadius: radii.card, backgroundColor: c.warnBg },
+  });

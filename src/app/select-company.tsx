@@ -10,9 +10,12 @@ import { useSession } from "../features/session/session";
 import { errorText } from "../features/worker/payment-card";
 import { api, keys } from "../lib/api";
 import { t } from "../lib/i18n";
-import { colors, radii } from "../theme/tokens";
+import { radii, type Palette } from "../theme/tokens";
+import { useTheme, useThemedStyles } from "../theme/theme";
 
 export default function SelectCompanyScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const toast = useToast();
   const { refresh } = useSession();
   const memberships = useQuery({ queryKey: keys.memberships, queryFn: () => api.auth.memberships() });
@@ -61,7 +64,8 @@ export default function SelectCompanyScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  row: { flexDirection: "row", alignItems: "center", gap: 12 },
-  icon: { width: 40, height: 40, borderRadius: radii.icon, backgroundColor: colors.bg, alignItems: "center", justifyContent: "center" },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    row: { flexDirection: "row", alignItems: "center", gap: 12 },
+    icon: { width: 40, height: 40, borderRadius: radii.icon, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" },
+  });

@@ -12,12 +12,15 @@ import { TaskRow } from "../../features/tasks/task-row";
 import { SitesList } from "../../features/worker/sites-list";
 import { api, keys } from "../../lib/api";
 import { t } from "../../lib/i18n";
-import { colors, radii } from "../../theme/tokens";
+import { radii, type Palette } from "../../theme/tokens";
+import { useTheme, useThemedStyles } from "../../theme/theme";
 
 type Segment = "tasks" | "sites";
 
 /** Tasks assigned to the person (office: every task), plus the job sites behind a segment. */
 export default function TasksScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const me = useMe();
   const locale = useLocale();
   const router = useRouter();
@@ -33,12 +36,12 @@ export default function TasksScreen() {
       <View style={styles.segments} accessibilityRole="tablist">
         {(["tasks", "sites"] as Segment[]).map((s) => (
           <Pressable key={s} onPress={() => setSegment(s)} accessibilityRole="tab" accessibilityState={{ selected: segment === s }} style={[styles.segment, segment === s && styles.segmentActive]}>
-            <Txt size={14} weight="semibold" tone={segment === s ? "white" : "ink"}>
+            <Txt size={14} weight="semibold" tone={segment === s ? "onInk" : "ink"}>
               {s === "tasks" ? t("worker.tasks.segTasks") : t("worker.tasks.segSites")}
             </Txt>
             {s === "tasks" && open.length > 0 && (
               <View style={[styles.badge, segment === s && { backgroundColor: colors.accent }]}>
-                <Txt size={11} weight="semibold" tone="ink">
+                <Txt size={11} weight="semibold" tone={segment === s ? "onAccent" : "ink"}>
                   {String(open.length)}
                 </Txt>
               </View>
@@ -78,9 +81,10 @@ export default function TasksScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  segments: { flexDirection: "row", gap: 4, padding: 4, borderRadius: radii.pill, backgroundColor: colors.nav, alignSelf: "flex-start" },
-  segment: { flexDirection: "row", alignItems: "center", gap: 8, height: 40, paddingHorizontal: 16, borderRadius: radii.pill },
-  segmentActive: { backgroundColor: colors.ink },
-  badge: { minWidth: 20, height: 20, paddingHorizontal: 6, borderRadius: radii.pill, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    segments: { flexDirection: "row", gap: 4, padding: 4, borderRadius: radii.pill, backgroundColor: c.nav, alignSelf: "flex-start" },
+    segment: { flexDirection: "row", alignItems: "center", gap: 8, height: 40, paddingHorizontal: 16, borderRadius: radii.pill },
+    segmentActive: { backgroundColor: c.ink },
+    badge: { minWidth: 20, height: 20, paddingHorizontal: 6, borderRadius: radii.pill, backgroundColor: c.surface, alignItems: "center", justifyContent: "center" },
+  });

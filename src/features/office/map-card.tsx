@@ -5,12 +5,15 @@ import { Pressable, StyleSheet, View } from "react-native";
 import { Txt } from "../../components/ui/text";
 import type { TodayOverview } from "../../lib/api-types";
 import { t } from "../../lib/i18n";
-import { colors, radii } from "../../theme/tokens";
+import { radii, type Palette } from "../../theme/tokens";
 import { CrewMap } from "./crew-map";
 import { buildCrewMap } from "./map-data";
+import { useTheme, useThemedStyles } from "../../theme/theme";
 
 /** Slim preview of where the crew is; tap for the full map. */
 export function MapCard({ overview, defaultRadius }: { overview: TodayOverview; defaultRadius: number }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const router = useRouter();
   const data = useMemo(() => buildCrewMap(overview, defaultRadius), [overview, defaultRadius]);
   const onSite = data.people.filter((p) => !p.far).length;
@@ -37,8 +40,9 @@ export function MapCard({ overview, defaultRadius }: { overview: TodayOverview; 
   );
 }
 
-const styles = StyleSheet.create({
-  card: { backgroundColor: colors.surface, borderRadius: radii.cardLg, overflow: "hidden" },
-  map: { height: 180 },
-  foot: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingVertical: 12 },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    card: { backgroundColor: c.surface, borderRadius: radii.cardLg, overflow: "hidden" },
+    map: { height: 180 },
+    foot: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingVertical: 12 },
+  });

@@ -11,7 +11,8 @@ import { useLocale } from "../../features/session/session";
 import { api, keys } from "../../lib/api";
 import { formatLunch, formatMinutes, formatMoney, formatWeekRange, keyToDate } from "../../lib/format";
 import { t } from "../../lib/i18n";
-import { colors, radii } from "../../theme/tokens";
+import { radii, type Palette } from "../../theme/tokens";
+import { useTheme, useThemedStyles } from "../../theme/theme";
 
 function shiftKey(key: string, days: number): string {
   const d = keyToDate(key);
@@ -21,6 +22,8 @@ function shiftKey(key: string, days: number): string {
 
 /** Office and admin: the pay week per person, as on the web closing page (read-only on the phone). */
 export default function OfficeWeekScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const locale = useLocale();
   const [weekKey, setWeekKey] = useState<string | undefined>(undefined);
   const week = useQuery({ queryKey: keys.officeWeek(weekKey), queryFn: () => api.office.week(weekKey) });
@@ -55,10 +58,10 @@ export default function OfficeWeekScreen() {
           <Card size="lg" tone="ink" style={{ gap: 14 }}>
             <View style={styles.totals}>
               <View>
-                <Txt size={13} tone="white" style={{ opacity: 0.7 }}>
+                <Txt size={13} tone="onInk" style={{ opacity: 0.7 }}>
                   {t("office.week.hours")}
                 </Txt>
-                <Txt size={40} weight="semibold" tabular tracking={-1} tone="white">
+                <Txt size={40} weight="semibold" tabular tracking={-1} tone="onInk">
                   {formatMinutes(data.totalMinutes)}
                 </Txt>
               </View>
@@ -68,29 +71,29 @@ export default function OfficeWeekScreen() {
             </View>
             <View style={styles.totals}>
               <View>
-                <Txt size={13} tone="white" style={{ opacity: 0.7 }}>
+                <Txt size={13} tone="onInk" style={{ opacity: 0.7 }}>
                   {t("office.week.gross")}
                 </Txt>
-                <Txt size={22} weight="semibold" tabular tone="white">
+                <Txt size={22} weight="semibold" tabular tone="onInk">
                   {formatMoney(data.totalGrossCents, locale)}
                 </Txt>
                 {data.totalLunchMinutes > 0 && (
-                  <Txt size={12} tone="white" style={{ opacity: 0.7 }}>
+                  <Txt size={12} tone="onInk" style={{ opacity: 0.7 }}>
                     {t("office.week.paidAfterLunch", { paid: formatMinutes(data.totalPaidMinutes), lunch: formatLunch(data.totalLunchMinutes) })}
                   </Txt>
                 )}
               </View>
               <View style={{ alignItems: "flex-end" }}>
-                <Txt size={13} tone="white" style={{ opacity: 0.7 }}>
+                <Txt size={13} tone="onInk" style={{ opacity: 0.7 }}>
                   {t("office.week.people")}
                 </Txt>
-                <Txt size={22} weight="semibold" tabular tone="white">
+                <Txt size={22} weight="semibold" tabular tone="onInk">
                   {String(lines.filter((l) => l.minutes > 0).length)}
                 </Txt>
               </View>
             </View>
             {(data.unresolvedFlags > 0 || data.openPunches > 0) && (
-              <Txt size={12} tone="white" style={{ opacity: 0.7 }}>
+              <Txt size={12} tone="onInk" style={{ opacity: 0.7 }}>
                 {[data.unresolvedFlags > 0 ? t("office.week.flags", { count: data.unresolvedFlags }) : null, data.openPunches > 0 ? t("office.week.openPunches", { count: data.openPunches }) : null].filter(Boolean).join(" · ")}
               </Txt>
             )}
@@ -131,10 +134,11 @@ export default function OfficeWeekScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  header: { gap: 10 },
-  pager: { flexDirection: "row", alignItems: "center", gap: 10 },
-  pageBtn: { width: 32, height: 32, borderRadius: radii.pill, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" },
-  totals: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between" },
-  row: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.line2 },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    header: { gap: 10 },
+    pager: { flexDirection: "row", alignItems: "center", gap: 10 },
+    pageBtn: { width: 32, height: 32, borderRadius: radii.pill, backgroundColor: c.surface, alignItems: "center", justifyContent: "center" },
+    totals: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between" },
+    row: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: c.line2 },
+  });

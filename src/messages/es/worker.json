@@ -183,5 +183,13 @@
     "hours": "{count} h",
     "loadingMore": "Cargando…",
     "photo": "Foto"
+  },
+  "liveActivity": {
+    "settingLabel": "Cronómetro en la pantalla de bloqueo",
+    "settingHint": "Muestra el reloj de tu jornada en la pantalla de bloqueo y en la Dynamic Island mientras tengas la jornada abierta.",
+    "brand": "PugBuild",
+    "noSite": "Sin obra",
+    "startedAt": "Inicio {time}",
+    "hint": "Abre PugBuild para finalizar"
   }
 }

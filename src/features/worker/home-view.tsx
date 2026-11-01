@@ -11,16 +11,19 @@ import type { SiteDto } from "../../lib/api-types";
 import { nearestSite } from "../../lib/geo";
 import { t } from "../../lib/i18n";
 import { isNetworkError, newClientId } from "../../lib/offline-queue";
-import { colors, shadow } from "../../theme/tokens";
 import { useLocale, useMe } from "../session/session";
 import { NearbyCard } from "./nearby-card";
 import { errorText } from "./payment-card";
 import { useGeolocation } from "./use-geolocation";
 import { offlineQueue } from "./use-offline-sync";
+import { useTheme, useThemedStyles } from "../../theme/theme";
+import type { Palette, Shadows } from "../../theme/tokens";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export function HomeView({ sites, queued }: { sites: SiteDto[]; queued: boolean }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const me = useMe();
   const qc = useQueryClient();
   const toast = useToast();
@@ -81,9 +84,9 @@ export function HomeView({ sites, queued }: { sites: SiteDto[]; queued: boolean 
             style={[styles.button, busy && { opacity: 0.7 }, anim]}
           >
             <View style={styles.play}>
-              <Play size={20} color={colors.ink} fill={colors.ink} />
+              <Play size={20} color={colors.onAccent} fill={colors.onAccent} />
             </View>
-            <Txt size={30} weight="semibold" tone="white" tracking={-0.4}>
+            <Txt size={30} weight="semibold" tone="onInk" tracking={-0.4}>
               {clockIn.isPending ? t("worker.home.starting") : t("worker.home.start")}
             </Txt>
             <Txt size={13} tone="muted3">
@@ -96,10 +99,11 @@ export function HomeView({ sites, queued }: { sites: SiteDto[]; queued: boolean 
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, gap: 14 },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", paddingVertical: 8 },
-  ring: { width: 248, height: 248, borderRadius: 124, borderWidth: 1.5, borderStyle: "dashed", borderColor: colors.muted3, alignItems: "center", justifyContent: "center" },
-  button: { width: 212, height: 212, borderRadius: 106, backgroundColor: colors.ink, alignItems: "center", justifyContent: "center", gap: 6, ...shadow.float },
-  play: { width: 48, height: 48, borderRadius: 24, backgroundColor: colors.accent, alignItems: "center", justifyContent: "center", paddingLeft: 3 },
-});
+const makeStyles = (c: Palette, shadow: Shadows) =>
+  StyleSheet.create({
+    root: { flex: 1, gap: 14 },
+    center: { flex: 1, alignItems: "center", justifyContent: "center", paddingVertical: 8 },
+    ring: { width: 248, height: 248, borderRadius: 124, borderWidth: 1.5, borderStyle: "dashed", borderColor: c.muted3, alignItems: "center", justifyContent: "center" },
+    button: { width: 212, height: 212, borderRadius: 106, backgroundColor: c.ink, alignItems: "center", justifyContent: "center", gap: 6, ...shadow.float },
+    play: { width: 48, height: 48, borderRadius: 24, backgroundColor: c.accent, alignItems: "center", justifyContent: "center", paddingLeft: 3 },
+  });

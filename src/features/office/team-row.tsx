@@ -5,12 +5,14 @@ import { Txt } from "../../components/ui/text";
 import type { TeamRow as TeamRowDto } from "../../lib/api-types";
 import { formatMinutes, formatMoney, formatTime } from "../../lib/format";
 import { t } from "../../lib/i18n";
-import { colors } from "../../theme/tokens";
+import { useThemedStyles } from "../../theme/theme";
+import type { Palette } from "../../theme/tokens";
 
 const TONES: Record<TeamRowDto["status"], ChipTone> = { working: "ok", done: "neutral", off: "neutral" };
 
 /** Who is on site right now, with today's hours and cost. */
 export function TeamRow({ row, timezone, locale }: { row: TeamRowDto; timezone: string; locale: string }) {
+  const styles = useThemedStyles(makeStyles);
   const status = row.missingClockOut ? t("office.team.missing") : t(`office.team.${row.status}`);
   const tone: ChipTone = row.missingClockOut || row.farFromSite ? "warn" : TONES[row.status];
   const sub = [
@@ -45,6 +47,7 @@ export function TeamRow({ row, timezone, locale }: { row: TeamRowDto; timezone: 
   );
 }
 
-const styles = StyleSheet.create({
-  row: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.line2 },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    row: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: c.line2 },
+  });

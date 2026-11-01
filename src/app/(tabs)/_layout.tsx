@@ -4,7 +4,7 @@ import { PillTabBar, type TabSpec } from "../../components/ui/pill-tab-bar";
 import { RealtimeSync } from "../../features/session/realtime";
 import { useSession } from "../../features/session/session";
 import { t } from "../../lib/i18n";
-import { colors } from "../../theme/tokens";
+import { useTheme } from "../../theme/theme";
 
 const WORKER_TABS = (): TabSpec[] => [
   { name: "index", label: t("nav.worker.clock"), Icon: Clock },
@@ -29,6 +29,7 @@ const ALL = ["index", "week", "tasks", "profile", "office", "office-week", "team
 
 export default function TabsLayout() {
   const { me } = useSession();
+  const { colors } = useTheme();
   // Signing out clears `me` while the tabs are still mounted: render nothing until the Gate moves on.
   if (!me) return null;
   const staff = me.member.role !== "worker";

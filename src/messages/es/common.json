@@ -74,6 +74,7 @@
     "min": "min"
   },
   "language": "Idioma",
+  "theme": { "label": "Tema", "system": "Sistema", "light": "Claro", "dark": "Oscuro" },
   "today": "Hoy",
   "yesterday": "Ayer",
   "week": "Semana",

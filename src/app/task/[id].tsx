@@ -20,10 +20,13 @@ import { shrinkPhoto } from "../../lib/photos";
 import type { TaskPhotoDto } from "../../lib/api-types";
 import { formatShortDate, keyToDate, todayKeyIn } from "../../lib/format";
 import { t } from "../../lib/i18n";
-import { colors, radii } from "../../theme/tokens";
+import { radii, type Palette } from "../../theme/tokens";
+import { useTheme, useThemedStyles } from "../../theme/theme";
 
 /** One task: brief from the office, the person's own photos and note, and the "done" button. */
 export default function TaskDetailScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { me } = useSession();
@@ -166,7 +169,7 @@ export default function TaskDetailScreen() {
                 </View>
                 {site && (
                   <Pressable onPress={() => void openSiteInMaps(site)} style={styles.navBtn} accessibilityRole="button" accessibilityLabel={t("worker.tasks.directions")}>
-                    <Navigation size={18} color={colors.ink} />
+                    <Navigation size={18} color={colors.onAccent} />
                   </Pressable>
                 )}
               </Card>
@@ -221,7 +224,7 @@ export default function TaskDetailScreen() {
                     </Txt>
                     <Textarea value={note} onChangeText={setNote} placeholder={t("worker.tasks.notePlaceholder")} maxLength={2000} />
                   </View>
-                  <Button size="hero" loading={complete.isPending} leading={<CheckCircle2 size={20} color={colors.white} />} onPress={() => complete.mutate()}>
+                  <Button size="hero" loading={complete.isPending} leading={<CheckCircle2 size={20} color={colors.onInk} />} onPress={() => complete.mutate()}>
                     {complete.isPending ? t("worker.tasks.completing") : t("worker.tasks.markDone")}
                   </Button>
                 </Card>
@@ -235,6 +238,8 @@ export default function TaskDetailScreen() {
 }
 
 function PhotoStrip({ title, photos, onRemove }: { title?: string; photos: TaskPhotoDto[]; onRemove?: (p: TaskPhotoDto) => void }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={{ gap: 8 }}>
       {title && (
@@ -263,15 +268,16 @@ function PhotoStrip({ title, photos, onRemove }: { title?: string; photos: TaskP
   );
 }
 
-const styles = StyleSheet.create({
-  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  back: { width: 44, height: 44, borderRadius: radii.pill, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" },
-  metaRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  siteRow: { flexDirection: "row", alignItems: "center", gap: 12 },
-  siteIcon: { width: 40, height: 40, borderRadius: radii.icon, backgroundColor: colors.bg, alignItems: "center", justifyContent: "center" },
-  navBtn: { width: 40, height: 40, borderRadius: radii.pill, backgroundColor: colors.accent, alignItems: "center", justifyContent: "center" },
-  thumbWrap: { position: "relative" },
-  thumb: { width: 112, height: 112, borderRadius: radii.icon, backgroundColor: colors.bg },
-  thumbEmpty: { alignItems: "center", justifyContent: "center", borderWidth: 1, borderStyle: "dashed", borderColor: colors.muted3 },
-  remove: { position: "absolute", top: 6, right: 6, width: 26, height: 26, borderRadius: radii.pill, backgroundColor: "rgba(20,20,20,0.7)", alignItems: "center", justifyContent: "center" },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+    back: { width: 44, height: 44, borderRadius: radii.pill, backgroundColor: c.surface, alignItems: "center", justifyContent: "center" },
+    metaRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+    siteRow: { flexDirection: "row", alignItems: "center", gap: 12 },
+    siteIcon: { width: 40, height: 40, borderRadius: radii.icon, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" },
+    navBtn: { width: 40, height: 40, borderRadius: radii.pill, backgroundColor: c.accent, alignItems: "center", justifyContent: "center" },
+    thumbWrap: { position: "relative" },
+    thumb: { width: 112, height: 112, borderRadius: radii.icon, backgroundColor: c.bg },
+    thumbEmpty: { alignItems: "center", justifyContent: "center", borderWidth: 1, borderStyle: "dashed", borderColor: c.muted3 },
+    remove: { position: "absolute", top: 6, right: 6, width: 26, height: 26, borderRadius: radii.pill, backgroundColor: "rgba(20,20,20,0.7)", alignItems: "center", justifyContent: "center" },
+  });

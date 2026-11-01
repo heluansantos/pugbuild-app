@@ -7,13 +7,16 @@ import { Sheet } from "../../components/ui/sheet";
 import { Txt } from "../../components/ui/text";
 import { DEFAULT_API_URL, SERVER_PRESETS, getApiUrl, setApiUrl } from "../../lib/api";
 import { t } from "../../lib/i18n";
-import { colors, radii } from "../../theme/tokens";
+import { radii, type Palette } from "../../theme/tokens";
 import { useSession } from "./session";
+import { useTheme, useThemedStyles } from "../../theme/theme";
 
 const strip = (u: string) => u.replace(/^https?:\/\//, "");
 
 /** Hidden behind a long-press on the login logo: switch deployments for demos without rebuilding. */
 export function ServerSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { refresh } = useSession();
   const [custom, setCustom] = useState("");
   const current = getApiUrl();
@@ -67,8 +70,9 @@ export function ServerSheet({ open, onClose }: { open: boolean; onClose: () => v
   );
 }
 
-const styles = StyleSheet.create({
-  list: { gap: 8 },
-  row: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14, borderRadius: radii.card, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line },
-  rowActive: { borderColor: colors.ink },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    list: { gap: 8 },
+    row: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14, borderRadius: radii.card, backgroundColor: c.surface, borderWidth: 1, borderColor: c.line },
+    rowActive: { borderColor: c.ink },
+  });

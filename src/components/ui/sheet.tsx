@@ -3,17 +3,20 @@ import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from "react-nati
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { X } from "lucide-react-native";
 import type { ReactNode } from "react";
-import { colors, radii, touch } from "../../theme/tokens";
+import { useTheme, useThemedStyles } from "../../theme/theme";
+import { radii, touch, type Palette } from "../../theme/tokens";
 import { Txt } from "./text";
 import { t } from "../../lib/i18n";
 
 /** Bottom sheet with a spring slide, matching the web <Sheet>. */
 export function Sheet({ open, onClose, title, description, children }: { open: boolean; onClose: () => void; title: string; description?: string; children: ReactNode }) {
   const insets = useSafeAreaInsets();
+  const { colors, scheme } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   return (
     <Modal visible={open} transparent animationType="none" onRequestClose={onClose} statusBarTranslucent>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.fill}>
-        <Animated.View entering={FadeIn.duration(180)} exiting={FadeOut.duration(150)} style={[StyleSheet.absoluteFill, styles.backdrop]}>
+        <Animated.View entering={FadeIn.duration(180)} exiting={FadeOut.duration(150)} style={[StyleSheet.absoluteFill, { backgroundColor: scheme === "dark" ? "rgba(0,0,0,0.6)" : "rgba(20,20,20,0.45)" }]}>
           <Pressable style={styles.fill} onPress={onClose} accessibilityLabel={t("common.actions.close")} />
         </Animated.View>
         <Animated.View
@@ -44,19 +47,19 @@ export function Sheet({ open, onClose, title, description, children }: { open: b
   );
 }
 
-const styles = StyleSheet.create({
-  fill: { flex: 1 },
-  backdrop: { backgroundColor: "rgba(20,20,20,0.45)" },
-  panel: {
-    marginTop: "auto",
-    backgroundColor: colors.bg,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    gap: 16,
-  },
-  handle: { alignSelf: "center", width: 40, height: 5, borderRadius: 3, backgroundColor: colors.line, marginBottom: 6 },
-  header: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
-  close: { width: touch.min, height: touch.min, borderRadius: radii.pill, alignItems: "center", justifyContent: "center", backgroundColor: colors.surface },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    fill: { flex: 1 },
+    panel: {
+      marginTop: "auto",
+      backgroundColor: c.bg,
+      borderTopLeftRadius: 28,
+      borderTopRightRadius: 28,
+      paddingHorizontal: 20,
+      paddingTop: 10,
+      gap: 16,
+    },
+    handle: { alignSelf: "center", width: 40, height: 5, borderRadius: 3, backgroundColor: c.line, marginBottom: 6 },
+    header: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
+    close: { width: touch.min, height: touch.min, borderRadius: radii.pill, alignItems: "center", justifyContent: "center", backgroundColor: c.surface },
+  });

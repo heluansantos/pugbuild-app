@@ -9,10 +9,13 @@ import { useLocale } from "../../features/session/session";
 import { api, keys } from "../../lib/api";
 import { formatMoney, formatPhone } from "../../lib/format";
 import { t } from "../../lib/i18n";
-import { colors } from "../../theme/tokens";
+import { useTheme, useThemedStyles } from "../../theme/theme";
+import type { Palette } from "../../theme/tokens";
 
 /** Office and admin: the active team with role, phone and rate. */
 export default function TeamScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const locale = useLocale();
   const team = useQuery({ queryKey: keys.officeTeam, queryFn: api.office.team });
   const members = [...(team.data?.members ?? [])].sort((a, b) => a.name.localeCompare(b.name));
@@ -61,6 +64,7 @@ export default function TeamScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  row: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.line2 },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    row: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: c.line2 },
+  });
