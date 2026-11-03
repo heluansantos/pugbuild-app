@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AppState, Platform } from "react-native";
 import type { PunchDto } from "../../lib/api-types";
-import { formatTime } from "../../lib/format";
+import { formatMinutes, formatTime } from "../../lib/format";
 import { t } from "../../lib/i18n";
 import { useLocale, useMe } from "../session/session";
 import { useLiveActivityPref } from "./live-activity-pref";
@@ -10,13 +10,24 @@ import { useLiveActivityPref } from "./live-activity-pref";
 const ACTIVITY_URL = "pugbuild://";
 
 type ShiftActivityProps = import("../../widgets/shift-activity").ShiftActivityProps;
+type ActivityModule = Awaited<ReturnType<typeof loadActivity>>;
+type ActivityHandle = ReturnType<ActivityModule["getInstances"]>[number];
 
 async function loadActivity() {
   // Lazy: the widget module needs the native expo-widgets module, which only exists on iOS builds.
   return (await import("../../widgets/shift-activity")).default;
 }
 
-const SETTLE_DELAYS_MS = [0, 400, 1200, 2500];
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+const SETTLE_DELAYS_MS = [0, 400, 1200, 2500, 4000];
+/** Ending is retried until ActivityKit lists nothing: its list lags behind, especially on device. */
+const END_PASSES_MS = [0, 600, 1500, 3000, 6000];
+
+/** The activity this process started or adopted: ended directly, even if the system list lags. */
+let handle: ActivityHandle | null = null;
+/** Last content shown, so the final "ended" frame can repeat the site and start time. */
+let lastProps: ShiftActivityProps | null = null;
 
 /**
  * ActivityKit lists an app's activities asynchronously after a cold launch: for the first moments
@@ -25,9 +36,9 @@ const SETTLE_DELAYS_MS = [0, 400, 1200, 2500];
  * look at the list waits for it to settle: retry a few times while it is empty, once per launch.
  */
 let settled = false;
-async function listInstances(activity: Awaited<ReturnType<typeof loadActivity>>) {
+async function listInstances(activity: ActivityModule) {
   for (const delay of SETTLE_DELAYS_MS) {
-    if (delay) await new Promise((r) => setTimeout(r, delay));
+    if (delay) await sleep(delay);
     const instances = activity.getInstances();
     if (instances.length > 0 || settled) {
       settled = true;
@@ -38,36 +49,58 @@ async function listInstances(activity: Awaited<ReturnType<typeof loadActivity>>)
   return activity.getInstances();
 }
 
+function uniqueTargets(listed: ActivityHandle[]): ActivityHandle[] {
+  if (!handle) return listed;
+  const id = handle.getId();
+  return listed.some((i) => i.getId() === id) ? listed : [...listed, handle];
+}
+
+/**
+ * Ends every shift activity, in passes: each pass ends what ActivityKit lists plus the handle
+ * this process holds, and the next pass only runs while something is still listed. The final
+ * frame freezes the clock, so even a banner the system keeps around stops counting.
+ */
+async function endAll(activity: ActivityModule) {
+  const finalFrame: ShiftActivityProps | undefined = lastProps
+    ? { ...lastProps, endedLabel: t("worker.liveActivity.ended", { hours: formatMinutes(Math.max(0, Math.round((Date.now() - lastProps.startedAtMs) / 60_000))) }) }
+    : undefined;
+  for (const delay of END_PASSES_MS) {
+    if (delay) await sleep(delay);
+    const targets = uniqueTargets(delay === 0 ? await listInstances(activity) : activity.getInstances());
+    if (targets.length === 0) break;
+    await Promise.allSettled(targets.map((i) => i.end("immediate", finalFrame)));
+    handle = null;
+  }
+  handle = null;
+  lastProps = null;
+}
+
 /**
  * Brings the running activities in line with `desired`: none when it is null, otherwise exactly
  * one (adopting an instance that survived an app restart, ending any extra).
  */
 async function reconcile(desired: ShiftActivityProps | null) {
   const activity = await loadActivity();
-  const instances = await listInstances(activity);
   if (!desired) {
-    await Promise.all(instances.map((i) => i.end("immediate")));
+    await endAll(activity);
     return;
   }
+  const instances = await listInstances(activity);
   const [first, ...extra] = instances;
-  await Promise.all(extra.map((i) => i.end("immediate")));
-  if (first) await first.update(desired);
-  else activity.start(desired, ACTIVITY_URL);
+  await Promise.allSettled(extra.map((i) => i.end("immediate")));
+  if (first) {
+    await first.update(desired);
+    handle = first;
+  } else {
+    handle = activity.start(desired, ACTIVITY_URL);
+  }
+  lastProps = desired;
 }
 
 /** Calls are chained so a quick start/end/start never interleaves native calls. */
 let queue: Promise<void> = Promise.resolve();
 function enqueue(desired: ShiftActivityProps | null) {
-  queue = queue
-    .then(() => reconcile(desired))
-    .then(async () => {
-      // Belt and braces for the end: a banner that showed up late still gets ended.
-      if (desired === null) {
-        await new Promise((r) => setTimeout(r, 1500));
-        await reconcile(null);
-      }
-    })
-    .catch((e: unknown) => console.warn("Live Activity", e));
+  queue = queue.then(() => reconcile(desired)).catch((e: unknown) => console.warn("Live Activity", e));
   return queue;
 }
 
@@ -81,7 +114,8 @@ export function endShiftLiveActivity(): Promise<void> {
  * Mirrors the running shift on the Lock Screen and in the Dynamic Island (iOS only, opt-in).
  * The clock itself is a native timer, so this only talks to ActivityKit when something changes:
  * start, site name, hours worked earlier today, language, or the app coming back to the
- * foreground (a system-ended activity, after its 8 hour limit, is started again).
+ * foreground (a system-ended activity, after its 8 hour limit, is started again; a leftover
+ * banner with no shift behind it is ended).
  * `known` is false while the open shift is still being looked up: acting on "no shift" then would
  * end a banner that is in fact still running and start a duplicate a moment later.
  * Unmounting ends the activity: the screen only exists while a shift is open.

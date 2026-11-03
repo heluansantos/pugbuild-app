@@ -190,7 +190,8 @@
     "brand": "PugBuild",
     "noSite": "Sem obra",
     "startedAt": "Início {time}",
-    "hint": "Abra o PugBuild para finalizar"
+    "hint": "Abra o PugBuild para finalizar",
+    "ended": "Encerrado · {hours}"
   },
   "notifications": {
     "title": "Notificações",
