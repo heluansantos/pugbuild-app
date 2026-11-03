@@ -13,6 +13,7 @@ import { Screen } from "../../components/ui/screen";
 import { Sheet } from "../../components/ui/sheet";
 import { Txt } from "../../components/ui/text";
 import { useToast } from "../../components/ui/toast";
+import { accessOf } from "../../features/session/access";
 import { useLocale, useSession } from "../../features/session/session";
 import { EXPENSE_KINDS, parseExpenseForm } from "../../features/site/expense-form";
 import { errorText } from "../../features/worker/payment-card";
@@ -35,7 +36,7 @@ export default function SiteCostsScreen() {
   const locale = useLocale();
   const toast = useToast();
   const qc = useQueryClient();
-  const allowed = !!me && me.member.role !== "worker";
+  const allowed = !!me && accessOf(me.member).finance;
   const site = useQuery({ queryKey: keys.site(id), queryFn: () => api.site.get(id), enabled: !!id && allowed });
   const costs = useQuery({ queryKey: keys.siteCosts(id), queryFn: () => api.site.costs(id), enabled: !!id && allowed });
   const [sheet, setSheet] = useState(false);
@@ -62,6 +63,7 @@ export default function SiteCostsScreen() {
 
   if (!me) return null;
   if (me.member.role === "worker") return <Redirect href="/(tabs)" />;
+  if (!allowed) return <Redirect href="/(tabs)/office" />;
   const tz = me.company.settings.timezone;
   const d = costs.data;
 

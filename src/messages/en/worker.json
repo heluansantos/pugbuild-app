@@ -100,6 +100,7 @@
     "company": "Company",
     "role": "Role",
     "hourlyRate": "Hourly rate",
+    "salary": "Salary",
     "switchCompany": "Switch company",
     "dashboard": "Open dashboard",
     "changePhoto": "Change photo",

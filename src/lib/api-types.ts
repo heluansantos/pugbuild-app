@@ -71,6 +71,15 @@ export interface PersonDto {
   notificationPrefs?: NotificationPrefs;
 }
 
+export type PayType = "hourly" | "salary";
+export type SalaryPeriod = "week" | "month";
+
+/** What an office member may see beyond hours and tasks. */
+export interface StaffAccess {
+  finance: boolean;
+  map: boolean;
+}
+
 export interface MemberDto {
   id: string;
   personId: string;
@@ -83,6 +92,13 @@ export interface MemberDto {
   jobTitle?: string;
   status: string;
   canEditOwnHours: boolean;
+  /** Absent on servers that predate salaries (= hourly). */
+  payType?: PayType;
+  /** Fixed pay, in cents per `salaryPeriod`; only when payType is "salary". */
+  salaryCents?: number;
+  salaryPeriod?: SalaryPeriod;
+  /** Staff only; absent = full access. */
+  access?: StaffAccess;
 }
 
 export interface MeDto {
@@ -273,6 +289,8 @@ export interface TodayOverview {
   weekKey: string;
   weekEndKey: string;
   payDateKey: string;
+  /** False when the caller may not see money: cost fields are omitted or 0. Absent = visible. */
+  financeVisible?: boolean;
   workingNow: number;
   activeMembers: number;
   costTodayCents: number;
@@ -314,6 +332,8 @@ export interface WeekSummaryDto {
   unresolvedFlags: number;
   canClose: boolean;
   blockers: string[];
+  /** False when the caller may not see money: pay fields are omitted or 0. Absent = visible. */
+  financeVisible?: boolean;
 }
 
 /* ---- Billing (admin / office) ---- */

@@ -100,6 +100,7 @@
     "company": "Empresa",
     "role": "Rol",
     "hourlyRate": "Tarifa por hora",
+    "salary": "Salario",
     "switchCompany": "Cambiar de empresa",
     "dashboard": "Abrir panel",
     "changePhoto": "Cambiar foto",

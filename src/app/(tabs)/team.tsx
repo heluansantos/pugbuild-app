@@ -5,10 +5,12 @@ import { Card } from "../../components/ui/card";
 import { Chip } from "../../components/ui/chip";
 import { Screen, Title } from "../../components/ui/screen";
 import { Txt } from "../../components/ui/text";
+import { useAccess } from "../../features/session/access";
 import { useLocale } from "../../features/session/session";
 import { api, keys } from "../../lib/api";
-import { formatMoney, formatPhone } from "../../lib/format";
+import { formatPhone } from "../../lib/format";
 import { t } from "../../lib/i18n";
+import { formatPay } from "../../lib/pay";
 import { useTheme, useThemedStyles } from "../../theme/theme";
 import type { Palette } from "../../theme/tokens";
 
@@ -17,6 +19,7 @@ export default function TeamScreen() {
   const { colors } = useTheme();
   const styles = useThemedStyles(makeStyles);
   const locale = useLocale();
+  const { finance } = useAccess();
   const team = useQuery({ queryKey: keys.officeTeam, queryFn: api.office.team });
   const members = [...(team.data?.members ?? [])].sort((a, b) => a.name.localeCompare(b.name));
 
@@ -49,10 +52,9 @@ export default function TeamScreen() {
                 <Chip tone={m.role === "worker" ? "neutral" : "dark"} size="sm">
                   {t(`common.roles.${m.role}`)}
                 </Chip>
-                {m.hourlyRateCents > 0 && (
+                {finance && formatPay(m, locale) && (
                   <Txt size={12} tone="muted" tabular>
-                    {formatMoney(m.hourlyRateCents, locale)}
-                    {t("office.team.perHour")}
+                    {formatPay(m, locale)}
                   </Txt>
                 )}
               </View>

@@ -9,6 +9,7 @@ import { Txt } from "../../components/ui/text";
 import { MapCard } from "../../features/office/map-card";
 import { ReviewCard } from "../../features/office/review-card";
 import { TeamRow } from "../../features/office/team-row";
+import { useAccess } from "../../features/session/access";
 import { useMe, useLocale } from "../../features/session/session";
 import { api, keys } from "../../lib/api";
 import { firstName, formatMinutes, formatMoney, formatShortDate, keyToDate } from "../../lib/format";
@@ -22,10 +23,12 @@ export default function OfficeTodayScreen() {
   const { colors } = useTheme();
   const me = useMe();
   const locale = useLocale();
+  const access = useAccess();
   const { timezone } = me.company.settings;
   const today = useQuery({ queryKey: keys.officeToday, queryFn: api.office.today, refetchInterval: 5 * 60_000 });
   const [expanded, setExpanded] = useState(false);
   const data = today.data;
+  const showCost = access.finance && data?.financeVisible !== false;
   const review = data?.review ?? [];
   const visible = expanded ? review : review.slice(0, COLLAPSED);
   const team = [...(data?.team ?? [])].sort((a, b) => Number(b.status === "working") - Number(a.status === "working") || b.minutes - a.minutes);
@@ -54,14 +57,14 @@ export default function OfficeTodayScreen() {
         <>
           <View style={styles.kpis}>
             <Kpi label={t("office.today.kpiWorking")} value={String(data.workingNow)} sub={t("office.today.kpiOf", { total: data.activeMembers })} dark />
-            <Kpi label={t("office.today.kpiCost")} value={formatMoney(data.costTodayCents, locale)} />
+            {showCost && <Kpi label={t("office.today.kpiCost")} value={formatMoney(data.costTodayCents, locale)} />}
           </View>
           <View style={styles.kpis}>
             <Kpi label={t("office.today.kpiWeek")} value={formatMinutes(data.weekMinutes)} />
             <Kpi label={t("office.today.kpiReview")} value={String(review.length)} warn={review.length > 0} />
           </View>
 
-          <MapCard overview={data} defaultRadius={me.company.settings.siteRadiusMeters} />
+          {access.map && <MapCard overview={data} defaultRadius={me.company.settings.siteRadiusMeters} />}
 
           <Txt size={18} weight="semibold">
             {t("office.review.title")}
@@ -90,7 +93,7 @@ export default function OfficeTodayScreen() {
           </Txt>
           <Card>
             {team.map((row) => (
-              <TeamRow key={row.membershipId} row={row} timezone={timezone} locale={locale} />
+              <TeamRow key={row.membershipId} row={row} timezone={timezone} locale={locale} showCost={showCost} />
             ))}
           </Card>
         </>

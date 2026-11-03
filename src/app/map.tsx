@@ -9,6 +9,7 @@ import { Chip } from "../components/ui/chip";
 import { Txt } from "../components/ui/text";
 import { CrewMap } from "../features/office/crew-map";
 import { buildCrewMap } from "../features/office/map-data";
+import { accessOf } from "../features/session/access";
 import { useLocale, useSession } from "../features/session/session";
 import { api, keys } from "../lib/api";
 import { formatTime } from "../lib/format";
@@ -28,6 +29,7 @@ export default function MapScreen() {
   const data = useMemo(() => (today.data ? buildCrewMap(today.data, me?.company.settings.siteRadiusMeters ?? 150) : { sites: [], people: [] }), [today.data, me]);
   if (!me) return null;
   if (me.member.role === "worker") return <Redirect href="/(tabs)" />;
+  if (!accessOf(me.member).map) return <Redirect href="/(tabs)/office" />;
   const tz = me.company.settings.timezone;
   const people = [...data.people].sort((a, b) => Number(b.live) - Number(a.live) || a.name.localeCompare(b.name));
 

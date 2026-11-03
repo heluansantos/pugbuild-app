@@ -38,6 +38,8 @@
     "title": "Team",
     "count": "{count} people",
     "perHour": "/h",
+    "perWeek": "/wk",
+    "perMonth": "/mo",
     "invited": "Waiting for first sign-in",
     "inactive": "Inactive"
   },

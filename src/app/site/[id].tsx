@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadError } from "../../components/ui/load-error";
 import { Txt } from "../../components/ui/text";
 import { useToast } from "../../components/ui/toast";
+import { accessOf } from "../../features/session/access";
 import { useLocale, useSession } from "../../features/session/session";
 import { FeedItem } from "../../features/site/feed-item";
 import { SiteCostsCard } from "../../features/site/site-costs-card";
@@ -106,7 +107,7 @@ export default function SiteScreen() {
         )}
       </View>
 
-      {s && me && me.member.role !== "worker" && <SiteCostsCard siteId={id} locale={locale} />}
+      {s && me && accessOf(me.member).finance && <SiteCostsCard siteId={id} locale={locale} />}
       {s?.status === "active" && <SiteComposer siteId={id} name={me?.person.name ?? ""} photoUrl={me?.person.photoUrl} onPosted={refresh} />}
       <Txt size={13} weight="medium" tone="muted" style={styles.pad}>
         {t("worker.siteFeed.timeline").toUpperCase()}

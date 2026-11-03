@@ -38,6 +38,8 @@
     "title": "Equipo",
     "count": "{count} personas",
     "perHour": "/h",
+    "perWeek": "/sem",
+    "perMonth": "/mes",
     "invited": "Esperando el primer acceso",
     "inactive": "Inactivo"
   },
