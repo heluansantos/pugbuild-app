@@ -23,6 +23,7 @@ import { useMe, useLocale } from "../session/session";
 import { errorText } from "./payment-card";
 import { ShiftClock } from "./shift-clock";
 import { useGeolocation } from "./use-geolocation";
+import { endShiftLiveActivity } from "./live-activity";
 import { useLiveLocation } from "./use-live-location";
 import { offlineQueue } from "./use-offline-sync";
 
@@ -87,6 +88,7 @@ export function WorkingView({
     },
     onSuccess: async (res) => {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      void endShiftLiveActivity();
       if (res) toast.ok(t("worker.toasts.clockedOut", { hours: formatMinutes(res.workedMinutes ?? elapsed.workedMinutes) }));
       else toast.toast(t("worker.toasts.queued"));
       await refresh();

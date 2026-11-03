@@ -65,7 +65,8 @@ function WorkerClock() {
   const firstIn = todayClosed[0]?.clockIn.at;
   // Lock Screen / Dynamic Island timer follows the open shift; with no shift it ends any leftover activity.
   const liveSiteName = punch?.clockIn.siteId ? (sites.data?.sites.find((s) => s.id === punch.clockIn.siteId)?.name ?? null) : null;
-  useShiftLiveActivity(punch, liveSiteName, todayMinutes);
+  // Until the open-shift lookup answers (or fails offline), the Lock Screen timer is left as it is.
+  useShiftLiveActivity(punch, liveSiteName, todayMinutes, !open.isPending);
   // "Still clocked in?" on the phone at the company's window and at 12 h; cancelled at clock-out.
   useClockOutReminders(punch);
   const weekMinutesBefore = (week.data?.totalMinutes ?? 0) - (punch ? (week.data?.minutesByDay[punch.dayKey] ?? 0) : 0) + (punch ? todayMinutes : 0);
