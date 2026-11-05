@@ -95,7 +95,8 @@
     "legendFar": "Far from site",
     "noSite": "No job site",
     "liveAt": "position {time}",
-    "clockedAt": "clocked in {time}"
+    "clockedAt": "clocked in {time}",
+    "legendAsset": "Machine or vehicle"
   },
   "siteCosts": {
     "title": "Costs",

@@ -39,6 +39,8 @@ export interface CompanySettings {
   forgottenClockOutReminderHours: number | null;
   photoPolicy: PhotoPolicy;
   defaultLocale: Locale;
+  /** Machines and vehicles (docs/FLEET.md). Absent on older servers = off. */
+  fleet?: { enabled: boolean };
 }
 
 export interface CompanyDto {
@@ -99,6 +101,35 @@ export interface MemberDto {
   salaryPeriod?: SalaryPeriod;
   /** Staff only; absent = full access. */
   access?: StaffAccess;
+  /** Fleet: this person picks a machine or vehicle when clocking in. */
+  operatesAssets?: boolean;
+  lastAssetId?: string;
+}
+
+/* ---- Fleet (docs/FLEET.md) ---- */
+
+export type AssetKind = "machine" | "vehicle";
+export type AssetIcon =
+  "pickup" | "truck" | "semi" | "van" | "car" | "tractor" | "excavator" | "crane" | "mixer" | "tool";
+
+export interface AssetDto {
+  id: string;
+  companyId: string;
+  kind: AssetKind;
+  name: string;
+  identifier?: string;
+  icon?: AssetIcon;
+  tracking: "passive" | "active";
+  status: "active" | "inactive";
+  lastPosition?: { lat: number; lng: number; at: string; membershipId?: string; punchId?: string };
+}
+
+/** The Start flow's picker: assets come suggestion first, empty unless enabled and operates. */
+export interface WorkerFleetDto {
+  enabled: boolean;
+  operates: boolean;
+  assets: AssetDto[];
+  suggestedAssetId?: string;
 }
 
 export interface MeDto {
@@ -156,6 +187,8 @@ export interface PunchDto {
   /** workedMinutes - lunchDeductedMinutes: what the money corresponds to. */
   paidMinutes?: number;
   flags: string[];
+  /** Fleet: machine or vehicle used this shift. */
+  assetId?: string;
   /** Latest position the phone reported during this open shift (office map). */
   live?: { at: string; location: GeoPoint; siteId?: string; distanceMeters?: number };
 }
@@ -232,6 +265,8 @@ export interface PunchInput {
   comment?: string;
   notifyOffice?: boolean;
   clientId?: string;
+  /** Fleet: the asset picked on Start (clock-in only). */
+  assetId?: string;
 }
 
 export type ApiErrorCode =
@@ -299,6 +334,8 @@ export interface TodayOverview {
   sites: SiteToday[];
   team: TeamRow[];
   punches: PunchDto[];
+  /** Fleet: active assets for the map; absent on older servers or when the feature is off. */
+  assets?: AssetDto[];
 }
 
 export interface WeekLine {
@@ -322,7 +359,14 @@ export interface WeekLine {
 
 export interface WeekSummaryDto {
   week: { startKey: string; endKey: string; dayKeys: string[] };
-  closed: { id: string; weekKey: string; endKey: string; closedAt: string; totalMinutes: number; totalGrossCents: number } | null;
+  closed: {
+    id: string;
+    weekKey: string;
+    endKey: string;
+    closedAt: string;
+    totalMinutes: number;
+    totalGrossCents: number;
+  } | null;
   lines: WeekLine[];
   totalMinutes: number;
   totalLunchMinutes: number;
@@ -442,9 +486,34 @@ export interface FeedAuthorDto {
 }
 
 export type FeedItemDto =
-  | { kind: "post"; id: string; at: string; author: FeedAuthorDto; text?: string; photos: TaskPhotoDto[]; canDelete: boolean }
-  | { kind: "task_created"; id: string; at: string; author: FeedAuthorDto; taskId: string; title: string; assigneeName?: string }
-  | { kind: "task_done"; id: string; at: string; author: FeedAuthorDto; taskId: string; title: string; note?: string; photos: TaskPhotoDto[] };
+  | {
+      kind: "post";
+      id: string;
+      at: string;
+      author: FeedAuthorDto;
+      text?: string;
+      photos: TaskPhotoDto[];
+      canDelete: boolean;
+    }
+  | {
+      kind: "task_created";
+      id: string;
+      at: string;
+      author: FeedAuthorDto;
+      taskId: string;
+      title: string;
+      assigneeName?: string;
+    }
+  | {
+      kind: "task_done";
+      id: string;
+      at: string;
+      author: FeedAuthorDto;
+      taskId: string;
+      title: string;
+      note?: string;
+      photos: TaskPhotoDto[];
+    };
 
 export interface FeedPageDto {
   items: FeedItemDto[];

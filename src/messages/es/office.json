@@ -95,7 +95,8 @@
     "legendFar": "Lejos de obra",
     "noSite": "Sin obra",
     "liveAt": "posición {time}",
-    "clockedAt": "marcación {time}"
+    "clockedAt": "marcación {time}",
+    "legendAsset": "Máquina o vehículo"
   },
   "siteCosts": {
     "title": "Costos",

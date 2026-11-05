@@ -209,5 +209,15 @@
     "reminderBody": "Sua jornada continua aberta. Abra o PugBuild para encerrar.",
     "test": "Dev: testar lembrete em 10 s",
     "testScheduled": "Lembrete em 10 segundos."
+  },
+  "fleet": {
+    "title": "O que você vai usar hoje?",
+    "suggested": "Da última vez",
+    "none": "Nada hoje",
+    "using": "Usando",
+    "kinds": {
+      "machine": "Máquina",
+      "vehicle": "Veículo"
+    }
   }
 }

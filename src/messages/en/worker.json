@@ -209,5 +209,15 @@
     "reminderBody": "Your shift is still running. Open PugBuild to clock out.",
     "test": "Dev: test reminder in 10 s",
     "testScheduled": "Reminder in 10 seconds."
+  },
+  "fleet": {
+    "title": "What are you using today?",
+    "suggested": "Last time",
+    "none": "None today",
+    "using": "Using",
+    "kinds": {
+      "machine": "Machine",
+      "vehicle": "Vehicle"
+    }
   }
 }

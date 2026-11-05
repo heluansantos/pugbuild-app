@@ -1,4 +1,5 @@
 import type { SiteToday, TodayOverview } from "../../lib/api-types";
+import { assetEmoji } from "../worker/asset-choice";
 
 /** A live point older than this is treated as unknown (phone off, app closed). */
 export const LIVE_MAX_AGE_MS = 45 * 60_000;
@@ -27,9 +28,22 @@ export interface CrewPerson {
   at: string;
 }
 
+/** A machine or vehicle: on its operator while a shift with it is open, else parked where last seen. */
+export interface CrewAsset {
+  id: string;
+  name: string;
+  emoji: string;
+  lat: number;
+  lng: number;
+  live: boolean;
+  operatorName?: string;
+  at: string;
+}
+
 export interface CrewMapData {
   sites: CrewSite[];
   people: CrewPerson[];
+  assets: CrewAsset[];
 }
 
 /**
@@ -37,7 +51,11 @@ export interface CrewMapData {
  * reported one recently, else where the shift was clocked in. Closed shifts are history and stay
  * off the map.
  */
-export function buildCrewMap(overview: Pick<TodayOverview, "punches" | "sites" | "team">, defaultRadius: number, now = Date.now()): CrewMapData {
+export function buildCrewMap(
+  overview: Pick<TodayOverview, "punches" | "sites" | "team" | "assets">,
+  defaultRadius: number,
+  now = Date.now(),
+): CrewMapData {
   const names = new Map(overview.team.map((r) => [r.membershipId, r.name]));
   const siteOf = (id?: string): SiteToday | undefined => (id ? overview.sites.find((s) => s.id === id) : undefined);
   const people: CrewPerson[] = [];
@@ -67,5 +85,26 @@ export function buildCrewMap(overview: Pick<TodayOverview, "punches" | "sites" |
     radiusMeters: s.radiusMeters ?? defaultRadius,
     count: people.filter((p) => p.siteId === s.id).length,
   }));
-  return { sites, people };
+  // Fleet (docs/FLEET.md): passive tracking, the same rule as the dashboard's buildAssetMarkers.
+  const assets: CrewAsset[] = [];
+  for (const a of overview.assets ?? []) {
+    if (a.status !== "active") continue;
+    const open = overview.punches.find((p) => p.status === "open" && p.assetId === a.id);
+    const base = { id: a.id, name: a.name, emoji: assetEmoji(a) };
+    if (open) {
+      const point = open.live?.location ?? open.clockIn.location ?? a.lastPosition;
+      if (!point) continue;
+      assets.push({
+        ...base,
+        lat: point.lat,
+        lng: point.lng,
+        live: true,
+        operatorName: names.get(open.membershipId),
+        at: open.live?.at ?? a.lastPosition?.at ?? open.clockIn.at,
+      });
+    } else if (a.lastPosition) {
+      assets.push({ ...base, lat: a.lastPosition.lat, lng: a.lastPosition.lng, live: false, at: a.lastPosition.at });
+    }
+  }
+  return { sites, people, assets };
 }

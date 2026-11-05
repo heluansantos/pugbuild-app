@@ -209,5 +209,15 @@
     "reminderBody": "Tu turno sigue abierto. Abre PugBuild para cerrarlo.",
     "test": "Dev: probar recordatorio en 10 s",
     "testScheduled": "Recordatorio en 10 segundos."
+  },
+  "fleet": {
+    "title": "¿Qué vas a usar hoy?",
+    "suggested": "La última vez",
+    "none": "Nada hoy",
+    "using": "Usando",
+    "kinds": {
+      "machine": "Máquina",
+      "vehicle": "Vehículo"
+    }
   }
 }

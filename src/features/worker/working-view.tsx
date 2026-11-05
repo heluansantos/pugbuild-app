@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Haptics from "expo-haptics";
 import { Check, MapPinOff, MessageSquare } from "lucide-react-native";
 import { useEffect, useState } from "react";
@@ -20,13 +20,14 @@ import { computeElapsed } from "../../lib/time";
 import { useTheme } from "../../theme/theme";
 import { radii } from "../../theme/tokens";
 import { useMe, useLocale } from "../session/session";
+import { assetLabel } from "./asset-choice";
+import { AssetTile } from "./asset-picker";
 import { errorText } from "./payment-card";
 import { ShiftClock } from "./shift-clock";
 import { useGeolocation } from "./use-geolocation";
 import { endShiftLiveActivity } from "./live-activity";
 import { useLiveLocation } from "./use-live-location";
 import { offlineQueue } from "./use-offline-sync";
-
 
 export function WorkingView({
   punch,
@@ -64,6 +65,15 @@ export function WorkingView({
   const elapsed = computeElapsed(clockInAt, now, settings.lunch);
   const siteName = punch.clockIn.siteId ? (sites.find((s) => s.id === punch.clockIn.siteId)?.name ?? null) : null;
   const hasLocation = !!punch.clockIn.location;
+  // Fleet: the machine or vehicle picked on Start, named from the same list the picker used.
+  const fleet = useQuery({
+    queryKey: keys.fleet,
+    queryFn: api.fleet,
+    staleTime: 5 * 60_000,
+    retry: 1,
+    enabled: !!punch.assetId,
+  });
+  const asset = punch.assetId ? fleet.data?.assets.find((a) => a.id === punch.assetId) : undefined;
 
   const refresh = async () => {
     await qc.invalidateQueries({ queryKey: keys.openPunch });
@@ -72,7 +82,12 @@ export function WorkingView({
 
   const clockOut = useMutation({
     mutationFn: async () => {
-      const payload = { location: geo.position ?? undefined, deviceAt: new Date().toISOString(), clientId: newClientId(), ownerId: me.member.id };
+      const payload = {
+        location: geo.position ?? undefined,
+        deviceAt: new Date().toISOString(),
+        clientId: newClientId(),
+        ownerId: me.member.id,
+      };
       // A shift started offline is still in the queue: its end must follow it there, in order.
       if (punch.id.startsWith("queued-")) {
         await offlineQueue.enqueue({ kind: "clock-out", ...payload });
@@ -89,7 +104,8 @@ export function WorkingView({
     onSuccess: async (res) => {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       void endShiftLiveActivity();
-      if (res) toast.ok(t("worker.toasts.clockedOut", { hours: formatMinutes(res.workedMinutes ?? elapsed.workedMinutes) }));
+      if (res)
+        toast.ok(t("worker.toasts.clockedOut", { hours: formatMinutes(res.workedMinutes ?? elapsed.workedMinutes) }));
       else toast.toast(t("worker.toasts.queued"));
       await refresh();
     },
@@ -149,7 +165,25 @@ export function WorkingView({
         </View>
       </Card>
 
-      <Pressable onPress={() => setSheet(true)} style={[styles.secondary, { backgroundColor: colors.surface }]} accessibilityRole="button">
+      {asset && (
+        <Card style={styles.siteRow} testID="working-asset">
+          <AssetTile asset={asset} size={40} />
+          <View style={{ flex: 1 }}>
+            <Txt size={13} tone="muted">
+              {t("worker.fleet.using")}
+            </Txt>
+            <Txt size={16} weight="medium" numberOfLines={1}>
+              {assetLabel(asset)}
+            </Txt>
+          </View>
+        </Card>
+      )}
+
+      <Pressable
+        onPress={() => setSheet(true)}
+        style={[styles.secondary, { backgroundColor: colors.surface }]}
+        accessibilityRole="button"
+      >
         <MessageSquare size={20} color={colors.ink} />
         <Txt size={15} weight="medium">
           {t("worker.home.comment")}
@@ -166,8 +200,18 @@ export function WorkingView({
         {clockOut.isPending ? t("worker.home.finishing") : t("worker.home.finish")}
       </Button>
 
-      <Sheet open={sheet} onClose={() => setSheet(false)} title={t("worker.sheets.commentTitle")} description={t("worker.sheets.commentDescription")}>
-        <Textarea value={comment} onChangeText={setComment} placeholder={t("worker.sheets.commentPlaceholder")} autoFocus />
+      <Sheet
+        open={sheet}
+        onClose={() => setSheet(false)}
+        title={t("worker.sheets.commentTitle")}
+        description={t("worker.sheets.commentDescription")}
+      >
+        <Textarea
+          value={comment}
+          onChangeText={setComment}
+          placeholder={t("worker.sheets.commentPlaceholder")}
+          autoFocus
+        />
         <SwitchRow label={t("worker.sheets.notifyOffice")} value={notify} onValueChange={setNotify} />
         <Button loading={annotate.isPending} onPress={() => annotate.mutate()}>
           {t("common.actions.save")}
@@ -195,6 +239,13 @@ const styles = StyleSheet.create({
   center: { alignItems: "center" },
   siteRow: { flexDirection: "row", alignItems: "center", gap: 12 },
   icon: { width: 40, height: 40, borderRadius: radii.icon, alignItems: "center", justifyContent: "center" },
-  secondary: { height: 50, borderRadius: radii.pill, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
+  secondary: {
+    height: 50,
+    borderRadius: radii.pill,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
   stats: { flexDirection: "row", gap: 8 },
 });

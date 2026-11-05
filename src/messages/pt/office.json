@@ -95,7 +95,8 @@
     "legendFar": "Longe de obra",
     "noSite": "Sem obra",
     "liveAt": "posição {time}",
-    "clockedAt": "ponto {time}"
+    "clockedAt": "ponto {time}",
+    "legendAsset": "Máquina ou veículo"
   },
   "siteCosts": {
     "title": "Custos",

@@ -12,6 +12,8 @@ export interface QueuedPunch {
   location?: GeoPoint;
   comment?: string;
   notifyOffice?: boolean;
+  /** Fleet: the asset picked on Start, replayed with the clock-in. */
+  assetId?: string;
 }
 
 export interface QueueStorage {
@@ -32,7 +34,10 @@ export function newClientId(): string {
 
 /** True only for a definite rejection. 401 (session expired offline), 429, 5xx and unknowns retry. */
 export function isPermanentRejection(error: unknown): boolean {
-  const status = typeof error === "object" && error !== null && "status" in error ? (error as { status: unknown }).status : undefined;
+  const status =
+    typeof error === "object" && error !== null && "status" in error
+      ? (error as { status: unknown }).status
+      : undefined;
   return typeof status === "number" && PERMANENT.has(status);
 }
 
@@ -110,5 +115,7 @@ export function createOfflineQueue(storage: QueueStorage) {
 
 export function isNetworkError(error: unknown): boolean {
   const msg = error instanceof Error ? error.message : String(error);
-  return /network request failed|fetch failed|Failed to fetch|NetworkError|Load failed|network|timeout|aborted/i.test(msg);
+  return /network request failed|fetch failed|Failed to fetch|NetworkError|Load failed|network|timeout|aborted/i.test(
+    msg,
+  );
 }
