@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type {
   ApiErrorCode,
+  AssetSighting,
   BillingOverviewDto,
   FeedPageDto,
   GeoPoint,
@@ -235,7 +236,11 @@ export const api = {
   },
   sites: () => get<{ sites: SiteDto[] }>("/api/v1/sites"),
   /** Machines and vehicles for the Start flow's picker (docs/FLEET.md). */
-  fleet: () => get<WorkerFleetDto>("/api/v1/fleet/assets"),
+  fleet: Object.assign(() => get<WorkerFleetDto>("/api/v1/fleet/assets"), {
+    /** Layer 2: tags this phone saw nearby (up to 20 per call). The BLE scan that feeds it is not wired yet. */
+    reportSightings: (sightings: AssetSighting[]) =>
+      post<{ accepted: number }>("/api/v1/fleet/sightings", { sightings }),
+  }),
   site: {
     get: (id: string) => get<SiteDetailDto>(`/api/v1/sites/${encodeURIComponent(id)}`),
     feed: (id: string, before?: string) =>

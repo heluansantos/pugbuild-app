@@ -112,6 +112,13 @@ export type AssetKind = "machine" | "vehicle";
 export type AssetIcon =
   "pickup" | "truck" | "semi" | "van" | "car" | "tractor" | "excavator" | "crane" | "mixer" | "tool";
 
+/** iBeacon identity of the tag on an asset (layer 2). */
+export interface AssetBeacon {
+  uuid: string;
+  major: number;
+  minor: number;
+}
+
 export interface AssetDto {
   id: string;
   companyId: string;
@@ -119,9 +126,27 @@ export interface AssetDto {
   name: string;
   identifier?: string;
   icon?: AssetIcon;
-  tracking: "passive" | "active";
+  /** passive = the operator's phone; beacon = a tag seen by crew phones; active = own GPS unit. */
+  tracking: "passive" | "beacon" | "active";
+  beacon?: AssetBeacon;
   status: "active" | "inactive";
-  lastPosition?: { lat: number; lng: number; at: string; membershipId?: string; punchId?: string };
+  lastPosition?: {
+    lat: number;
+    lng: number;
+    at: string;
+    source?: "operator" | "beacon" | "device";
+    membershipId?: string;
+    punchId?: string;
+  };
+}
+
+/** What a phone reports after seeing a tag (POST /api/v1/fleet/sightings). */
+export interface AssetSighting {
+  assetId?: string;
+  beacon?: AssetBeacon;
+  location: GeoPoint;
+  at: string;
+  rssi?: number;
 }
 
 /** The Start flow's picker: assets come suggestion first, empty unless enabled and operates. */
