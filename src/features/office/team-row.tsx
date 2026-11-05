@@ -11,7 +11,7 @@ import type { Palette } from "../../theme/tokens";
 const TONES: Record<TeamRowDto["status"], ChipTone> = { working: "ok", done: "neutral", off: "neutral" };
 
 /** Who is on site right now, with today's hours and cost. */
-export function TeamRow({ row, timezone, locale }: { row: TeamRowDto; timezone: string; locale: string }) {
+export function TeamRow({ row, timezone, locale, showCost = true }: { row: TeamRowDto; timezone: string; locale: string; showCost?: boolean }) {
   const styles = useThemedStyles(makeStyles);
   const status = row.missingClockOut ? t("office.team.missing") : t(`office.team.${row.status}`);
   const tone: ChipTone = row.missingClockOut || row.farFromSite ? "warn" : TONES[row.status];
@@ -39,7 +39,7 @@ export function TeamRow({ row, timezone, locale }: { row: TeamRowDto; timezone: 
         </Chip>
         {row.minutes > 0 && (
           <Txt size={12} tone="muted" tabular>
-            {formatMinutes(row.minutes)} · {formatMoney(row.costCents, locale)}
+            {showCost ? `${formatMinutes(row.minutes)} · ${formatMoney(row.costCents, locale)}` : formatMinutes(row.minutes)}
           </Txt>
         )}
       </View>

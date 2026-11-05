@@ -11,6 +11,7 @@ import { t } from "../lib/i18n";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ToastProvider } from "../components/ui/toast";
+import { useNotificationTaps } from "../features/notifications/taps";
 import { SessionProvider, useSession } from "../features/session/session";
 import { loadThemePreference, ThemeProvider, useTheme, type ThemePreference } from "../theme/theme";
 import { darkColors, fonts, lightColors } from "../theme/tokens";
@@ -70,6 +71,8 @@ function Gate() {
   const { colors } = useTheme();
   const segments = useSegments();
   const router = useRouter();
+  // Notification taps navigate only once there is someone signed in to show the tab to.
+  useNotificationTaps(status === "ready" || (status === "offline" && session.me !== null));
 
   useEffect(() => {
     if (status === "loading") return;

@@ -38,6 +38,8 @@
     "title": "Team",
     "count": "{count} people",
     "perHour": "/h",
+    "perWeek": "/wk",
+    "perMonth": "/mo",
     "invited": "Waiting for first sign-in",
     "inactive": "Inactive"
   },
@@ -93,7 +95,8 @@
     "legendFar": "Far from site",
     "noSite": "No job site",
     "liveAt": "position {time}",
-    "clockedAt": "clocked in {time}"
+    "clockedAt": "clocked in {time}",
+    "legendAsset": "Machine or vehicle"
   },
   "siteCosts": {
     "title": "Costs",

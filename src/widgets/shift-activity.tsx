@@ -18,6 +18,8 @@ export type ShiftActivityProps = {
   startedLabel: string;
   brand: string;
   hint: string;
+  /** Set on the final frame: the clock is frozen and this ("Ended · 7h 32m") takes its place. */
+  endedLabel?: string;
 };
 
 /**
@@ -45,19 +47,22 @@ function ShiftActivity(props: ShiftActivityProps, environment: LiveActivityEnvir
   const started = new Date(props.startedAtMs);
   const site = props.siteName ?? "";
 
-  const timer = (size: number, width?: number) => (
-    <Text
-      date={started}
-      dateStyle="timer"
-      modifiers={[
-        font({ size, weight: "bold", design: "rounded" }),
-        monospacedDigit(),
-        foregroundStyle(dim ? text : accent),
-        lineLimit(1),
-        ...(width ? [frame({ width, alignment: "trailing" })] : []),
-      ]}
-    />
-  );
+  const ended = props.endedLabel ?? null;
+  const timerModifiers = (size: number, width?: number) => [
+    font({ size, weight: "bold", design: "rounded" }),
+    monospacedDigit(),
+    foregroundStyle(dim ? text : accent),
+    lineLimit(1),
+    ...(width ? [frame({ width, alignment: "trailing" })] : []),
+  ];
+  // Once ended the native timer would keep ticking on a banner the system still shows, so the
+  // final frame prints a fixed duration instead.
+  const timer = (size: number, width?: number) =>
+    ended ? (
+      <Text modifiers={timerModifiers(width ? size - 2 : size, width)}>{ended}</Text>
+    ) : (
+      <Text date={started} dateStyle="timer" modifiers={timerModifiers(size, width)} />
+    );
 
   return {
     banner: (

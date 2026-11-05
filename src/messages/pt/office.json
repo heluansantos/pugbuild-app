@@ -38,6 +38,8 @@
     "title": "Equipe",
     "count": "{count} pessoas",
     "perHour": "/h",
+    "perWeek": "/sem",
+    "perMonth": "/mês",
     "invited": "Aguardando o primeiro acesso",
     "inactive": "Desligado"
   },
@@ -93,7 +95,8 @@
     "legendFar": "Longe de obra",
     "noSite": "Sem obra",
     "liveAt": "posição {time}",
-    "clockedAt": "ponto {time}"
+    "clockedAt": "ponto {time}",
+    "legendAsset": "Máquina ou veículo"
   },
   "siteCosts": {
     "title": "Custos",

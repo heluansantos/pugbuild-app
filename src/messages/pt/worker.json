@@ -100,6 +100,7 @@
     "company": "Empresa",
     "role": "Perfil de acesso",
     "hourlyRate": "Valor da hora",
+    "salary": "Salário",
     "switchCompany": "Trocar de empresa",
     "dashboard": "Abrir painel",
     "changePhoto": "Trocar foto",
@@ -190,6 +191,33 @@
     "brand": "PugBuild",
     "noSite": "Sem obra",
     "startedAt": "Início {time}",
-    "hint": "Abra o PugBuild para finalizar"
+    "hint": "Abra o PugBuild para finalizar",
+    "ended": "Encerrado · {hours}"
+  },
+  "notifications": {
+    "title": "Notificações",
+    "clockOutReminder": "Esqueci de encerrar o ponto",
+    "newTask": "Nova tarefa para mim",
+    "paymentReady": "Pagamento pronto",
+    "hint": "O lembrete de saída é marcado neste celular quando você inicia a jornada e funciona sem sinal.",
+    "enable": "Permitir notificações…",
+    "permissionTitle": "Um toque se você esquecer",
+    "permissionBody": "O PugBuild pode lembrar você de encerrar o ponto e avisar quando houver tarefa nova ou pagamento pronto.",
+    "permissionAllow": "Permitir",
+    "permissionLater": "Agora não",
+    "reminderTitle": "Ponto ainda aberto?",
+    "reminderBody": "Sua jornada continua aberta. Abra o PugBuild para encerrar.",
+    "test": "Dev: testar lembrete em 10 s",
+    "testScheduled": "Lembrete em 10 segundos."
+  },
+  "fleet": {
+    "title": "O que você vai usar hoje?",
+    "suggested": "Da última vez",
+    "none": "Nada hoje",
+    "using": "Usando",
+    "kinds": {
+      "machine": "Máquina",
+      "vehicle": "Veículo"
+    }
   }
 }

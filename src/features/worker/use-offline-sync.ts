@@ -21,7 +21,7 @@ async function send(item: QueuedPunch) {
     notifyOffice: item.notifyOffice,
     clientId: item.clientId,
   };
-  if (item.kind === "clock-in") await api.punches.clockIn(payload);
+  if (item.kind === "clock-in") await api.punches.clockIn({ ...payload, assetId: item.assetId });
   else await api.punches.clockOut(payload);
 }
 
@@ -39,7 +39,8 @@ export function useOfflineSync() {
   const running = useRef(false);
 
   const reload = useCallback(
-    () => offlineQueue.list().then((all) => setItems(all.filter((i) => !ownerId || !i.ownerId || i.ownerId === ownerId))),
+    () =>
+      offlineQueue.list().then((all) => setItems(all.filter((i) => !ownerId || !i.ownerId || i.ownerId === ownerId))),
     [ownerId],
   );
 

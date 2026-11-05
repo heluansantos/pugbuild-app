@@ -64,6 +64,8 @@ const html = (interactive: boolean, pal: MapPalette) => `<!doctype html><html><h
   .pb-live{display:block;width:16px;height:16px;border-radius:999px;background:${pal.accent};border:3px solid var(--ink);box-shadow:0 0 0 0 rgba(255,200,61,.55);animation:pb 2.4s ease-out infinite}
   @keyframes pb{0%{box-shadow:0 0 0 0 rgba(255,200,61,.55)}100%{box-shadow:0 0 0 12px rgba(255,200,61,0)}}
   .pb-dot{display:block;width:13px;height:13px;border-radius:999px;border:2px solid var(--dotBorder);box-shadow:0 1px 4px rgba(0,0,0,.25)}
+  .pb-asset{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:999px;background:var(--surface);border:2px solid var(--line);box-shadow:0 2px 6px rgba(0,0,0,.2);font-size:15px;line-height:1;opacity:.6;filter:grayscale(.6)}
+  .pb-asset.live{border-color:var(--ink);opacity:1;filter:none}
 </style></head><body><div id="m"></div>
 <script src="${LEAFLET}/leaflet.js"></script>
 <script>
@@ -72,6 +74,8 @@ const html = (interactive: boolean, pal: MapPalette) => `<!doctype html><html><h
   var layer = L.layerGroup().addTo(map);
   var fitted = false;
   function icon(cls, color) { return L.divIcon({ className: '', html: '<span class="' + cls + '"' + (color ? ' style="background:' + color + '"' : '') + '></span>', iconSize: [16, 16], iconAnchor: [8, 8] }); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return '&#' + c.charCodeAt(0) + ';'; }); }
+  function assetIcon(a) { return L.divIcon({ className: '', html: '<span class="pb-asset' + (a.live ? ' live' : '') + '">' + esc(a.emoji) + '</span>', iconSize: [28, 28], iconAnchor: [14, 14] }); }
   function render(d) {
     var pal = d.pal;
     var st = document.documentElement.style;
@@ -94,6 +98,13 @@ const html = (interactive: boolean, pal: MapPalette) => `<!doctype html><html><h
         .addTo(layer);
       pts.push([p.lat, p.lng]);
     });
+    (d.assets || []).forEach(function (a) {
+      // Machines and vehicles: emoji pill, dimmed when parked (passive tracking).
+      L.marker([a.lat, a.lng], { icon: assetIcon(a), zIndexOffset: a.live ? 900 : -100 })
+        .bindTooltip(esc(a.name) + (a.operatorName ? ' · ' + esc(a.operatorName) : ''), { permanent: false, direction: 'top', offset: [0, -14], className: 'pb-tip' })
+        .addTo(layer);
+      pts.push([a.lat, a.lng]);
+    });
     if (!fitted && pts.length) {
       map.fitBounds(L.latLngBounds(pts).pad(0.25), { maxZoom: 15, animate: false });
       fitted = true;
@@ -105,15 +116,29 @@ const html = (interactive: boolean, pal: MapPalette) => `<!doctype html><html><h
   window.ReactNativeWebView && window.ReactNativeWebView.postMessage('ready');
 </script></body></html>`;
 
-export const CrewMap = memo(function CrewMap({ data, interactive = false, style }: { data: CrewMapData; interactive?: boolean; style?: StyleProp<ViewStyle> }) {
+export const CrewMap = memo(function CrewMap({
+  data,
+  interactive = false,
+  style,
+}: {
+  data: CrewMapData;
+  interactive?: boolean;
+  style?: StyleProp<ViewStyle>;
+}) {
   const ref = useRef<WebView>(null);
   const [ready, setReady] = useState(false);
   const { colors, scheme } = useTheme();
   const pal = useMemo(() => mapPalette(colors, scheme === "dark"), [colors, scheme]);
   // The page is built once with the palette of the first render; later theme changes arrive by message.
   const initialPal = useRef(pal).current;
-  const source = useMemo(() => ({ html: html(interactive, initialPal), baseUrl: "https://pugbuild.com" }), [interactive, initialPal]);
-  const push = useCallback((d: CrewMapData, p: MapPalette) => ref.current?.postMessage(JSON.stringify({ ...d, pal: p })), []);
+  const source = useMemo(
+    () => ({ html: html(interactive, initialPal), baseUrl: "https://pugbuild.com" }),
+    [interactive, initialPal],
+  );
+  const push = useCallback(
+    (d: CrewMapData, p: MapPalette) => ref.current?.postMessage(JSON.stringify({ ...d, pal: p })),
+    [],
+  );
   useEffect(() => {
     if (ready) push(data, pal);
   }, [ready, data, pal, push]);

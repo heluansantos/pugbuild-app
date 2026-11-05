@@ -7,6 +7,7 @@ import { Card } from "../../components/ui/card";
 import { Chip } from "../../components/ui/chip";
 import { Screen, Title } from "../../components/ui/screen";
 import { Txt } from "../../components/ui/text";
+import { useAccess } from "../../features/session/access";
 import { useLocale } from "../../features/session/session";
 import { api, keys } from "../../lib/api";
 import { formatLunch, formatMinutes, formatMoney, formatWeekRange, keyToDate } from "../../lib/format";
@@ -28,6 +29,7 @@ export default function OfficeWeekScreen() {
   const [weekKey, setWeekKey] = useState<string | undefined>(undefined);
   const week = useQuery({ queryKey: keys.officeWeek(weekKey), queryFn: () => api.office.week(weekKey) });
   const data = week.data;
+  const showMoney = useAccess().finance && data?.financeVisible !== false;
   const todayKey = new Date().toISOString().slice(0, 10);
   const isCurrent = !!data && data.week.startKey <= todayKey && todayKey <= data.week.endKey;
   const lines = [...(data?.lines ?? [])].sort((a, b) => b.minutes - a.minutes);
@@ -71,12 +73,16 @@ export default function OfficeWeekScreen() {
             </View>
             <View style={styles.totals}>
               <View>
-                <Txt size={13} tone="onInk" style={{ opacity: 0.7 }}>
-                  {t("office.week.gross")}
-                </Txt>
-                <Txt size={22} weight="semibold" tabular tone="onInk">
-                  {formatMoney(data.totalGrossCents, locale)}
-                </Txt>
+                {showMoney && (
+                  <>
+                    <Txt size={13} tone="onInk" style={{ opacity: 0.7 }}>
+                      {t("office.week.gross")}
+                    </Txt>
+                    <Txt size={22} weight="semibold" tabular tone="onInk">
+                      {formatMoney(data.totalGrossCents, locale)}
+                    </Txt>
+                  </>
+                )}
                 {data.totalLunchMinutes > 0 && (
                   <Txt size={12} tone="onInk" style={{ opacity: 0.7 }}>
                     {t("office.week.paidAfterLunch", { paid: formatMinutes(data.totalPaidMinutes), lunch: formatLunch(data.totalLunchMinutes) })}
@@ -108,13 +114,15 @@ export default function OfficeWeekScreen() {
                     {l.name}
                   </Txt>
                   <Txt size={12} tone="muted">
-                    {l.minutes > 0 ? `${formatMinutes(l.regularMinutes)}${l.overtimeMinutes > 0 ? ` + ${formatMinutes(l.overtimeMinutes)} OT` : ""} · ${formatMoney(l.hourlyRateCents, locale)}${t("office.team.perHour")}` : t("office.week.noHours")}
+                    {l.minutes > 0 ? `${formatMinutes(l.regularMinutes)}${l.overtimeMinutes > 0 ? ` + ${formatMinutes(l.overtimeMinutes)} OT` : ""}${showMoney ? ` · ${formatMoney(l.hourlyRateCents, locale)}${t("office.team.perHour")}` : ""}` : t("office.week.noHours")}
                   </Txt>
                 </View>
                 <View style={{ alignItems: "flex-end", gap: 2 }}>
-                  <Txt size={16} weight="semibold" tabular>
-                    {formatMoney(l.grossCents, locale)}
-                  </Txt>
+                  {showMoney && (
+                    <Txt size={16} weight="semibold" tabular>
+                      {formatMoney(l.grossCents, locale)}
+                    </Txt>
+                  )}
                   {(l.flagged > 0 || l.openPunches > 0) && (
                     <Chip tone="warn" size="sm">
                       {l.flagged > 0 ? t("office.week.flags", { count: l.flagged }) : t("office.week.openPunches", { count: l.openPunches })}

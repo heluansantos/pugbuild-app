@@ -39,6 +39,8 @@ export interface CompanySettings {
   forgottenClockOutReminderHours: number | null;
   photoPolicy: PhotoPolicy;
   defaultLocale: Locale;
+  /** Machines and vehicles (docs/FLEET.md). Absent on older servers = off. */
+  fleet?: { enabled: boolean };
 }
 
 export interface CompanyDto {
@@ -51,6 +53,12 @@ export interface CompanyDto {
   settings: CompanySettings;
 }
 
+export interface NotificationPrefs {
+  clockOutReminder: boolean;
+  newTask: boolean;
+  paymentReady: boolean;
+}
+
 export interface PersonDto {
   id: string;
   phone: string;
@@ -61,6 +69,17 @@ export interface PersonDto {
   photoUrl?: string;
   consentAcceptedAt?: string;
   consentVersion?: string;
+  /** Mirror of the Profile switches; absent on servers that predate it (= everything on). */
+  notificationPrefs?: NotificationPrefs;
+}
+
+export type PayType = "hourly" | "salary";
+export type SalaryPeriod = "week" | "month";
+
+/** What an office member may see beyond hours and tasks. */
+export interface StaffAccess {
+  finance: boolean;
+  map: boolean;
 }
 
 export interface MemberDto {
@@ -75,6 +94,69 @@ export interface MemberDto {
   jobTitle?: string;
   status: string;
   canEditOwnHours: boolean;
+  /** Absent on servers that predate salaries (= hourly). */
+  payType?: PayType;
+  /** Fixed pay, in cents per `salaryPeriod`; only when payType is "salary". */
+  salaryCents?: number;
+  salaryPeriod?: SalaryPeriod;
+  /** Staff only; absent = full access. */
+  access?: StaffAccess;
+  /** Fleet: this person picks a machine or vehicle when clocking in. */
+  operatesAssets?: boolean;
+  lastAssetId?: string;
+}
+
+/* ---- Fleet (docs/FLEET.md) ---- */
+
+export type AssetKind = "machine" | "vehicle";
+export type AssetIcon =
+  "pickup" | "truck" | "semi" | "van" | "car" | "tractor" | "excavator" | "crane" | "mixer" | "tool";
+
+/** iBeacon identity of the tag on an asset (layer 2). */
+export interface AssetBeacon {
+  uuid: string;
+  major: number;
+  minor: number;
+}
+
+export interface AssetDto {
+  id: string;
+  companyId: string;
+  kind: AssetKind;
+  name: string;
+  identifier?: string;
+  icon?: AssetIcon;
+  /** passive = the operator's phone; beacon = a tag seen by crew phones; active = own GPS unit. */
+  tracking: "passive" | "beacon" | "active";
+  beacon?: AssetBeacon;
+  status: "active" | "inactive";
+  lastPosition?: {
+    lat: number;
+    lng: number;
+    at: string;
+    source?: "operator" | "beacon" | "device";
+    membershipId?: string;
+    punchId?: string;
+  };
+}
+
+/** What a phone reports after seeing a tag (POST /api/v1/fleet/sightings). */
+export interface AssetSighting {
+  assetId?: string;
+  beacon?: AssetBeacon;
+  location: GeoPoint;
+  at: string;
+  rssi?: number;
+}
+
+/** The Start flow's picker: assets come suggestion first, empty unless enabled and operates. */
+export interface WorkerFleetDto {
+  enabled: boolean;
+  operates: boolean;
+  assets: AssetDto[];
+  suggestedAssetId?: string;
+  /** Layer 2: tag UUIDs every crew phone ranges while the clock screen is open; absent on older servers. */
+  beaconUuids?: string[];
 }
 
 export interface MeDto {
@@ -132,6 +214,8 @@ export interface PunchDto {
   /** workedMinutes - lunchDeductedMinutes: what the money corresponds to. */
   paidMinutes?: number;
   flags: string[];
+  /** Fleet: machine or vehicle used this shift. */
+  assetId?: string;
   /** Latest position the phone reported during this open shift (office map). */
   live?: { at: string; location: GeoPoint; siteId?: string; distanceMeters?: number };
 }
@@ -208,6 +292,8 @@ export interface PunchInput {
   comment?: string;
   notifyOffice?: boolean;
   clientId?: string;
+  /** Fleet: the asset picked on Start (clock-in only). */
+  assetId?: string;
 }
 
 export type ApiErrorCode =
@@ -265,6 +351,8 @@ export interface TodayOverview {
   weekKey: string;
   weekEndKey: string;
   payDateKey: string;
+  /** False when the caller may not see money: cost fields are omitted or 0. Absent = visible. */
+  financeVisible?: boolean;
   workingNow: number;
   activeMembers: number;
   costTodayCents: number;
@@ -273,6 +361,8 @@ export interface TodayOverview {
   sites: SiteToday[];
   team: TeamRow[];
   punches: PunchDto[];
+  /** Fleet: active assets for the map; absent on older servers or when the feature is off. */
+  assets?: AssetDto[];
 }
 
 export interface WeekLine {
@@ -296,7 +386,14 @@ export interface WeekLine {
 
 export interface WeekSummaryDto {
   week: { startKey: string; endKey: string; dayKeys: string[] };
-  closed: { id: string; weekKey: string; endKey: string; closedAt: string; totalMinutes: number; totalGrossCents: number } | null;
+  closed: {
+    id: string;
+    weekKey: string;
+    endKey: string;
+    closedAt: string;
+    totalMinutes: number;
+    totalGrossCents: number;
+  } | null;
   lines: WeekLine[];
   totalMinutes: number;
   totalLunchMinutes: number;
@@ -306,6 +403,8 @@ export interface WeekSummaryDto {
   unresolvedFlags: number;
   canClose: boolean;
   blockers: string[];
+  /** False when the caller may not see money: pay fields are omitted or 0. Absent = visible. */
+  financeVisible?: boolean;
 }
 
 /* ---- Billing (admin / office) ---- */
@@ -414,9 +513,34 @@ export interface FeedAuthorDto {
 }
 
 export type FeedItemDto =
-  | { kind: "post"; id: string; at: string; author: FeedAuthorDto; text?: string; photos: TaskPhotoDto[]; canDelete: boolean }
-  | { kind: "task_created"; id: string; at: string; author: FeedAuthorDto; taskId: string; title: string; assigneeName?: string }
-  | { kind: "task_done"; id: string; at: string; author: FeedAuthorDto; taskId: string; title: string; note?: string; photos: TaskPhotoDto[] };
+  | {
+      kind: "post";
+      id: string;
+      at: string;
+      author: FeedAuthorDto;
+      text?: string;
+      photos: TaskPhotoDto[];
+      canDelete: boolean;
+    }
+  | {
+      kind: "task_created";
+      id: string;
+      at: string;
+      author: FeedAuthorDto;
+      taskId: string;
+      title: string;
+      assigneeName?: string;
+    }
+  | {
+      kind: "task_done";
+      id: string;
+      at: string;
+      author: FeedAuthorDto;
+      taskId: string;
+      title: string;
+      note?: string;
+      photos: TaskPhotoDto[];
+    };
 
 export interface FeedPageDto {
   items: FeedItemDto[];

@@ -14,13 +14,16 @@ import { Txt } from "../../components/ui/text";
 import { useToast } from "../../components/ui/toast";
 import { LanguagePills } from "../../features/session/language-pills";
 import { ThemePills } from "../../features/session/theme-pills";
+import { useAccess } from "../../features/session/access";
 import { useMe, useSession, useLocale } from "../../features/session/session";
 import { BillingCard } from "../../features/office/billing-card";
+import { NotificationsCard } from "../../features/notifications/notifications-card";
 import { LiveActivityRow } from "../../features/worker/live-activity-row";
 import { errorText } from "../../features/worker/payment-card";
 import { api, getApiUrl, keys } from "../../lib/api";
 import { shrinkPhoto } from "../../lib/photos";
 import { formatMoney, formatPhone } from "../../lib/format";
+import { formatPay } from "../../lib/pay";
 import { t } from "../../lib/i18n";
 import { useTheme } from "../../theme/theme";
 import { radii } from "../../theme/tokens";
@@ -35,12 +38,18 @@ export default function ProfileScreen() {
   const toast = useToast();
   const memberships = useQuery({ queryKey: keys.memberships, queryFn: api.auth.memberships });
   const locale = useLocale();
+  const { finance } = useAccess();
   const version = Constants.expoConfig?.version ?? "0.0.0";
   const rows: [string, string][] = [
     [t("worker.profile.company"), me.company.name],
     [t("worker.profile.role"), t(`common.roles.${me.member.role}`)],
   ];
-  if (me.member.role === "worker") rows.push([t("worker.profile.hourlyRate"), `${formatMoney(me.member.hourlyRateCents, locale)}/h`]);
+  if (me.member.role === "worker") {
+    const pay = formatPay(me.member, locale);
+    if (me.member.payType === "salary") {
+      if (pay) rows.push([t("worker.profile.salary"), pay]);
+    } else rows.push([t("worker.profile.hourlyRate"), `${formatMoney(me.member.hourlyRateCents, locale)}/h`]);
+  }
 
   const photo = useMutation({
     mutationFn: async () => {
@@ -122,7 +131,9 @@ export default function ProfileScreen() {
 
       {me.member.role === "worker" && <LiveActivityRow />}
 
-      {me.member.role !== "worker" && <BillingCard locale={locale} timezone={me.company.settings.timezone} isAdmin={me.member.role === "admin"} />}
+      <NotificationsCard />
+
+      {me.member.role !== "worker" && finance && <BillingCard locale={locale} timezone={me.company.settings.timezone} isAdmin={me.member.role === "admin"} />}
 
       {(memberships.data?.memberships.length ?? 0) > 1 && (
         <LinkRow icon={<Building2 size={20} color={colors.muted} />} label={t("worker.profile.switchCompany")} onPress={() => router.push("/select-company")} />

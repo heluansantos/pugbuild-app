@@ -9,6 +9,7 @@ import { WeekStrip } from "../../components/ui/week-strip";
 import { useMe, useLocale } from "../../features/session/session";
 import { HomeView } from "../../features/worker/home-view";
 import { useOfflineSync } from "../../features/worker/use-offline-sync";
+import { useClockOutReminders } from "../../features/notifications/clock-out-reminders";
 import { useShiftLiveActivity } from "../../features/worker/live-activity";
 import { Stat, WorkingView } from "../../features/worker/working-view";
 import { api, keys } from "../../lib/api";
@@ -56,6 +57,7 @@ function WorkerClock() {
       clockIn: { at: queuedIn.deviceAt, location: queuedIn.location, clientId: queuedIn.clientId },
       status: "open",
       flags: [],
+      assetId: queuedIn.assetId,
     };
   } else if (punch && queuedOut) punch = null;
   const todayClosed = week.data?.punches.filter((p) => p.dayKey === week.data?.todayKey && p.status === "closed") ?? [];
@@ -63,9 +65,17 @@ function WorkerClock() {
   const lastOut = todayClosed.at(-1)?.clockOut?.at;
   const firstIn = todayClosed[0]?.clockIn.at;
   // Lock Screen / Dynamic Island timer follows the open shift; with no shift it ends any leftover activity.
-  const liveSiteName = punch?.clockIn.siteId ? (sites.data?.sites.find((s) => s.id === punch.clockIn.siteId)?.name ?? null) : null;
-  useShiftLiveActivity(punch, liveSiteName, todayMinutes);
-  const weekMinutesBefore = (week.data?.totalMinutes ?? 0) - (punch ? (week.data?.minutesByDay[punch.dayKey] ?? 0) : 0) + (punch ? todayMinutes : 0);
+  const liveSiteName = punch?.clockIn.siteId
+    ? (sites.data?.sites.find((s) => s.id === punch.clockIn.siteId)?.name ?? null)
+    : null;
+  // Until the open-shift lookup answers (or fails offline), the Lock Screen timer is left as it is.
+  useShiftLiveActivity(punch, liveSiteName, todayMinutes, !open.isPending);
+  // "Still clocked in?" on the phone at the company's window and at 12 h; cancelled at clock-out.
+  useClockOutReminders(punch);
+  const weekMinutesBefore =
+    (week.data?.totalMinutes ?? 0) -
+    (punch ? (week.data?.minutesByDay[punch.dayKey] ?? 0) : 0) +
+    (punch ? todayMinutes : 0);
 
   return (
     <Screen tabs>
@@ -86,13 +96,24 @@ function WorkerClock() {
           <ActivityIndicator color={colors.ink} />
         </View>
       ) : punch ? (
-        <WorkingView punch={punch} sites={sites.data?.sites ?? []} weekMinutesBefore={weekMinutesBefore} todayMinutesBefore={todayMinutes} />
+        <WorkingView
+          punch={punch}
+          sites={sites.data?.sites ?? []}
+          weekMinutesBefore={weekMinutesBefore}
+          todayMinutesBefore={todayMinutes}
+        />
       ) : (
         <>
           <HomeView sites={sites.data?.sites ?? []} queued={pending > 0} />
           <View style={styles.stats}>
-            <Stat label={t("worker.home.clockIn")} value={firstIn ? formatTime(new Date(firstIn), settings.timezone, locale) : "—"} />
-            <Stat label={t("worker.home.clockOut")} value={lastOut ? formatTime(new Date(lastOut), settings.timezone, locale) : "—"} />
+            <Stat
+              label={t("worker.home.clockIn")}
+              value={firstIn ? formatTime(new Date(firstIn), settings.timezone, locale) : "—"}
+            />
+            <Stat
+              label={t("worker.home.clockOut")}
+              value={lastOut ? formatTime(new Date(lastOut), settings.timezone, locale) : "—"}
+            />
             <Stat label={t("worker.home.today")} value={formatMinutes(todayMinutes)} />
           </View>
         </>

@@ -7,14 +7,14 @@ import { getSocket } from "./realtime-socket";
 import { useSession } from "./session";
 
 /** Same contract as the web (pugbuild-web/src/lib/realtime/events.ts). */
-const EVENTS = ["punch.clock_in", "punch.clock_out", "punch.annotated", "review.changed", "payment.changed", "site.changed", "task.changed", "site.post"] as const;
+const EVENTS = ["punch.clock_in", "punch.clock_out", "punch.annotated", "review.changed", "payment.changed", "site.changed", "task.changed", "site.post", "settings.changed"] as const;
 
 /**
  * Keeps the screens fresh without polling: every company event invalidates the queries it touches,
  * and the person joins the presence channel so the office sees them online. Without a key it is a no-op.
  */
 export function RealtimeSync() {
-  const { me } = useSession();
+  const { me, refresh } = useSession();
   const qc = useQueryClient();
   const companyId = me?.company.id;
   const membershipId = me?.member.id;
@@ -38,6 +38,12 @@ export function RealtimeSync() {
       "site.changed": () => invalidate([keys.sites, keys.officeToday]),
       "task.changed": () => invalidate([keys.tasks, ["site"]]),
       "site.post": (p) => invalidate([["site", String(p.siteId)]]),
+      // Closing day, timezone or lunch changed: the profile carries the settings and every pay-week
+      // view (week, periods, payments, office week) is computed from them.
+      "settings.changed": () => {
+        void refresh();
+        invalidate([["week"], keys.payments, keys.officeToday, ["office", "week"]]);
+      },
     };
     for (const name of EVENTS) channel.bind(name, handlers[name]);
 
@@ -76,7 +82,7 @@ export function RealtimeSync() {
       pusher.unsubscribe(channel.name);
       pusher.unsubscribe(presence.name);
     };
-  }, [companyId, membershipId, office, qc]);
+  }, [companyId, membershipId, office, qc, refresh]);
 
   return null;
 }

@@ -100,6 +100,7 @@
     "company": "Empresa",
     "role": "Rol",
     "hourlyRate": "Tarifa por hora",
+    "salary": "Salario",
     "switchCompany": "Cambiar de empresa",
     "dashboard": "Abrir panel",
     "changePhoto": "Cambiar foto",
@@ -190,6 +191,33 @@
     "brand": "PugBuild",
     "noSite": "Sin obra",
     "startedAt": "Inicio {time}",
-    "hint": "Abre PugBuild para finalizar"
+    "hint": "Abre PugBuild para finalizar",
+    "ended": "Finalizado · {hours}"
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "clockOutReminder": "Olvidé cerrar el turno",
+    "newTask": "Nueva tarea para mí",
+    "paymentReady": "Pago listo",
+    "hint": "El recordatorio de salida se programa en este celular al iniciar el turno y funciona sin señal.",
+    "enable": "Permitir notificaciones…",
+    "permissionTitle": "Un aviso si se te olvida",
+    "permissionBody": "PugBuild puede recordarte cerrar el turno y avisarte cuando haya una tarea nueva o tu pago esté listo.",
+    "permissionAllow": "Permitir",
+    "permissionLater": "Ahora no",
+    "reminderTitle": "¿Sigues en el turno?",
+    "reminderBody": "Tu turno sigue abierto. Abre PugBuild para cerrarlo.",
+    "test": "Dev: probar recordatorio en 10 s",
+    "testScheduled": "Recordatorio en 10 segundos."
+  },
+  "fleet": {
+    "title": "¿Qué vas a usar hoy?",
+    "suggested": "La última vez",
+    "none": "Nada hoy",
+    "using": "Usando",
+    "kinds": {
+      "machine": "Máquina",
+      "vehicle": "Vehículo"
+    }
   }
 }
