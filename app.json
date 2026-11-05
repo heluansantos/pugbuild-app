@@ -16,10 +16,7 @@
         "CFBundleAllowMixedLocalizations": true,
         "ITSAppUsesNonExemptEncryption": false,
         "NSSupportsLiveActivities": true,
-        "LSApplicationQueriesSchemes": [
-          "comgooglemaps",
-          "waze"
-        ]
+        "LSApplicationQueriesSchemes": ["comgooglemaps", "waze"]
       },
       "appleTeamId": "66CUAK7CAS",
       "buildNumber": "1"
@@ -31,17 +28,10 @@
         "foregroundImage": "./assets/android-icon-foreground.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "permissions": [
-        "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION",
-        "CAMERA"
-      ],
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION", "CAMERA", "BLUETOOTH_SCAN"],
       "predictiveBackGestureEnabled": false,
       "versionCode": 1,
-      "blockedPermissions": [
-        "android.permission.RECORD_AUDIO",
-        "android.permission.ACCESS_BACKGROUND_LOCATION"
-      ]
+      "blockedPermissions": ["android.permission.RECORD_AUDIO", "android.permission.ACCESS_BACKGROUND_LOCATION"]
     },
     "web": {
       "favicon": "./assets/favicon.png"

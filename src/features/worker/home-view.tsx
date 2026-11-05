@@ -17,6 +17,7 @@ import { useLocale, useMe } from "../session/session";
 import { shouldPickAsset } from "./asset-choice";
 import { AssetPicker } from "./asset-picker";
 import { NearbyCard } from "./nearby-card";
+import { useBeaconSightings } from "./use-beacon-sightings";
 import { errorText } from "./payment-card";
 import { useGeolocation } from "./use-geolocation";
 import { offlineQueue } from "./use-offline-sync";
@@ -40,6 +41,8 @@ export function HomeView({ sites, queued }: { sites: SiteDto[]; queued: boolean 
   // Fleet (docs/FLEET.md): cheap when the company has it off; only operators ever see the picker.
   const fleet = useQuery({ queryKey: keys.fleet, queryFn: api.fleet, staleTime: 5 * 60_000, retry: 1 });
   const [picking, setPicking] = useState(false);
+  // Layer 2: listen for the company's beacon tags while the clock screen is open.
+  useBeaconSightings(geo.position, fleet.data?.beaconUuids ?? []);
 
   const clockIn = useMutation({
     mutationFn: async (assetId?: string) => {

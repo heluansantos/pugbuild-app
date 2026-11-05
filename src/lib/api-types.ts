@@ -155,6 +155,8 @@ export interface WorkerFleetDto {
   operates: boolean;
   assets: AssetDto[];
   suggestedAssetId?: string;
+  /** Layer 2: tag UUIDs every crew phone ranges while the clock screen is open; absent on older servers. */
+  beaconUuids?: string[];
 }
 
 export interface MeDto {

@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android"],
+  "apple": {
+    "modules": ["BeaconScannerModule"]
+  },
+  "android": {
+    "modules": ["com.pugbuild.beaconscanner.BeaconScannerModule"]
+  }
+}

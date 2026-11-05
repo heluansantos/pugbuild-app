@@ -26,6 +26,7 @@ import { errorText } from "./payment-card";
 import { ShiftClock } from "./shift-clock";
 import { useGeolocation } from "./use-geolocation";
 import { endShiftLiveActivity } from "./live-activity";
+import { useBeaconSightings } from "./use-beacon-sightings";
 import { useLiveLocation } from "./use-live-location";
 import { offlineQueue } from "./use-offline-sync";
 
@@ -71,9 +72,10 @@ export function WorkingView({
     queryFn: api.fleet,
     staleTime: 5 * 60_000,
     retry: 1,
-    enabled: !!punch.assetId,
   });
   const asset = punch.assetId ? fleet.data?.assets.find((a) => a.id === punch.assetId) : undefined;
+  // Layer 2: the phone keeps listening for beacon tags during the shift.
+  useBeaconSightings(geo.position, fleet.data?.beaconUuids ?? []);
 
   const refresh = async () => {
     await qc.invalidateQueries({ queryKey: keys.openPunch });
