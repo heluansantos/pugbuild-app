@@ -1,1 +1,1 @@
-{ "NSLocationWhenInUseUsageDescription": "PugBuild uses your location only when you tap Start or Stop, to match your clock-in to the job site." }
+{ "NSLocationWhenInUseUsageDescription": "PugBuild uses your location while the app is open to show the nearest job site and to record where you clock in and out. It is never tracked in the background." }

@@ -11,6 +11,7 @@ import { Txt } from "../../components/ui/text";
 import { useMe, useLocale } from "../session/session";
 import { openSiteInMaps } from "./open-in-maps";
 import { useGeolocation } from "./use-geolocation";
+import { useIsFocused } from "../../lib/use-is-focused";
 import { api, keys } from "../../lib/api";
 import { formatDistance } from "../../lib/format";
 import { distanceMeters } from "../../lib/geo";
@@ -27,7 +28,8 @@ export function SitesList() {
   const locale = useLocale();
   const sites = useQuery({ queryKey: keys.sites, queryFn: api.sites });
   const list = sites.data?.sites ?? [];
-  const geo = useGeolocation(list.length > 0);
+  const focused = useIsFocused();
+  const geo = useGeolocation(focused && list.length > 0);
   const rows = list
     .map((site) => ({ site, d: geo.position ? distanceMeters(geo.position, site.location) : null }))
     .sort((a, b) => (a.d ?? Infinity) - (b.d ?? Infinity));
@@ -35,36 +37,62 @@ export function SitesList() {
   return (
     <View style={{ gap: 16 }}>
       {sites.isPending && <ActivityIndicator color={colors.ink} />}
-      {sites.isSuccess && list.length === 0 && <EmptyState icon={<MapPin size={20} color={colors.ink} />} title={t("common.states.empty")} body={t("worker.sites.empty")} />}
+      {sites.isSuccess && list.length === 0 && (
+        <EmptyState
+          icon={<MapPin size={20} color={colors.ink} />}
+          title={t("common.states.empty")}
+          body={t("worker.sites.empty")}
+        />
+      )}
       {rows.map(({ site, d }, i) => {
         const here = d !== null && d <= (site.radiusMeters ?? me.company.settings.siteRadiusMeters);
         return (
           <Animated.View key={site.id} entering={FadeInUp.delay(i * 40).duration(300)}>
-            <Pressable onPress={() => router.push({ pathname: "/site/[id]", params: { id: site.id } })} accessibilityRole="button" accessibilityLabel={site.name}>
-            <Card style={styles.row}>
-              {site.photos[0] ? (
-                <Image source={{ uri: site.photos[0].url }} style={[styles.photo, here && styles.hereRing]} contentFit="cover" cachePolicy="disk" transition={120} />
-              ) : (
-                <View style={[styles.icon, here && { backgroundColor: colors.okBg }]}>
-                  <MapPin size={20} color={here ? colors.ok : colors.ink} />
+            <Pressable
+              onPress={() => router.push({ pathname: "/site/[id]", params: { id: site.id } })}
+              accessibilityRole="button"
+              accessibilityLabel={site.name}
+            >
+              <Card style={styles.row}>
+                {site.photos[0] ? (
+                  <Image
+                    source={{ uri: site.photos[0].url }}
+                    style={[styles.photo, here && styles.hereRing]}
+                    contentFit="cover"
+                    cachePolicy="disk"
+                    transition={120}
+                  />
+                ) : (
+                  <View style={[styles.icon, here && { backgroundColor: colors.okBg }]}>
+                    <MapPin size={20} color={here ? colors.ok : colors.ink} />
+                  </View>
+                )}
+                <View style={{ flex: 1, gap: 2 }}>
+                  <Txt size={16} weight="medium" numberOfLines={1}>
+                    {site.name}
+                  </Txt>
+                  <Txt size={13} tone="muted" numberOfLines={2}>
+                    {site.description || site.address}
+                  </Txt>
                 </View>
-              )}
-              <View style={{ flex: 1, gap: 2 }}>
-                <Txt size={16} weight="medium" numberOfLines={1}>
-                  {site.name}
-                </Txt>
-                <Txt size={13} tone="muted" numberOfLines={2}>
-                  {site.description || site.address}
-                </Txt>
-              </View>
-              <View style={styles.trail}>
-                {d !== null && <Chip tone={here ? "ok" : "neutral"} size="sm">{here ? t("worker.sites.here") : t("worker.sites.away", { distance: formatDistance(d, locale) })}</Chip>}
-                {/* Only sites the office confirmed are listed here, so directions always point at a real address. */}
-                <Pressable onPress={() => void openSiteInMaps(site)} style={styles.navBtn} accessibilityRole="button" accessibilityLabel={t("worker.sites.openInMaps")} hitSlop={6}>
-                  <Navigation size={18} color={colors.onAccent} />
-                </Pressable>
-              </View>
-            </Card>
+                <View style={styles.trail}>
+                  {d !== null && (
+                    <Chip tone={here ? "ok" : "neutral"} size="sm">
+                      {here ? t("worker.sites.here") : t("worker.sites.away", { distance: formatDistance(d, locale) })}
+                    </Chip>
+                  )}
+                  {/* Only sites the office confirmed are listed here, so directions always point at a real address. */}
+                  <Pressable
+                    onPress={() => void openSiteInMaps(site)}
+                    style={styles.navBtn}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("worker.sites.openInMaps")}
+                    hitSlop={6}
+                  >
+                    <Navigation size={18} color={colors.onAccent} />
+                  </Pressable>
+                </View>
+              </Card>
             </Pressable>
           </Animated.View>
         );
@@ -78,7 +106,21 @@ const makeStyles = (c: Palette) =>
     row: { flexDirection: "row", alignItems: "center", gap: 12 },
     photo: { width: 48, height: 48, borderRadius: radii.icon, backgroundColor: c.bg },
     hereRing: { borderWidth: 2, borderColor: c.ok },
-    icon: { width: 48, height: 48, borderRadius: radii.icon, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" },
+    icon: {
+      width: 48,
+      height: 48,
+      borderRadius: radii.icon,
+      backgroundColor: c.bg,
+      alignItems: "center",
+      justifyContent: "center",
+    },
     trail: { alignItems: "flex-end", gap: 8 },
-    navBtn: { width: 40, height: 40, borderRadius: radii.pill, backgroundColor: c.accent, alignItems: "center", justifyContent: "center" },
+    navBtn: {
+      width: 40,
+      height: 40,
+      borderRadius: radii.pill,
+      backgroundColor: c.accent,
+      alignItems: "center",
+      justifyContent: "center",
+    },
   });

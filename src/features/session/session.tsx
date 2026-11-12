@@ -9,6 +9,7 @@ import { i18n, loadLocale, saveLocale } from "../../lib/i18n";
 import { resetNotificationPrefs } from "../notifications/prefs";
 import { unregisterPushToken } from "../notifications/push-token";
 import { disconnectRealtime } from "./realtime-socket";
+import { z } from "zod";
 
 /**
  * What the app knows about the signed-in person.
@@ -41,7 +42,28 @@ interface SessionApi extends SessionState {
 const Ctx = createContext<SessionApi | null>(null);
 
 /** Last known profile, so a cold start at a job site without signal can still clock in. */
-const ME_KEY = "pb.me.v1";
+const ME_KEY = "pb.me.v2";
+/**
+ * What the clock screens dereference without a check. A profile saved by an older build that
+ * lacks one of these would crash the app offline, so it is dropped instead of reused.
+ */
+const cachedMeSchema = z.object({
+  person: z.object({ id: z.string(), name: z.string() }).loose(),
+  member: z.object({ id: z.string(), role: z.string() }).loose(),
+  company: z
+    .object({
+      id: z.string(),
+      settings: z
+        .object({
+          timezone: z.string().min(1),
+          workDays: z.array(z.number()),
+          lunch: z.object({ paid: z.boolean() }).loose(),
+          siteRadiusMeters: z.number(),
+        })
+        .loose(),
+    })
+    .loose(),
+});
 async function saveMe(me: MeDto | null) {
   try {
     if (me) await AsyncStorage.setItem(ME_KEY, JSON.stringify(me));
@@ -53,7 +75,9 @@ async function saveMe(me: MeDto | null) {
 async function loadMe(): Promise<MeDto | null> {
   try {
     const raw = await AsyncStorage.getItem(ME_KEY);
-    return raw ? (JSON.parse(raw) as MeDto) : null;
+    if (!raw) return null;
+    const parsed = cachedMeSchema.safeParse(JSON.parse(raw));
+    return parsed.success ? (parsed.data as unknown as MeDto) : null;
   } catch {
     return null;
   }

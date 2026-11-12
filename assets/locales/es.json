@@ -1,1 +1,1 @@
-{ "NSLocationWhenInUseUsageDescription": "PugBuild usa tu ubicación solo cuando tocas Iniciar o Terminar, para vincular tu marcación a la obra correcta." }
+{ "NSLocationWhenInUseUsageDescription": "PugBuild usa tu ubicación mientras la app está abierta para mostrar la obra más cercana y registrar dónde inicias y terminas tu turno. Nunca se rastrea en segundo plano." }

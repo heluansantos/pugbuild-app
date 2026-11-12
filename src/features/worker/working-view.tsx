@@ -11,11 +11,11 @@ import { SwitchRow, Textarea } from "../../components/ui/field";
 import { Sheet } from "../../components/ui/sheet";
 import { Txt } from "../../components/ui/text";
 import { useToast } from "../../components/ui/toast";
-import { api, keys } from "../../lib/api";
+import { api, isApiError, keys } from "../../lib/api";
 import type { PunchDto, SiteDto } from "../../lib/api-types";
 import { formatLongDate, formatMinutes, formatTime } from "../../lib/format";
 import { t } from "../../lib/i18n";
-import { isNetworkError, newClientId } from "../../lib/offline-queue";
+import { newClientId, shouldQueue } from "../../lib/offline-queue";
 import { computeElapsed } from "../../lib/time";
 import { useTheme } from "../../theme/theme";
 import { radii } from "../../theme/tokens";
@@ -35,18 +35,21 @@ export function WorkingView({
   sites,
   weekMinutesBefore,
   todayMinutesBefore,
+  active = true,
 }: {
   punch: PunchDto;
   sites: SiteDto[];
   weekMinutesBefore: number;
   /** Closed shifts earlier today: the big clock continues from them instead of restarting at zero. */
   todayMinutesBefore: number;
+  /** False while another tab is in front: GPS and beacon ranging pause, the clock keeps running. */
+  active?: boolean;
 }) {
   const me = useMe();
   const { colors } = useTheme();
   const qc = useQueryClient();
   const toast = useToast();
-  const geo = useGeolocation();
+  const geo = useGeolocation(active);
   // Office map: a position every few minutes while the shift runs and the app is open.
   useLiveLocation(punch, geo.position);
   const { settings } = me.company;
@@ -75,7 +78,7 @@ export function WorkingView({
   });
   const asset = punch.assetId ? fleet.data?.assets.find((a) => a.id === punch.assetId) : undefined;
   // Layer 2: the phone keeps listening for beacon tags during the shift.
-  useBeaconSightings(geo.position, fleet.data?.beaconUuids ?? []);
+  useBeaconSightings(geo.position, fleet.data?.beaconUuids ?? [], active);
 
   const refresh = async () => {
     await qc.invalidateQueries({ queryKey: keys.openPunch });
@@ -83,6 +86,8 @@ export function WorkingView({
   };
 
   const clockOut = useMutation({
+    // See HomeView: the request must run offline so the queue can take the punch.
+    networkMode: "always",
     mutationFn: async () => {
       const payload = {
         location: geo.position ?? undefined,
@@ -98,7 +103,7 @@ export function WorkingView({
       try {
         return await api.punches.clockOut(payload);
       } catch (e) {
-        if (!isNetworkError(e)) throw e;
+        if (!shouldQueue(e)) throw e;
         await offlineQueue.enqueue({ kind: "clock-out", ...payload });
         return null;
       }
@@ -114,6 +119,12 @@ export function WorkingView({
     onError: (e) => {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       toast.error(errorText(e));
+      // "Not clocked in": the office already ended this shift on the web. Stop the Lock Screen
+      // timer now and reload, instead of leaving a running clock on a shift that is over.
+      if (isApiError(e, "conflict")) {
+        void endShiftLiveActivity();
+        void refresh();
+      }
     },
   });
 

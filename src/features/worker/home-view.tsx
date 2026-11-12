@@ -10,7 +10,7 @@ import { api, keys } from "../../lib/api";
 import type { SiteDto } from "../../lib/api-types";
 import { nearestSite } from "../../lib/geo";
 import { t } from "../../lib/i18n";
-import { isNetworkError, newClientId } from "../../lib/offline-queue";
+import { newClientId, shouldQueue } from "../../lib/offline-queue";
 import { askNotificationPermission } from "../notifications/permission";
 import { registerPushToken } from "../notifications/push-token";
 import { useLocale, useMe } from "../session/session";
@@ -26,14 +26,16 @@ import type { Palette, Shadows } from "../../theme/tokens";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export function HomeView({ sites, queued }: { sites: SiteDto[]; queued: boolean }) {
+export function HomeView({ sites, queued, active = true }: { sites: SiteDto[]; queued: boolean; active?: boolean }) {
   const { colors } = useTheme();
   const styles = useThemedStyles(makeStyles);
   const me = useMe();
   const qc = useQueryClient();
   const toast = useToast();
   const locale = useLocale();
-  const geo = useGeolocation();
+  // The GPS watch and the beacon scan run only while this tab is in front: other tabs and the
+  // Tasks list have no use for a 20 s fix.
+  const geo = useGeolocation(active);
   const nearest = geo.position ? nearestSite(geo.position, sites, me.company.settings.siteRadiusMeters) : null;
   const tapping = useRef(false);
   const scale = useSharedValue(1);
@@ -42,9 +44,13 @@ export function HomeView({ sites, queued }: { sites: SiteDto[]; queued: boolean 
   const fleet = useQuery({ queryKey: keys.fleet, queryFn: api.fleet, staleTime: 5 * 60_000, retry: 1 });
   const [picking, setPicking] = useState(false);
   // Layer 2: listen for the company's beacon tags while the clock screen is open.
-  useBeaconSightings(geo.position, fleet.data?.beaconUuids ?? []);
+  useBeaconSightings(geo.position, fleet.data?.beaconUuids ?? [], active);
 
   const clockIn = useMutation({
+    // Without this React Query pauses the mutation while NetInfo says "offline" and the tap never
+    // reaches the queue: the worker would wait with a spinner, and the punch would be stamped at
+    // reconnection time instead of now. "always" lets the request fail so the queue takes over.
+    networkMode: "always",
     mutationFn: async (assetId?: string) => {
       const payload = {
         location: geo.position ?? undefined,
@@ -56,7 +62,7 @@ export function HomeView({ sites, queued }: { sites: SiteDto[]; queued: boolean 
       try {
         return await api.punches.clockIn(payload);
       } catch (e) {
-        if (!isNetworkError(e)) throw e;
+        if (!shouldQueue(e)) throw e;
         await offlineQueue.enqueue({ kind: "clock-in", ...payload });
         return null;
       }

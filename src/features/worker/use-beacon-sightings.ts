@@ -12,7 +12,7 @@ import { SightingThrottle, usablePosition } from "./beacon-sightings";
  * rides on the location access the clock already has), throttled per tag, silent on failure.
  * Nothing runs when the company has no beacon assets or the device cannot range (Simulator).
  */
-export function useBeaconSightings(position: GeoPoint | null, uuids: readonly string[]): void {
+export function useBeaconSightings(position: GeoPoint | null, uuids: readonly string[], enabled = true): void {
   const throttle = useMemo(() => new SightingThrottle(), []);
   const latest = useRef<GeoPoint | null>(position);
   useEffect(() => {
@@ -25,7 +25,7 @@ export function useBeaconSightings(position: GeoPoint | null, uuids: readonly st
     .join(",");
 
   useEffect(() => {
-    if (!key) return;
+    if (!key || !enabled) return;
     let cancelled = false;
     let ranging = false;
     let inFlight = false;
@@ -77,7 +77,7 @@ export function useBeaconSightings(position: GeoPoint | null, uuids: readonly st
       appState.remove();
       throttle.reset();
     };
-  }, [key, throttle]);
+  }, [key, enabled, throttle]);
 }
 
 /** Android 12+ needs BLUETOOTH_SCAN at runtime; iOS ranging uses the location permission already granted. */

@@ -14,6 +14,7 @@ import { useShiftLiveActivity } from "../../features/worker/live-activity";
 import { Stat, WorkingView } from "../../features/worker/working-view";
 import { api, keys } from "../../lib/api";
 import { firstName, formatMinutes, formatTime, todayKeyIn } from "../../lib/format";
+import { useIsFocused } from "../../lib/use-is-focused";
 import type { PunchDto } from "../../lib/api-types";
 import { t } from "../../lib/i18n";
 import { buildWeekStrip } from "../../lib/week-helpers";
@@ -34,6 +35,7 @@ function WorkerClock() {
   const sites = useQuery({ queryKey: keys.sites, queryFn: api.sites, staleTime: 5 * 60_000 });
   const locale = useLocale();
   const { settings } = me.company;
+  const focused = useIsFocused();
 
   const strip = useMemo(() => {
     if (!week.data) return null;
@@ -72,6 +74,10 @@ function WorkerClock() {
   useShiftLiveActivity(punch, liveSiteName, todayMinutes, !open.isPending);
   // "Still clocked in?" on the phone at the company's window and at 12 h; cancelled at clock-out.
   useClockOutReminders(punch);
+  // Offline at a cold start with nothing cached, the queries stay "paused" for as long as the
+  // signal is gone: show the clock anyway (Start goes to the queue) instead of a spinner.
+  const stillLoading = (q: { isPending: boolean; fetchStatus: string }) => q.isPending && q.fetchStatus !== "paused";
+  const loading = stillLoading(open) || stillLoading(sites);
   const weekMinutesBefore =
     (week.data?.totalMinutes ?? 0) -
     (punch ? (week.data?.minutesByDay[punch.dayKey] ?? 0) : 0) +
@@ -91,7 +97,7 @@ function WorkerClock() {
 
       {strip && !punch && <WeekStrip days={strip} />}
 
-      {open.isPending || sites.isPending ? (
+      {loading ? (
         <View style={styles.loading}>
           <ActivityIndicator color={colors.ink} />
         </View>
@@ -101,10 +107,11 @@ function WorkerClock() {
           sites={sites.data?.sites ?? []}
           weekMinutesBefore={weekMinutesBefore}
           todayMinutesBefore={todayMinutes}
+          active={focused}
         />
       ) : (
         <>
-          <HomeView sites={sites.data?.sites ?? []} queued={pending > 0} />
+          <HomeView sites={sites.data?.sites ?? []} queued={pending > 0} active={focused} />
           <View style={styles.stats}>
             <Stat
               label={t("worker.home.clockIn")}
