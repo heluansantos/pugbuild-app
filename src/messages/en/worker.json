@@ -219,5 +219,11 @@
       "machine": "Machine",
       "vehicle": "Vehicle"
     }
+  },
+  "statement": {
+    "title": "Annual statement",
+    "hint": "PDF for your accountant · {year}",
+    "empty": "No payments recorded in {year}.",
+    "a11y": "Share the {year} annual statement as a PDF"
   }
 }

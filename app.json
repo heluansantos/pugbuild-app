@@ -58,6 +58,8 @@
         "expo-location",
         {
           "locationWhenInUsePermission": "PugBuild uses your location while the app is open to show the nearest job site and to record where you clock in and out. It is never tracked in the background.",
+          "locationAlwaysAndWhenInUsePermission": false,
+          "locationAlwaysPermission": false,
           "isIosBackgroundLocationEnabled": false,
           "isAndroidBackgroundLocationEnabled": false
         }

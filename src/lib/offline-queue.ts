@@ -113,6 +113,20 @@ export function createOfflineQueue(storage: QueueStorage) {
   };
 }
 
+/**
+ * A tap that did not reach a decision goes to the queue: no network, a timeout, or a server that
+ * answered 5xx / without the JSON envelope (a deploy in progress, Vercel in front of a cold
+ * function). Replay treats the same cases as retryable, so both paths agree.
+ */
+export function shouldQueue(error: unknown): boolean {
+  if (isNetworkError(error)) return true;
+  const status =
+    typeof error === "object" && error !== null && "status" in error
+      ? (error as { status: unknown }).status
+      : undefined;
+  return typeof status === "number" && status >= 500;
+}
+
 export function isNetworkError(error: unknown): boolean {
   const msg = error instanceof Error ? error.message : String(error);
   return /network request failed|fetch failed|Failed to fetch|NetworkError|Load failed|network|timeout|aborted/i.test(

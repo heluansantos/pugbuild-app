@@ -219,5 +219,11 @@
       "machine": "Máquina",
       "vehicle": "Veículo"
     }
+  },
+  "statement": {
+    "title": "Extrato anual",
+    "hint": "PDF para o seu contador · {year}",
+    "empty": "Nenhum pagamento registrado em {year}.",
+    "a11y": "Compartilhar o extrato anual de {year} em PDF"
   }
 }

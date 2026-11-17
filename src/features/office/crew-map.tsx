@@ -86,7 +86,7 @@ const html = (interactive: boolean, pal: MapPalette) => `<!doctype html><html><h
     var pts = [];
     d.sites.forEach(function (s) {
       L.circle([s.lat, s.lng], { radius: s.radiusMeters, color: pal.muted, weight: 1.5, dashArray: '6 6', fillColor: pal.accent, fillOpacity: 0.14 })
-        .bindTooltip(s.name + (s.count ? ' · ' + s.count : ''), { permanent: true, direction: 'bottom', offset: [0, 8], className: 'pb-tip dark' + (${interactive} ? '' : ' sm') })
+        .bindTooltip(esc(s.name) + (s.count ? ' · ' + esc(s.count) : ''), { permanent: true, direction: 'bottom', offset: [0, 8], className: 'pb-tip dark' + (${interactive} ? '' : ' sm') })
         .addTo(layer);
       pts.push([s.lat, s.lng]);
     });
@@ -94,7 +94,7 @@ const html = (interactive: boolean, pal: MapPalette) => `<!doctype html><html><h
       var ic = p.live ? icon('pb-live') : icon('pb-dot', p.far ? pal.warnDot : pal.ink);
       // Names only on the full map: in the small card they would pile up over each other.
       L.marker([p.lat, p.lng], { icon: ic, zIndexOffset: p.live ? 1000 : 0 })
-        .bindTooltip(p.name + (p.siteName ? ' · ' + p.siteName : ''), { permanent: ${interactive}, direction: 'top', offset: [0, -9], className: 'pb-tip' })
+        .bindTooltip(esc(p.name) + (p.siteName ? ' · ' + esc(p.siteName) : ''), { permanent: ${interactive}, direction: 'top', offset: [0, -9], className: 'pb-tip' })
         .addTo(layer);
       pts.push([p.lat, p.lng]);
     });

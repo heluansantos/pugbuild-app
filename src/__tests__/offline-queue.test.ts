@@ -1,4 +1,10 @@
-import { createOfflineQueue, isNetworkError, isPermanentRejection, type QueueStorage } from "../lib/offline-queue";
+import {
+  createOfflineQueue,
+  isNetworkError,
+  isPermanentRejection,
+  type QueueStorage,
+  shouldQueue,
+} from "../lib/offline-queue";
 
 const httpError = (status: number) => Object.assign(new Error(`HTTP ${status}`), { status });
 
@@ -82,5 +88,14 @@ describe("offline queue", () => {
   it("recognizes network errors", () => {
     expect(isNetworkError(new Error("Network request failed"))).toBe(true);
     expect(isNetworkError(new Error("conflict"))).toBe(false);
+  });
+});
+
+describe("shouldQueue", () => {
+  it("queues network failures and server-side failures, not rejections", () => {
+    expect(shouldQueue(new TypeError("Network request failed"))).toBe(true);
+    expect(shouldQueue(Object.assign(new Error("Bad response (503)"), { status: 503 }))).toBe(true);
+    expect(shouldQueue(Object.assign(new Error("conflict"), { status: 409 }))).toBe(false);
+    expect(shouldQueue(Object.assign(new Error("validation"), { status: 400 }))).toBe(false);
   });
 });

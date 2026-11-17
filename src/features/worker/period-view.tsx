@@ -7,9 +7,11 @@ import { Txt } from "../../components/ui/text";
 import { api, keys } from "../../lib/api";
 import type { Period, PeriodSummaryDto } from "../../lib/api-types";
 import { formatMinutes, formatMoney, toIntlLocale } from "../../lib/format";
+import { statementYear } from "../../lib/statement";
 import { t } from "../../lib/i18n";
 import type { DayBar } from "../../lib/week-helpers";
 import { radii, type Palette } from "../../theme/tokens";
+import { AnnualStatementRow } from "./annual-statement";
 import { DayBars } from "./day-bars";
 import { useTheme, useThemedStyles } from "../../theme/theme";
 
@@ -17,7 +19,11 @@ const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 function monthName(ym: string, locale: string, style: "long" | "short") {
   const [y, m] = ym.split("-").map(Number) as [number, number];
-  return cap(new Intl.DateTimeFormat(toIntlLocale(locale), { month: style, timeZone: "UTC" }).format(new Date(Date.UTC(y, m - 1, 15))).replace(".", ""));
+  return cap(
+    new Intl.DateTimeFormat(toIntlLocale(locale), { month: style, timeZone: "UTC" })
+      .format(new Date(Date.UTC(y, m - 1, 15)))
+      .replace(".", ""),
+  );
 }
 
 function headline(d: PeriodSummaryDto, locale: string) {
@@ -33,31 +39,58 @@ function bucketLabel(b: PeriodSummaryDto["buckets"][number], locale: string) {
 }
 
 /** Month, year or all-time totals with one bar per block, month or year. Same card as the week. */
-export function PeriodView({ period, locale, todayKey }: { period: Exclude<Period, never>; locale: string; todayKey: string }) {
+export function PeriodView({
+  period,
+  locale,
+  todayKey,
+}: {
+  period: Exclude<Period, never>;
+  locale: string;
+  todayKey: string;
+}) {
   const { colors } = useTheme();
   const styles = useThemedStyles(makeStyles);
   const [at, setAt] = useState<string | undefined>(undefined);
   const q = useQuery({ queryKey: keys.hours(period, at), queryFn: () => api.hours(period, at) });
   const d = q.data;
+  // The Year view exports the year on screen as a PDF for the accountant.
+  const exportYear = period === "year" ? statementYear(d?.at) : null;
 
   const bars: DayBar[] = useMemo(() => {
     if (!d) return [];
     const max = Math.max(60, ...d.buckets.map((b) => b.minutes));
     const current = period === "month" ? null : period === "year" ? todayKey.slice(0, 7) : d.buckets.at(-1)?.key;
-    return d.buckets.map((b) => ({ key: b.key, label: bucketLabel(b, locale), minutes: b.minutes, isToday: b.key === current, ratio: b.minutes / max }));
+    return d.buckets.map((b) => ({
+      key: b.key,
+      label: bucketLabel(b, locale),
+      minutes: b.minutes,
+      isToday: b.key === current,
+      ratio: b.minutes / max,
+    }));
   }, [d, period, locale, todayKey]);
 
   return (
     <>
       {period !== "all" && d && (
         <View style={styles.pager}>
-          <Pressable onPress={() => d.prevAt && setAt(d.prevAt)} style={styles.pageBtn} accessibilityRole="button" accessibilityLabel={t("common.actions.back")}>
+          <Pressable
+            onPress={() => d.prevAt && setAt(d.prevAt)}
+            style={styles.pageBtn}
+            accessibilityRole="button"
+            accessibilityLabel={t("common.actions.back")}
+          >
             <ChevronLeft size={16} color={colors.ink} />
           </Pressable>
           <Txt size={13} weight="medium">
             {headline(d, locale)}
           </Txt>
-          <Pressable onPress={() => d.nextAt && setAt(d.nextAt)} disabled={!d.nextAt} style={[styles.pageBtn, !d.nextAt && { opacity: 0.3 }]} accessibilityRole="button" accessibilityLabel={t("common.actions.next")}>
+          <Pressable
+            onPress={() => d.nextAt && setAt(d.nextAt)}
+            disabled={!d.nextAt}
+            style={[styles.pageBtn, !d.nextAt && { opacity: 0.3 }]}
+            accessibilityRole="button"
+            accessibilityLabel={t("common.actions.next")}
+          >
             <ChevronRight size={16} color={colors.ink} />
           </Pressable>
         </View>
@@ -107,14 +140,30 @@ export function PeriodView({ period, locale, todayKey }: { period: Exclude<Perio
           </Txt>
         )}
       </Card>
+      {exportYear !== null && <AnnualStatementRow year={exportYear} />}
     </>
   );
 }
 
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
-    pager: { flexDirection: "row", alignItems: "center", gap: 2, alignSelf: "flex-start", borderWidth: 1, borderColor: c.line, borderRadius: radii.pill, padding: 4 },
+    pager: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 2,
+      alignSelf: "flex-start",
+      borderWidth: 1,
+      borderColor: c.line,
+      borderRadius: radii.pill,
+      padding: 4,
+    },
     pageBtn: { width: 36, height: 36, borderRadius: radii.pill, alignItems: "center", justifyContent: "center" },
     totals: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between" },
-    foot: { flexDirection: "row", justifyContent: "space-between", borderTopWidth: 1, borderTopColor: c.line2, paddingTop: 12 },
+    foot: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      borderTopWidth: 1,
+      borderTopColor: c.line2,
+      paddingTop: 12,
+    },
   });
