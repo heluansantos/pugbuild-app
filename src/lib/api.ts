@@ -178,6 +178,51 @@ async function request<T>(path: string, init: RequestInit & { json?: unknown; ti
 }
 
 const get = <T>(path: string) => request<T>(path);
+
+const blobToBase64 = (blob: Blob) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("Network request failed"));
+    reader.onload = () => resolve(String(reader.result).split(",")[1] ?? "");
+    reader.readAsDataURL(blob);
+  });
+
+/**
+ * A file instead of JSON, through the same fetch as every other call so the session cookie
+ * goes with it. A failure still arrives in the JSON envelope and becomes the usual ApiError.
+ */
+async function download(path: string): Promise<{ filename: string | null; base64: string }> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${apiUrl}${path}`, {
+      credentials: "include",
+      signal: controller.signal,
+      headers:
+        BYPASS_SECRET && /\.vercel\.app$/.test(new URL(apiUrl).host)
+          ? { "x-vercel-protection-bypass": BYPASS_SECRET }
+          : {},
+    });
+    if (!res.ok) {
+      let body: Envelope<never> | null = null;
+      try {
+        body = (await res.json()) as Envelope<never>;
+      } catch {
+        body = null;
+      }
+      const err =
+        body && !body.ok
+          ? new ApiError(knownCode(body.error?.code), body.error?.message ?? "", res.status)
+          : new ApiError(res.status === 401 ? "unauthorized" : "unknown", `Bad response (${res.status})`, res.status);
+      if (err.code === "unauthorized") onUnauthorized?.();
+      throw err;
+    }
+    const filename = /filename="([^"]+)"/.exec(res.headers.get("content-disposition") ?? "")?.[1] ?? null;
+    return { filename, base64: await blobToBase64(await res.blob()) };
+  } finally {
+    clearTimeout(timer);
+  }
+}
 const post = <T>(path: string, json: unknown = {}) => request<T>(path, { method: "POST", json });
 const put = <T>(path: string, json: unknown = {}) => request<T>(path, { method: "PUT", json });
 const del = <T>(path: string, json: unknown = {}) => request<T>(path, { method: "DELETE", json });
@@ -233,6 +278,11 @@ export const api = {
     confirm: (id: string) => post<{ ok: true }>(`/api/v1/payments/${encodeURIComponent(id)}/confirm`),
     dispute: (id: string, note: string) =>
       post<{ ok: true }>(`/api/v1/payments/${encodeURIComponent(id)}/dispute`, { note }),
+  },
+  statements: {
+    /** The annual earnings statement as a PDF (pugbuild-web docs/STATEMENTS.md). 404 when the year has no payments. */
+    annual: (year: number, lang: string) =>
+      download(`/api/v1/statements/annual?year=${year}&lang=${encodeURIComponent(lang)}`),
   },
   sites: () => get<{ sites: SiteDto[] }>("/api/v1/sites"),
   /** Machines and vehicles for the Start flow's picker (docs/FLEET.md). */

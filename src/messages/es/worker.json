@@ -219,5 +219,11 @@
       "machine": "Máquina",
       "vehicle": "Vehículo"
     }
+  },
+  "statement": {
+    "title": "Estado anual",
+    "hint": "PDF para tu contador · {year}",
+    "empty": "No hay pagos registrados en {year}.",
+    "a11y": "Compartir el estado anual de {year} en PDF"
   }
 }
