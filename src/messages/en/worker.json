@@ -59,6 +59,7 @@
     "receivedOn": "Received by {method} · {date}",
     "noPayments": "No payments yet.",
     "openShift": "Shift still open",
+    "shifts": "Shifts",
     "periods": {
       "week": "Week",
       "month": "Month",
@@ -225,5 +226,25 @@
     "hint": "PDF for your accountant · {year}",
     "empty": "No payments recorded in {year}.",
     "a11y": "Share the {year} annual statement as a PDF"
+  },
+  "crew": {
+    "nav": "Crew",
+    "title": "Crew",
+    "subtitle": "Start and end the shift for the people on site with you.",
+    "workingSince": "Working since {time}",
+    "notClockedIn": "Not clocked in",
+    "startedBy": "by {name}",
+    "selectAllOff": "Select all not working",
+    "start": "Start shift for {count}",
+    "end": "End shift for {count}",
+    "started": "Shift started for {count}.",
+    "ended": "Shift ended for {count}.",
+    "partial": "Done for {ok}. Not done for {failed}: check the list.",
+    "noneDone": "Nothing was changed. Check the list and try again.",
+    "emptyTitle": "No workers yet",
+    "emptyBody": "Workers the office adds to the team show up here.",
+    "usesLocation": "Punches are recorded at your current location.",
+    "locationOff": "Location is off. These punches will go to the office for review.",
+    "offline": "You're offline. Crew punches need a connection."
   }
 }

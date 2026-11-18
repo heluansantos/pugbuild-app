@@ -7,6 +7,8 @@ import { Screen } from "../../components/ui/screen";
 import { Txt } from "../../components/ui/text";
 import { WeekStrip } from "../../components/ui/week-strip";
 import { useMe, useLocale } from "../../features/session/session";
+import { canUseCrew } from "../../features/worker/crew";
+import { CrewEntry } from "../../features/worker/crew-entry";
 import { HomeView } from "../../features/worker/home-view";
 import { useOfflineSync } from "../../features/worker/use-offline-sync";
 import { useClockOutReminders } from "../../features/notifications/clock-out-reminders";
@@ -87,6 +89,7 @@ function WorkerClock() {
     <Screen tabs>
       <View style={styles.header}>
         <Logo size={44} />
+        {canUseCrew(me.member) && <CrewEntry />}
       </View>
 
       {!punch && (

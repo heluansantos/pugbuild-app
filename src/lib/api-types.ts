@@ -104,6 +104,8 @@ export interface MemberDto {
   /** Fleet: this person picks a machine or vehicle when clocking in. */
   operatesAssets?: boolean;
   lastAssetId?: string;
+  /** Worker who may clock other workers in and out (pugbuild-web docs/CREW.md). Absent = no. */
+  crewLead?: boolean;
 }
 
 /* ---- Fleet (docs/FLEET.md) ---- */
@@ -214,10 +216,33 @@ export interface PunchDto {
   /** workedMinutes - lunchDeductedMinutes: what the money corresponds to. */
   paidMinutes?: number;
   flags: string[];
+  /** Who recorded it; "crew" = a crew lead on site. Absent on queued punches. */
+  source?: "self" | "office" | "api" | "crew";
   /** Fleet: machine or vehicle used this shift. */
   assetId?: string;
   /** Latest position the phone reported during this open shift (office map). */
   live?: { at: string; location: GeoPoint; siteId?: string; distanceMeters?: number };
+}
+
+/** Old or new values of a punch in its history; only the fields the action touched. */
+export interface PunchHistoryState {
+  clockIn?: string;
+  clockOut?: string;
+  siteName?: string;
+}
+
+/** One line of a punch's history (pugbuild-web docs/PUNCH-HISTORY.md), oldest first. */
+export interface PunchHistoryEntry {
+  id: string;
+  at: string;
+  action: "clock_in" | "clock_out" | "edit" | "approve" | "delete" | "other";
+  actorName: string;
+  /** `support` = PugBuild staff inside the company: shown as such, never by name. */
+  actorRole: Role | "support" | "system";
+  /** The punch owner did it themselves. */
+  bySelf: boolean;
+  before?: PunchHistoryState;
+  after?: PunchHistoryState;
 }
 
 /** A past pay week with hours the office has not closed yet (no payment exists). */
@@ -307,6 +332,40 @@ export type ApiErrorCode =
   | "billing_required"
   | "unknown";
 
+/* ---- Crew clock-in (pugbuild-web docs/CREW.md) ---- */
+
+export interface CrewMemberDto {
+  membershipId: string;
+  personId: string;
+  name: string;
+  jobTitle?: string;
+  /** The shift running right now, if any. */
+  open?: {
+    punchId: string;
+    since: string;
+    /** Day of the clock-in in the company timezone; older than today = forgotten clock-out. */
+    dayKey: string;
+    siteName?: string;
+    source: string;
+    startedByName?: string;
+  };
+}
+
+export interface CrewBatchInput {
+  /** 1 to 50 per call. */
+  membershipIds: string[];
+  location?: GeoPoint;
+  /** Idempotency key of the batch: sending it again returns the same punches. */
+  clientId?: string;
+}
+
+export interface CrewResult {
+  membershipId: string;
+  ok: boolean;
+  punch?: PunchDto;
+  error?: { code: ApiErrorCode; message: string };
+}
+
 /* ---- Office / admin ---- */
 
 export interface TeamRow {
@@ -321,6 +380,8 @@ export interface TeamRow {
   siteId?: string;
   siteName?: string;
   farFromSite: boolean;
+  /** The crew lead who started the shift in this row. */
+  startedByName?: string;
   missingClockOut: boolean;
   minutes: number;
   costCents: number;

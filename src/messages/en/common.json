@@ -79,6 +79,29 @@
   "yesterday": "Yesterday",
   "week": "Week",
   "hoursShort": "{hours}h{minutes}",
+  "punchHistory": {
+    "title": "Shift history",
+    "edited": "Edited",
+    "open": "Shift history, {day}",
+    "empty": "No changes were recorded for this shift.",
+    "support": "PugBuild support",
+    "byRole": "{name} ({role})",
+    "when": "{date}, {time}",
+    "none": "none",
+    "actions": {
+      "clock_in": "Clocked in",
+      "clock_out": "Clocked out",
+      "edit": "Edited",
+      "approve": "Approved",
+      "delete": "Deleted",
+      "other": "Updated"
+    },
+    "fields": {
+      "clockIn": "Clock in",
+      "clockOut": "Clock out",
+      "siteName": "Site"
+    }
+  },
   "server": {
     "title": "Server",
     "description": "Which PugBuild deployment this phone talks to.",

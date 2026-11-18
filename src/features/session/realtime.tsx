@@ -30,8 +30,8 @@ export function RealtimeSync() {
     const channel = pusher.subscribe(`private-company-${companyId}`);
     const presence = pusher.subscribe(`presence-company-${companyId}`);
     const handlers: Record<(typeof EVENTS)[number], (payload: Record<string, unknown>) => void> = {
-      "punch.clock_in": (p) => invalidate(p.membershipId === membershipId ? [keys.openPunch, ["week"], keys.officeToday] : [keys.officeToday, ["office", "week"]]),
-      "punch.clock_out": (p) => invalidate(p.membershipId === membershipId ? [keys.openPunch, ["week"], keys.officeToday] : [keys.officeToday, ["office", "week"]]),
+      "punch.clock_in": (p) => invalidate(p.membershipId === membershipId ? [keys.openPunch, ["week"], keys.officeToday] : [keys.officeToday, ["office", "week"], keys.crew]),
+      "punch.clock_out": (p) => invalidate(p.membershipId === membershipId ? [keys.openPunch, ["week"], keys.officeToday] : [keys.officeToday, ["office", "week"], keys.crew]),
       "punch.annotated": () => invalidate([keys.officeToday]),
       "review.changed": () => invalidate([keys.officeToday, ["office", "week"]]),
       "payment.changed": () => invalidate([keys.payments, ["office", "week"]]),

@@ -59,6 +59,7 @@
     "receivedOn": "Recibido en {method} · {date}",
     "noPayments": "Todavía no hay pagos.",
     "openShift": "Turno todavía abierto",
+    "shifts": "Turnos de la semana",
     "periods": {
       "week": "Semana",
       "month": "Mes",
@@ -225,5 +226,25 @@
     "hint": "PDF para tu contador · {year}",
     "empty": "No hay pagos registrados en {year}.",
     "a11y": "Compartir el estado anual de {year} en PDF"
+  },
+  "crew": {
+    "nav": "Cuadrilla",
+    "title": "Cuadrilla",
+    "subtitle": "Inicia y termina el turno de quienes están en la obra contigo.",
+    "workingSince": "Trabajando desde {time}",
+    "notClockedIn": "Sin turno abierto",
+    "startedBy": "por {name}",
+    "selectAllOff": "Seleccionar a quienes no están trabajando",
+    "start": "Iniciar turno de {count}",
+    "end": "Terminar turno de {count}",
+    "started": "Turno iniciado para {count}.",
+    "ended": "Turno terminado para {count}.",
+    "partial": "Hecho para {ok}. No se hizo para {failed}: revisa la lista.",
+    "noneDone": "No se cambió nada. Revisa la lista e inténtalo de nuevo.",
+    "emptyTitle": "Aún no hay trabajadores",
+    "emptyBody": "Los trabajadores que la oficina agregue aparecen aquí.",
+    "usesLocation": "Las marcaciones se registran en tu ubicación actual.",
+    "locationOff": "La ubicación está desactivada. Estas marcaciones irán a revisión de la oficina.",
+    "offline": "Estás sin conexión. Las marcaciones de la cuadrilla necesitan internet."
   }
 }

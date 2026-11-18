@@ -79,6 +79,29 @@
   "yesterday": "Ayer",
   "week": "Semana",
   "hoursShort": "{hours}h{minutes}",
+  "punchHistory": {
+    "title": "Historial del turno",
+    "edited": "Editado",
+    "open": "Historial del turno, {day}",
+    "empty": "No hay cambios registrados en este turno.",
+    "support": "Soporte PugBuild",
+    "byRole": "{name} ({role})",
+    "when": "{date}, {time}",
+    "none": "ninguno",
+    "actions": {
+      "clock_in": "Entrada",
+      "clock_out": "Salida",
+      "edit": "Editado",
+      "approve": "Aprobado",
+      "delete": "Eliminado",
+      "other": "Actualizado"
+    },
+    "fields": {
+      "clockIn": "Entrada",
+      "clockOut": "Salida",
+      "siteName": "Obra"
+    }
+  },
   "server": {
     "title": "Servidor",
     "description": "Qué instalación de PugBuild usa este teléfono.",

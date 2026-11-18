@@ -3,6 +3,9 @@ import type {
   ApiErrorCode,
   AssetSighting,
   BillingOverviewDto,
+  CrewBatchInput,
+  CrewMemberDto,
+  CrewResult,
   FeedPageDto,
   GeoPoint,
   MeDto,
@@ -13,6 +16,7 @@ import type {
   Period,
   PeriodSummaryDto,
   PunchDto,
+  PunchHistoryEntry,
   PunchInput,
   SiteCostsDto,
   SiteDetailDto,
@@ -269,6 +273,15 @@ export const api = {
     /** Position during an open shift (office map). 409 when not clocked in. */
     location: (location: GeoPoint) => post<{ accepted: boolean }>("/api/v1/punches/location", location),
     today: () => get<{ dayKey: string; punches: PunchDto[] }>("/api/v1/punches/today"),
+    /** Who changed a punch and what it was before: own punches, or any punch for the office. */
+    history: (punchId: string) =>
+      get<{ entries: PunchHistoryEntry[] }>(`/api/v1/punches/${encodeURIComponent(punchId)}/history`),
+  },
+  /** Crew leads and staff: start and end the shift of several workers at once (docs/CREW.md). */
+  crew: {
+    list: () => get<{ members: CrewMemberDto[] }>("/api/v1/crew"),
+    clockIn: (input: CrewBatchInput) => post<{ results: CrewResult[] }>("/api/v1/crew/clock-in", input),
+    clockOut: (input: CrewBatchInput) => post<{ results: CrewResult[] }>("/api/v1/crew/clock-out", input),
   },
   week: (weekKey?: string) => get<WeekDto>(`/api/v1/week${weekKey ? `?week=${weekKey}` : ""}`),
   hours: (period: Period, at?: string) =>
@@ -354,7 +367,9 @@ export const api = {
 export const keys = {
   me: ["me"] as const,
   openPunch: ["punches", "open"] as const,
+  crew: ["crew"] as const,
   week: (weekKey?: string) => ["week", weekKey ?? "current"] as const,
+  punchHistory: (punchId: string) => ["punches", punchId, "history"] as const,
   payments: ["payments"] as const,
   sites: ["sites"] as const,
   fleet: ["fleet"] as const,
