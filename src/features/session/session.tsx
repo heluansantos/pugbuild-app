@@ -6,6 +6,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { api, isApiError, loadApiUrl, setUnauthorizedHandler } from "../../lib/api";
 import type { Locale, MeDto } from "../../lib/api-types";
 import { i18n, loadLocale, saveLocale } from "../../lib/i18n";
+import { cancelClockInReminders } from "../notifications/clock-in-reminders";
 import { resetNotificationPrefs } from "../notifications/prefs";
 import { unregisterPushToken } from "../notifications/push-token";
 import { disconnectRealtime } from "./realtime-socket";
@@ -175,6 +176,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         // Capped so an offline sign-out never waits on the network.
         await Promise.race([unregisterPushToken(), new Promise((r) => setTimeout(r, 3_000))]);
         await resetNotificationPrefs();
+        // Reminders scheduled for this person must not ring for whoever signs in next.
+        void cancelClockInReminders();
         try {
           await api.auth.logout();
         } catch {

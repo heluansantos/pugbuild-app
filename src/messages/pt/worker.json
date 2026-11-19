@@ -45,6 +45,11 @@
     "totalHours": "Total de horas",
     "gross": "Valor bruto",
     "paymentReady": "Pagamento pronto",
+    "schedule": "Minha escala de hoje ou amanhã",
+    "clockInReminder": "Hora de iniciar a jornada",
+    "clockInTitle": "Hora de bater o ponto?",
+    "clockInBody": "Abra o PugBuild para iniciar a jornada.",
+    "clockInBodySite": "Hoje: {site}. Abra o PugBuild para iniciar a jornada.",
     "paymentPending": "Semana fechada, pagamento a caminho",
     "paymentDisputed": "Problema enviado",
     "paymentConfirmed": "Recebido",
@@ -195,6 +200,12 @@
     "hint": "Abra o PugBuild para finalizar",
     "ended": "Encerrado · {hours}"
   },
+  "schedule": {
+    "title": "Próximos dias",
+    "today": "Hoje",
+    "tomorrow": "Amanhã",
+    "open": "{day}: {site}"
+  },
   "notifications": {
     "title": "Notificações",
     "clockOutReminder": "Esqueci de encerrar o ponto",
@@ -246,5 +257,12 @@
     "usesLocation": "Os pontos são registrados na sua localização atual.",
     "locationOff": "A localização está desligada. Esses pontos vão para revisão do escritório.",
     "offline": "Você está sem conexão. O ponto da equipe precisa de internet."
+  },
+  "sickTime": {
+    "title": "Licença médica",
+    "available": "{time} disponíveis",
+    "detail": "{accrued} acumuladas · {used} usadas neste ano",
+    "eligibleFrom": "Você pode usar a partir de {date}",
+    "unpaid": "Sem pagamento"
   }
 }

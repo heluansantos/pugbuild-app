@@ -45,6 +45,11 @@
     "totalHours": "Total de horas",
     "gross": "Pago bruto",
     "paymentReady": "Pago listo",
+    "schedule": "Mi horario de hoy o mañana",
+    "clockInReminder": "Hora de iniciar el turno",
+    "clockInTitle": "¿Hora de iniciar el turno?",
+    "clockInBody": "Abre PugBuild para iniciar tu turno.",
+    "clockInBodySite": "Hoy: {site}. Abre PugBuild para iniciar tu turno.",
     "paymentPending": "Semana cerrada, pago en camino",
     "paymentDisputed": "Problema enviado",
     "paymentConfirmed": "Recibido",
@@ -195,6 +200,12 @@
     "hint": "Abre PugBuild para finalizar",
     "ended": "Finalizado · {hours}"
   },
+  "schedule": {
+    "title": "Próximos días",
+    "today": "Hoy",
+    "tomorrow": "Mañana",
+    "open": "{day}: {site}"
+  },
   "notifications": {
     "title": "Notificaciones",
     "clockOutReminder": "Olvidé cerrar el turno",
@@ -246,5 +257,12 @@
     "usesLocation": "Las marcaciones se registran en tu ubicación actual.",
     "locationOff": "La ubicación está desactivada. Estas marcaciones irán a revisión de la oficina.",
     "offline": "Estás sin conexión. Las marcaciones de la cuadrilla necesitan internet."
+  },
+  "sickTime": {
+    "title": "Licencia por enfermedad",
+    "available": "{time} disponibles",
+    "detail": "{accrued} acumuladas · {used} usadas este año",
+    "eligibleFrom": "Puedes usarla desde el {date}",
+    "unpaid": "Sin pago"
   }
 }

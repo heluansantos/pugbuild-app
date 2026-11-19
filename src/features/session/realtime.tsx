@@ -7,7 +7,7 @@ import { getSocket } from "./realtime-socket";
 import { useSession } from "./session";
 
 /** Same contract as the web (pugbuild-web/src/lib/realtime/events.ts). */
-const EVENTS = ["punch.clock_in", "punch.clock_out", "punch.annotated", "review.changed", "payment.changed", "site.changed", "task.changed", "site.post", "settings.changed"] as const;
+const EVENTS = ["punch.clock_in", "punch.clock_out", "punch.annotated", "review.changed", "payment.changed", "site.changed", "task.changed", "site.post", "settings.changed", "schedule.changed"] as const;
 
 /**
  * Keeps the screens fresh without polling: every company event invalidates the queries it touches,
@@ -38,6 +38,10 @@ export function RealtimeSync() {
       "site.changed": () => invalidate([keys.sites, keys.officeToday]),
       "task.changed": () => invalidate([keys.tasks, ["site"]]),
       "site.post": (p) => invalidate([["site", String(p.siteId)]]),
+      // The office moved someone: only the people named reload their next days (and their reminders follow).
+      "schedule.changed": (p) => {
+        if (Array.isArray(p.membershipIds) && p.membershipIds.includes(membershipId)) invalidate([keys.schedule]);
+      },
       // Closing day, timezone or lunch changed: the profile carries the settings and every pay-week
       // view (week, periods, payments, office week) is computed from them.
       "settings.changed": () => {

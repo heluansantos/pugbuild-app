@@ -7,9 +7,13 @@ Notifications.setNotificationHandler({
   handleNotification: async () => ({ shouldShowBanner: true, shouldShowList: true, shouldPlaySound: true, shouldSetBadge: false }),
 });
 
-/** Server pushes carry `data.screen`; local reminders carry `data.kind`. Both land on a tab. */
+/**
+ * Server pushes carry `data.screen`; local reminders carry `data.kind`. Both land on a tab. The
+ * schedule push and the clock-in reminder open the clock, where "Next days" and Start are.
+ */
 export function screenFor(data: Record<string, unknown> | undefined): Href {
-  const screen = data?.screen ?? (data?.kind === "clock-out-reminder" ? "clock" : undefined);
+  const local = data?.kind === "clock-out-reminder" || data?.kind === "clock-in-reminder";
+  const screen = data?.screen ?? (local ? "clock" : undefined);
   if (screen === "tasks") return "/(tabs)/tasks" as Href;
   if (screen === "payments") return "/(tabs)/week" as Href;
   return "/(tabs)" as Href;

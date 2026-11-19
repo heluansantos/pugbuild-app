@@ -10,7 +10,9 @@ import { useMe, useLocale } from "../../features/session/session";
 import { canUseCrew } from "../../features/worker/crew";
 import { CrewEntry } from "../../features/worker/crew-entry";
 import { HomeView } from "../../features/worker/home-view";
+import { NextDaysCard } from "../../features/worker/next-days-card";
 import { useOfflineSync } from "../../features/worker/use-offline-sync";
+import { useClockInReminders } from "../../features/notifications/use-clock-in-reminders";
 import { useClockOutReminders } from "../../features/notifications/clock-out-reminders";
 import { useShiftLiveActivity } from "../../features/worker/live-activity";
 import { Stat, WorkingView } from "../../features/worker/working-view";
@@ -76,6 +78,8 @@ function WorkerClock() {
   useShiftLiveActivity(punch, liveSiteName, todayMinutes, !open.isPending);
   // "Still clocked in?" on the phone at the company's window and at 12 h; cancelled at clock-out.
   useClockOutReminders(punch);
+  // "Time to clock in?" for the coming week; today's goes away once the person has clocked in.
+  useClockInReminders(punch !== null || todayClosed.length > 0);
   // Offline at a cold start with nothing cached, the queries stay "paused" for as long as the
   // signal is gone: show the clock anyway (Start goes to the queue) instead of a spinner.
   const stillLoading = (q: { isPending: boolean; fetchStatus: string }) => q.isPending && q.fetchStatus !== "paused";
@@ -126,6 +130,7 @@ function WorkerClock() {
             />
             <Stat label={t("worker.home.today")} value={formatMinutes(todayMinutes)} />
           </View>
+          <NextDaysCard />
         </>
       )}
       {open.isError && (

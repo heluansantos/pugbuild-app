@@ -41,6 +41,8 @@ export interface CompanySettings {
   defaultLocale: Locale;
   /** Machines and vehicles (docs/FLEET.md). Absent on older servers = off. */
   fleet?: { enabled: boolean };
+  /** "Time to clock in?" on the phone, "HH:mm" in the company timezone. Absent on older servers = off. */
+  clockInReminder?: { enabled: boolean; time: string };
 }
 
 export interface CompanyDto {
@@ -57,6 +59,24 @@ export interface NotificationPrefs {
   clockOutReminder: boolean;
   newTask: boolean;
   paymentReady: boolean;
+  /** Where the person works today or tomorrow, from the office schedule. */
+  schedule: boolean;
+  /** The phone's own "time to clock in?" reminder. */
+  clockInReminder: boolean;
+}
+
+/** One day of the person's schedule (pugbuild-web docs/SCHEDULE.md). */
+export interface ScheduleEntryDto {
+  id: string;
+  membershipId: string;
+  /** YYYY-MM-DD in the company timezone. */
+  dayKey: string;
+  siteId: string;
+  siteName?: string;
+  siteActive: boolean;
+  /** "HH:mm" in the company timezone. */
+  startTime?: string;
+  note?: string;
 }
 
 export interface PersonDto {
@@ -70,7 +90,7 @@ export interface PersonDto {
   consentAcceptedAt?: string;
   consentVersion?: string;
   /** Mirror of the Profile switches; absent on servers that predate it (= everything on). */
-  notificationPrefs?: NotificationPrefs;
+  notificationPrefs?: Partial<NotificationPrefs>;
 }
 
 export type PayType = "hourly" | "salary";
@@ -216,8 +236,8 @@ export interface PunchDto {
   /** workedMinutes - lunchDeductedMinutes: what the money corresponds to. */
   paidMinutes?: number;
   flags: string[];
-  /** Who recorded it; "crew" = a crew lead on site. Absent on queued punches. */
-  source?: "self" | "office" | "api" | "crew";
+  /** Who recorded it; "crew" = a crew lead on site, "kiosk" = a shared tablet. Absent on queued punches. */
+  source?: "self" | "office" | "api" | "crew" | "kiosk";
   /** Fleet: machine or vehicle used this shift. */
   assetId?: string;
   /** Latest position the phone reported during this open shift (office map). */
@@ -298,11 +318,32 @@ export interface WeekDto {
   lunchMinutes: number;
   paidMinutes: number;
   grossCents: number;
+  /** Sick time of the week, already inside grossCents; only from companies with sick time on. */
+  sickMinutes?: number;
+  sickCents?: number;
   hourlyRateCents: number;
   overtime: OvertimeRule;
   lunch: LunchRule;
   punches: PunchDto[];
 }
+
+/** Own earned sick time (pugbuild-web docs/SICK-TIME.md). Minutes; day keys in company time. */
+export type SickTimeDto =
+  | { enabled: false }
+  | {
+      enabled: true;
+      /** False: the time is job-protected but unpaid. */
+      paid: boolean;
+      availableMinutes: number;
+      accruedMinutes: number;
+      usedMinutes: number;
+      carryoverMinutes: number;
+      yearStartKey: string;
+      yearEndKey: string;
+      /** First day the time can be used (hire date + 90 days). */
+      eligibleFromKey: string;
+      eligible: boolean;
+    };
 
 export interface VerifyResult {
   ok: true;

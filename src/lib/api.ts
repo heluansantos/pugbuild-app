@@ -18,6 +18,8 @@ import type {
   PunchDto,
   PunchHistoryEntry,
   PunchInput,
+  SickTimeDto,
+  ScheduleEntryDto,
   SiteCostsDto,
   SiteDetailDto,
   SiteDto,
@@ -284,6 +286,7 @@ export const api = {
     clockOut: (input: CrewBatchInput) => post<{ results: CrewResult[] }>("/api/v1/crew/clock-out", input),
   },
   week: (weekKey?: string) => get<WeekDto>(`/api/v1/week${weekKey ? `?week=${weekKey}` : ""}`),
+  sickTime: () => get<SickTimeDto>("/api/v1/sick-time"),
   hours: (period: Period, at?: string) =>
     get<PeriodSummaryDto>(`/api/v1/hours?period=${period}${at ? `&at=${at}` : ""}`),
   payments: {
@@ -298,6 +301,8 @@ export const api = {
       download(`/api/v1/statements/annual?year=${year}&lang=${encodeURIComponent(lang)}`),
   },
   sites: () => get<{ sites: SiteDto[] }>("/api/v1/sites"),
+  /** The person's own scheduled days between two day keys (31 days at most). */
+  schedule: (from: string, to: string) => get<{ entries: ScheduleEntryDto[] }>(`/api/v1/schedule?from=${from}&to=${to}`),
   /** Machines and vehicles for the Start flow's picker (docs/FLEET.md). */
   fleet: Object.assign(() => get<WorkerFleetDto>("/api/v1/fleet/assets"), {
     /** Layer 2: tags this phone saw nearby (up to 20 per call). The BLE scan that feeds it is not wired yet. */
@@ -371,7 +376,9 @@ export const keys = {
   week: (weekKey?: string) => ["week", weekKey ?? "current"] as const,
   punchHistory: (punchId: string) => ["punches", punchId, "history"] as const,
   payments: ["payments"] as const,
+  sickTime: ["sick-time"] as const,
   sites: ["sites"] as const,
+  schedule: ["schedule"] as const,
   fleet: ["fleet"] as const,
   memberships: ["memberships"] as const,
   officeToday: ["office", "today"] as const,
