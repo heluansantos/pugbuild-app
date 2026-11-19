@@ -12,7 +12,7 @@ import { askNotificationPermission, useNotificationPermission } from "./permissi
 import { useNotificationPrefs, type NotificationKind } from "./prefs";
 import { registerPushToken } from "./push-token";
 
-const KINDS: NotificationKind[] = ["clockOutReminder", "newTask", "paymentReady"];
+const KINDS: NotificationKind[] = ["clockInReminder", "clockOutReminder", "schedule", "newTask", "paymentReady"];
 
 /** Profile card: what reaches this phone. Switches are the person's; the system permission is iOS's. */
 export function NotificationsCard() {

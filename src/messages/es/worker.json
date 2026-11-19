@@ -45,6 +45,11 @@
     "totalHours": "Total de horas",
     "gross": "Pago bruto",
     "paymentReady": "Pago listo",
+    "schedule": "Mi horario de hoy o mañana",
+    "clockInReminder": "Hora de iniciar el turno",
+    "clockInTitle": "¿Hora de iniciar el turno?",
+    "clockInBody": "Abre PugBuild para iniciar tu turno.",
+    "clockInBodySite": "Hoy: {site}. Abre PugBuild para iniciar tu turno.",
     "paymentPending": "Semana cerrada, pago en camino",
     "paymentDisputed": "Problema enviado",
     "paymentConfirmed": "Recibido",
@@ -59,6 +64,7 @@
     "receivedOn": "Recibido en {method} · {date}",
     "noPayments": "Todavía no hay pagos.",
     "openShift": "Turno todavía abierto",
+    "shifts": "Turnos de la semana",
     "periods": {
       "week": "Semana",
       "month": "Mes",
@@ -194,6 +200,12 @@
     "hint": "Abre PugBuild para finalizar",
     "ended": "Finalizado · {hours}"
   },
+  "schedule": {
+    "title": "Próximos días",
+    "today": "Hoy",
+    "tomorrow": "Mañana",
+    "open": "{day}: {site}"
+  },
   "notifications": {
     "title": "Notificaciones",
     "clockOutReminder": "Olvidé cerrar el turno",
@@ -225,5 +237,32 @@
     "hint": "PDF para tu contador · {year}",
     "empty": "No hay pagos registrados en {year}.",
     "a11y": "Compartir el estado anual de {year} en PDF"
+  },
+  "crew": {
+    "nav": "Cuadrilla",
+    "title": "Cuadrilla",
+    "subtitle": "Inicia y termina el turno de quienes están en la obra contigo.",
+    "workingSince": "Trabajando desde {time}",
+    "notClockedIn": "Sin turno abierto",
+    "startedBy": "por {name}",
+    "selectAllOff": "Seleccionar a quienes no están trabajando",
+    "start": "Iniciar turno de {count}",
+    "end": "Terminar turno de {count}",
+    "started": "Turno iniciado para {count}.",
+    "ended": "Turno terminado para {count}.",
+    "partial": "Hecho para {ok}. No se hizo para {failed}: revisa la lista.",
+    "noneDone": "No se cambió nada. Revisa la lista e inténtalo de nuevo.",
+    "emptyTitle": "Aún no hay trabajadores",
+    "emptyBody": "Los trabajadores que la oficina agregue aparecen aquí.",
+    "usesLocation": "Las marcaciones se registran en tu ubicación actual.",
+    "locationOff": "La ubicación está desactivada. Estas marcaciones irán a revisión de la oficina.",
+    "offline": "Estás sin conexión. Las marcaciones de la cuadrilla necesitan internet."
+  },
+  "sickTime": {
+    "title": "Licencia por enfermedad",
+    "available": "{time} disponibles",
+    "detail": "{accrued} acumuladas · {used} usadas este año",
+    "eligibleFrom": "Puedes usarla desde el {date}",
+    "unpaid": "Sin pago"
   }
 }

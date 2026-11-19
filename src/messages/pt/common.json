@@ -79,6 +79,29 @@
   "yesterday": "Ontem",
   "week": "Semana",
   "hoursShort": "{hours}h{minutes}",
+  "punchHistory": {
+    "title": "Histórico do ponto",
+    "edited": "Editado",
+    "open": "Histórico do ponto, {day}",
+    "empty": "Nenhuma alteração registrada neste ponto.",
+    "support": "Suporte PugBuild",
+    "byRole": "{name} ({role})",
+    "when": "{date}, {time}",
+    "none": "nenhum",
+    "actions": {
+      "clock_in": "Entrada",
+      "clock_out": "Saída",
+      "edit": "Editado",
+      "approve": "Aprovado",
+      "delete": "Excluído",
+      "other": "Atualizado"
+    },
+    "fields": {
+      "clockIn": "Entrada",
+      "clockOut": "Saída",
+      "siteName": "Obra"
+    }
+  },
   "server": {
     "title": "Servidor",
     "description": "Qual instalação do PugBuild este celular usa.",

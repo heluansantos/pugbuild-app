@@ -79,7 +79,7 @@ function Gate() {
     SplashScreen.hideAsync();
     const top = segments[0] as string | undefined;
     const inAuth = top === "login";
-    const inTabs = top === "(tabs)" || top === "task" || top === "site" || top === "map" || top === "site-costs";
+    const inTabs = top === "(tabs)" || top === "task" || top === "site" || top === "map" || top === "site-costs" || top === "crew";
     if (status === "anonymous" && !inAuth) router.replace("/login");
     else if (status === "consent" && top !== "welcome" && top !== "select-company") router.replace("/welcome");
     else if (status === "ready" && !inTabs) router.replace("/(tabs)");

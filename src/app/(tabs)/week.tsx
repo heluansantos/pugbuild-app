@@ -9,6 +9,8 @@ import { Txt } from "../../components/ui/text";
 import { useLocale, useMe } from "../../features/session/session";
 import { DayBars } from "../../features/worker/day-bars";
 import { PeriodView } from "../../features/worker/period-view";
+import { ShiftList } from "../../features/worker/punch-history";
+import { SickTimeRow } from "../../features/worker/sick-time-row";
 import type { Period } from "../../lib/api-types";
 import { PaymentCard } from "../../features/worker/payment-card";
 import { api, keys } from "../../lib/api";
@@ -149,6 +151,12 @@ export default function WeekScreen() {
             </Txt>
           )}
         </Card>
+      )}
+
+      {mode === "week" && <SickTimeRow locale={locale} />}
+
+      {mode === "week" && data && (
+        <ShiftList punches={data.punches} timezone={me.company.settings.timezone} locale={locale} />
       )}
 
       {current && (

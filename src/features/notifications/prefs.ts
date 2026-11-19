@@ -5,7 +5,13 @@ import type { NotificationPrefs } from "../../lib/api-types";
 
 export const NOTIFICATION_PREFS_KEY = "pb.notifications.v1";
 
-export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = { clockOutReminder: true, newTask: true, paymentReady: true };
+export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = {
+  clockOutReminder: true,
+  newTask: true,
+  paymentReady: true,
+  schedule: true,
+  clockInReminder: true,
+};
 
 export type NotificationKind = keyof NotificationPrefs;
 
@@ -20,7 +26,7 @@ function parse(raw: string | null): NotificationPrefs | null {
 }
 
 /** The phone's copy; `fallback` (the server's copy from /me) covers a fresh install. */
-export async function loadNotificationPrefs(fallback?: NotificationPrefs): Promise<NotificationPrefs> {
+export async function loadNotificationPrefs(fallback?: Partial<NotificationPrefs>): Promise<NotificationPrefs> {
   try {
     const saved = parse(await AsyncStorage.getItem(NOTIFICATION_PREFS_KEY));
     if (saved) return saved;
@@ -42,7 +48,7 @@ function publish(next: Snapshot) {
   listeners.forEach((l) => l());
 }
 
-function ensureLoaded(fallback?: NotificationPrefs) {
+function ensureLoaded(fallback?: Partial<NotificationPrefs>) {
   if (snapshot.loaded || loading) return;
   loading = loadNotificationPrefs(fallback).then((value) => {
     loading = null;
@@ -77,7 +83,7 @@ export async function resetNotificationPrefs() {
   }
 }
 
-export function useNotificationPrefs(fallback?: NotificationPrefs) {
+export function useNotificationPrefs(fallback?: Partial<NotificationPrefs>) {
   const { loaded, value } = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
   useEffect(() => {
     ensureLoaded(fallback);

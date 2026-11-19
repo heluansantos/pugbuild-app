@@ -41,6 +41,8 @@ export interface CompanySettings {
   defaultLocale: Locale;
   /** Machines and vehicles (docs/FLEET.md). Absent on older servers = off. */
   fleet?: { enabled: boolean };
+  /** "Time to clock in?" on the phone, "HH:mm" in the company timezone. Absent on older servers = off. */
+  clockInReminder?: { enabled: boolean; time: string };
 }
 
 export interface CompanyDto {
@@ -57,6 +59,24 @@ export interface NotificationPrefs {
   clockOutReminder: boolean;
   newTask: boolean;
   paymentReady: boolean;
+  /** Where the person works today or tomorrow, from the office schedule. */
+  schedule: boolean;
+  /** The phone's own "time to clock in?" reminder. */
+  clockInReminder: boolean;
+}
+
+/** One day of the person's schedule (pugbuild-web docs/SCHEDULE.md). */
+export interface ScheduleEntryDto {
+  id: string;
+  membershipId: string;
+  /** YYYY-MM-DD in the company timezone. */
+  dayKey: string;
+  siteId: string;
+  siteName?: string;
+  siteActive: boolean;
+  /** "HH:mm" in the company timezone. */
+  startTime?: string;
+  note?: string;
 }
 
 export interface PersonDto {
@@ -70,7 +90,7 @@ export interface PersonDto {
   consentAcceptedAt?: string;
   consentVersion?: string;
   /** Mirror of the Profile switches; absent on servers that predate it (= everything on). */
-  notificationPrefs?: NotificationPrefs;
+  notificationPrefs?: Partial<NotificationPrefs>;
 }
 
 export type PayType = "hourly" | "salary";
@@ -104,6 +124,8 @@ export interface MemberDto {
   /** Fleet: this person picks a machine or vehicle when clocking in. */
   operatesAssets?: boolean;
   lastAssetId?: string;
+  /** Worker who may clock other workers in and out (pugbuild-web docs/CREW.md). Absent = no. */
+  crewLead?: boolean;
 }
 
 /* ---- Fleet (docs/FLEET.md) ---- */
@@ -214,10 +236,33 @@ export interface PunchDto {
   /** workedMinutes - lunchDeductedMinutes: what the money corresponds to. */
   paidMinutes?: number;
   flags: string[];
+  /** Who recorded it; "crew" = a crew lead on site, "kiosk" = a shared tablet. Absent on queued punches. */
+  source?: "self" | "office" | "api" | "crew" | "kiosk";
   /** Fleet: machine or vehicle used this shift. */
   assetId?: string;
   /** Latest position the phone reported during this open shift (office map). */
   live?: { at: string; location: GeoPoint; siteId?: string; distanceMeters?: number };
+}
+
+/** Old or new values of a punch in its history; only the fields the action touched. */
+export interface PunchHistoryState {
+  clockIn?: string;
+  clockOut?: string;
+  siteName?: string;
+}
+
+/** One line of a punch's history (pugbuild-web docs/PUNCH-HISTORY.md), oldest first. */
+export interface PunchHistoryEntry {
+  id: string;
+  at: string;
+  action: "clock_in" | "clock_out" | "edit" | "approve" | "delete" | "other";
+  actorName: string;
+  /** `support` = PugBuild staff inside the company: shown as such, never by name. */
+  actorRole: Role | "support" | "system";
+  /** The punch owner did it themselves. */
+  bySelf: boolean;
+  before?: PunchHistoryState;
+  after?: PunchHistoryState;
 }
 
 /** A past pay week with hours the office has not closed yet (no payment exists). */
@@ -273,11 +318,32 @@ export interface WeekDto {
   lunchMinutes: number;
   paidMinutes: number;
   grossCents: number;
+  /** Sick time of the week, already inside grossCents; only from companies with sick time on. */
+  sickMinutes?: number;
+  sickCents?: number;
   hourlyRateCents: number;
   overtime: OvertimeRule;
   lunch: LunchRule;
   punches: PunchDto[];
 }
+
+/** Own earned sick time (pugbuild-web docs/SICK-TIME.md). Minutes; day keys in company time. */
+export type SickTimeDto =
+  | { enabled: false }
+  | {
+      enabled: true;
+      /** False: the time is job-protected but unpaid. */
+      paid: boolean;
+      availableMinutes: number;
+      accruedMinutes: number;
+      usedMinutes: number;
+      carryoverMinutes: number;
+      yearStartKey: string;
+      yearEndKey: string;
+      /** First day the time can be used (hire date + 90 days). */
+      eligibleFromKey: string;
+      eligible: boolean;
+    };
 
 export interface VerifyResult {
   ok: true;
@@ -307,6 +373,40 @@ export type ApiErrorCode =
   | "billing_required"
   | "unknown";
 
+/* ---- Crew clock-in (pugbuild-web docs/CREW.md) ---- */
+
+export interface CrewMemberDto {
+  membershipId: string;
+  personId: string;
+  name: string;
+  jobTitle?: string;
+  /** The shift running right now, if any. */
+  open?: {
+    punchId: string;
+    since: string;
+    /** Day of the clock-in in the company timezone; older than today = forgotten clock-out. */
+    dayKey: string;
+    siteName?: string;
+    source: string;
+    startedByName?: string;
+  };
+}
+
+export interface CrewBatchInput {
+  /** 1 to 50 per call. */
+  membershipIds: string[];
+  location?: GeoPoint;
+  /** Idempotency key of the batch: sending it again returns the same punches. */
+  clientId?: string;
+}
+
+export interface CrewResult {
+  membershipId: string;
+  ok: boolean;
+  punch?: PunchDto;
+  error?: { code: ApiErrorCode; message: string };
+}
+
 /* ---- Office / admin ---- */
 
 export interface TeamRow {
@@ -321,6 +421,8 @@ export interface TeamRow {
   siteId?: string;
   siteName?: string;
   farFromSite: boolean;
+  /** The crew lead who started the shift in this row. */
+  startedByName?: string;
   missingClockOut: boolean;
   minutes: number;
   costCents: number;

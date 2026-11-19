@@ -7,7 +7,7 @@ import { getSocket } from "./realtime-socket";
 import { useSession } from "./session";
 
 /** Same contract as the web (pugbuild-web/src/lib/realtime/events.ts). */
-const EVENTS = ["punch.clock_in", "punch.clock_out", "punch.annotated", "review.changed", "payment.changed", "site.changed", "task.changed", "site.post", "settings.changed"] as const;
+const EVENTS = ["punch.clock_in", "punch.clock_out", "punch.annotated", "review.changed", "payment.changed", "site.changed", "task.changed", "site.post", "settings.changed", "schedule.changed"] as const;
 
 /**
  * Keeps the screens fresh without polling: every company event invalidates the queries it touches,
@@ -30,14 +30,18 @@ export function RealtimeSync() {
     const channel = pusher.subscribe(`private-company-${companyId}`);
     const presence = pusher.subscribe(`presence-company-${companyId}`);
     const handlers: Record<(typeof EVENTS)[number], (payload: Record<string, unknown>) => void> = {
-      "punch.clock_in": (p) => invalidate(p.membershipId === membershipId ? [keys.openPunch, ["week"], keys.officeToday] : [keys.officeToday, ["office", "week"]]),
-      "punch.clock_out": (p) => invalidate(p.membershipId === membershipId ? [keys.openPunch, ["week"], keys.officeToday] : [keys.officeToday, ["office", "week"]]),
+      "punch.clock_in": (p) => invalidate(p.membershipId === membershipId ? [keys.openPunch, ["week"], keys.officeToday] : [keys.officeToday, ["office", "week"], keys.crew]),
+      "punch.clock_out": (p) => invalidate(p.membershipId === membershipId ? [keys.openPunch, ["week"], keys.officeToday] : [keys.officeToday, ["office", "week"], keys.crew]),
       "punch.annotated": () => invalidate([keys.officeToday]),
       "review.changed": () => invalidate([keys.officeToday, ["office", "week"]]),
       "payment.changed": () => invalidate([keys.payments, ["office", "week"]]),
       "site.changed": () => invalidate([keys.sites, keys.officeToday]),
       "task.changed": () => invalidate([keys.tasks, ["site"]]),
       "site.post": (p) => invalidate([["site", String(p.siteId)]]),
+      // The office moved someone: only the people named reload their next days (and their reminders follow).
+      "schedule.changed": (p) => {
+        if (Array.isArray(p.membershipIds) && p.membershipIds.includes(membershipId)) invalidate([keys.schedule]);
+      },
       // Closing day, timezone or lunch changed: the profile carries the settings and every pay-week
       // view (week, periods, payments, office week) is computed from them.
       "settings.changed": () => {

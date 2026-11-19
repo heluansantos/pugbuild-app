@@ -11,6 +11,7 @@ import { ReviewCard } from "../../features/office/review-card";
 import { TeamRow } from "../../features/office/team-row";
 import { useAccess } from "../../features/session/access";
 import { useMe, useLocale } from "../../features/session/session";
+import { CrewEntry } from "../../features/worker/crew-entry";
 import { api, keys } from "../../lib/api";
 import { firstName, formatMinutes, formatMoney, formatShortDate, keyToDate } from "../../lib/format";
 import { t } from "../../lib/i18n";
@@ -37,9 +38,12 @@ export default function OfficeTodayScreen() {
     <Screen tabs>
       <View style={styles.header}>
         <Logo size={44} />
-        <Chip tone="dark" size="sm">
-          {t(`common.roles.${me.member.role}`)}
-        </Chip>
+        <View style={styles.headerEnd}>
+          <CrewEntry />
+          <Chip tone="dark" size="sm">
+            {t(`common.roles.${me.member.role}`)}
+          </Chip>
+        </View>
       </View>
       <View style={{ gap: 4 }}>
         <Txt size={26} weight="semibold" tracking={-0.4}>
@@ -130,6 +134,7 @@ function Kpi({ label, value, sub, dark, warn }: { label: string; value: string; 
 
 const styles = StyleSheet.create({
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  headerEnd: { flexDirection: "row", alignItems: "center", gap: 10 },
   kpis: { flexDirection: "row", gap: 8 },
   kpi: { flex: 1, gap: 4 },
 });

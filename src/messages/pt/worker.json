@@ -45,6 +45,11 @@
     "totalHours": "Total de horas",
     "gross": "Valor bruto",
     "paymentReady": "Pagamento pronto",
+    "schedule": "Minha escala de hoje ou amanhã",
+    "clockInReminder": "Hora de iniciar a jornada",
+    "clockInTitle": "Hora de bater o ponto?",
+    "clockInBody": "Abra o PugBuild para iniciar a jornada.",
+    "clockInBodySite": "Hoje: {site}. Abra o PugBuild para iniciar a jornada.",
     "paymentPending": "Semana fechada, pagamento a caminho",
     "paymentDisputed": "Problema enviado",
     "paymentConfirmed": "Recebido",
@@ -59,6 +64,7 @@
     "receivedOn": "Recebido em {method} · {date}",
     "noPayments": "Nenhum pagamento ainda.",
     "openShift": "Ponto ainda aberto",
+    "shifts": "Pontos da semana",
     "periods": {
       "week": "Semana",
       "month": "Mês",
@@ -194,6 +200,12 @@
     "hint": "Abra o PugBuild para finalizar",
     "ended": "Encerrado · {hours}"
   },
+  "schedule": {
+    "title": "Próximos dias",
+    "today": "Hoje",
+    "tomorrow": "Amanhã",
+    "open": "{day}: {site}"
+  },
   "notifications": {
     "title": "Notificações",
     "clockOutReminder": "Esqueci de encerrar o ponto",
@@ -225,5 +237,32 @@
     "hint": "PDF para o seu contador · {year}",
     "empty": "Nenhum pagamento registrado em {year}.",
     "a11y": "Compartilhar o extrato anual de {year} em PDF"
+  },
+  "crew": {
+    "nav": "Ponto da equipe",
+    "title": "Ponto da equipe",
+    "subtitle": "Inicie e encerre o turno de quem está na obra com você.",
+    "workingSince": "Trabalhando desde {time}",
+    "notClockedIn": "Sem ponto aberto",
+    "startedBy": "por {name}",
+    "selectAllOff": "Selecionar quem não está trabalhando",
+    "start": "Iniciar turno de {count}",
+    "end": "Encerrar turno de {count}",
+    "started": "Turno iniciado para {count}.",
+    "ended": "Turno encerrado para {count}.",
+    "partial": "Feito para {ok}. Não foi feito para {failed}: confira a lista.",
+    "noneDone": "Nada foi alterado. Confira a lista e tente de novo.",
+    "emptyTitle": "Nenhum trabalhador ainda",
+    "emptyBody": "Os trabalhadores que o escritório cadastrar aparecem aqui.",
+    "usesLocation": "Os pontos são registrados na sua localização atual.",
+    "locationOff": "A localização está desligada. Esses pontos vão para revisão do escritório.",
+    "offline": "Você está sem conexão. O ponto da equipe precisa de internet."
+  },
+  "sickTime": {
+    "title": "Licença médica",
+    "available": "{time} disponíveis",
+    "detail": "{accrued} acumuladas · {used} usadas neste ano",
+    "eligibleFrom": "Você pode usar a partir de {date}",
+    "unpaid": "Sem pagamento"
   }
 }
